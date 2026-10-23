@@ -1,0 +1,3 @@
+temperature_c,resistance_ohms
+# Replace this file entirely with real measured values before running build_calibration.py.
+# No numeric values are included to prevent accidental use as a valid calibration table.

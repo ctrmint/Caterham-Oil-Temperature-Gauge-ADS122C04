@@ -1,0 +1,8 @@
+menu "Caterham oil temperature gauge"
+    config OIL_GAUGE_DEMO
+        bool "Display synthetic sensor readings (BENCH DEMO ONLY)"
+        default n
+        help
+            Uses a deliberately synthetic calibration curve and readings.
+            NEVER use this firmware setting in the car.
+endmenu
