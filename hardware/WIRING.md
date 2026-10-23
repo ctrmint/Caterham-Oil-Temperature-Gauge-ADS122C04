@@ -90,3 +90,6 @@ GPIO17 should read around **1.650 V**. Do not rely on ADC values near the supply
 7. With ignition OFF, connect real sensor and ground; confirm no voltages above the protected ADC input limits before turning on gauge power.
 
 **Never** probe or splice a powered automobile circuit assuming it is grounded at the same potential as a USB-connected development laptop. Keep the car and laptop disconnected from each other while validating grounds.
+
+<img width="1448" height="1086" alt="image" src="https://github.com/user-attachments/assets/c1da188e-e3e1-435c-9d51-67d5012442ad" />
+
