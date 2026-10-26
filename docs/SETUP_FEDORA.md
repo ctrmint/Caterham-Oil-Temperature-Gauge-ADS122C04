@@ -55,7 +55,7 @@ sudo dnf install -y gcc-c++ python3
 ./scripts/test_host.sh
 ```
 
-These tests require no ESP-IDF. At project creation the host tests were run successfully, but **full board compilation and live display bring-up remain unverified** until a physical board is available.
+These tests require no ESP-IDF. The host tests pass and the firmware compiles cleanly with ESP-IDF 5.5.5, but **flashing, live display bring-up and ADS1115 communication remain unverified** until a physical board is available.
 
 ## Common faults
 
@@ -63,8 +63,9 @@ These tests require no ESP-IDF. At project creation the host tests were run succ
 |---|---|
 | Display black | Correct *1.75* variant, 5 V power, Waveshare BSP 3.x, PSRAM config |
 | Chip not detected | Data USB cable, correct port, BOOT/recovery instructions |
-| ADC unavailable | GPIO16/17 wiring, ADC2 Wi-Fi disabled, eFuse calibration, broken ADC drivers |
-| Supply fault | H2 ground, reference divider 10k/10k, GPIO17 voltage ≈1.65 V |
-| Sensor open | Sender spade / tank earth missing, actual high resistance outside design range |
+| ADC unavailable | ADS1115 not found at 0x48: SDA/SCL swapped (GPIO17 = SDA, GPIO18 = SCL), ADDR not tied to GND, missing 3.3 V/GND to the module, I²C leads too long |
+| Supply fault | ADS1115 A0 not connected to the top of the pull-up, 3.3 V rail out of range |
+| Sensor open | Sender spade disconnected, broken signal wire, actual high resistance outside design range |
+| Ground fault | Ground-sense wire disconnected (its 100 kΩ bias pulls it to 3.3 V) or landed on chassis instead of the tank stud; poor tank bond; tank more than 0.1 V below or 0.2 V above gauge GND. The CSV log's last column shows the measured offset |
 | Temperature stays `CALIBRATION REQUIRED` | Deliberate safe default; measure the sender and generate calibrated header |
 | Gauge shows unrealistic temp | Wrong calibration table, thermal coupling, ADC saturation, ground offsets, wrong board firmware |

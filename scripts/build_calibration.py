@@ -7,22 +7,30 @@ import math
 import sys
 
 
+MIN_POINTS=5  # docs/CALIBRATION.md: at least five, preferably 7-10
+
+
 def load(path):
     with open(path, newline='', encoding='utf-8') as f:
-        reader=csv.DictReader(f)
-        if not {'temperature_c','resistance_ohms'}.issubset(reader.fieldnames or []):
-            raise ValueError('CSV must include temperature_c,resistance_ohms')
-        points=[]
-        for row in reader:
-            if not any(v.strip() for v in row.values() if v is not None):
-                continue
+        # Lines starting with '#' are comments (see examples/measurements.example.csv).
+        lines=[line for line in f if not line.lstrip().startswith('#')]
+    reader=csv.DictReader(lines)
+    if not {'temperature_c','resistance_ohms'}.issubset(reader.fieldnames or []):
+        raise ValueError('CSV must include temperature_c,resistance_ohms')
+    points=[]
+    for n,row in enumerate(reader,start=2):
+        if not any(v.strip() for v in row.values() if isinstance(v,str)):
+            continue
+        try:
             t,r=float(row['temperature_c']),float(row['resistance_ohms'])
-            if not (math.isfinite(t) and math.isfinite(r) and r>0):
-                raise ValueError('All data must be finite, resistance > 0')
-            points.append((t,r))
+        except (TypeError,ValueError):
+            raise ValueError(f'Data row {n}: expected numeric temperature_c,resistance_ohms') from None
+        if not (math.isfinite(t) and math.isfinite(r) and r>0):
+            raise ValueError(f'Data row {n}: values must be finite, resistance > 0')
+        points.append((t,r))
     points.sort()
-    if len(points)<3:
-        raise ValueError('Minimum 3 independently verified calibration points')
+    if len(points)<MIN_POINTS:
+        raise ValueError(f'Minimum {MIN_POINTS} independently verified calibration points')
     for (a,ra),(b,rb) in zip(points,points[1:]):
         if not b>a or not rb<ra:
             raise ValueError('Expected unique increasing temperature, decreasing resistance')

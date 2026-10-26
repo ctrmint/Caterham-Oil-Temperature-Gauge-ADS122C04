@@ -5,7 +5,7 @@
 class GaugeDisplay {
  public:
   bool begin();
-  void render(const gauge::Reading& r, float max_temp_c, bool demo);
+  void render(const gauge::Reading& r, float max_temp_c, bool max_above_range, bool demo);
  private:
   lv_obj_t* arc_ = nullptr;
   lv_obj_t* temp_ = nullptr;
