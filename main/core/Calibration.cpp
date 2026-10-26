@@ -55,4 +55,12 @@ float resistanceFromTemperature(float t) {
   }
   return NAN;
 }
+float calibrationMinC() { return calibrationValid() ? kPoints[0].temperature_c : NAN; }
+float calibrationMaxC() { return calibrationValid() ? kPoints[kCount-1].temperature_c : NAN; }
+int calibrationSide(float r) {
+  if (!calibrationValid() || !std::isfinite(r)) return 0;
+  if (r > kPoints[0].resistance_ohms) return -1;
+  if (r < kPoints[kCount-1].resistance_ohms) return 1;
+  return 0;
+}
 } // namespace gauge

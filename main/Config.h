@@ -3,17 +3,18 @@
 
 namespace config {
 // Measured pull-up resistance in ohms; replace with your actual fitted resistor reading.
+// With the ratiometric ADS1115 circuit this resistor is the measurement reference.
 constexpr float kPullUpOhms = 470.0f;
-// 3.3V sense on GPIO17 via two separate precision resistors.
-constexpr float kReferenceUpperOhms = 10000.0f;
-constexpr float kReferenceLowerOhms = 10000.0f;
+// 3.3V excitation rail, read single-ended on ADS1115 A0.
 constexpr float kValidSupplyMinV = 2.9f;
 constexpr float kValidSupplyMaxV = 3.5f;
-// GPIO16 input approaching supply is considered sender open. The ESP32-S3 ADC is
-// unreliable at its upper range; deliberately flag before ADC saturation.
-constexpr float kOpenVoltageRatio = 0.87f;
+// Tank ground relative to gauge GND, derived as supply - (Vp + Vs). A broken ground-sense
+// wire is pulled to 3V3 by its 100k bias resistor and lands far outside this window.
+constexpr float kGroundOffsetMinV = -0.10f;
+constexpr float kGroundOffsetMaxV = 0.20f;
 constexpr float kShortResistanceOhms = 20.0f;
-constexpr float kOpenResistanceOhms = 20000.0f;
+// Well above the ~1158 ohm cold sender; an open sender gives Vp ~ 0 and a huge resistance.
+constexpr float kOpenResistanceOhms = 5000.0f;
 constexpr uint32_t kSampleIntervalMs = 250;
 constexpr uint32_t kDisplayIntervalMs = 250;
 constexpr uint32_t kLogIntervalMs = 1000;
@@ -24,4 +25,7 @@ constexpr float kAmberThresholdC = 115.0f;
 constexpr float kRedThresholdC = 130.0f;
 constexpr float kAlarmResetHysteresisC = 5.0f;
 constexpr uint32_t kAlarmDebounceMs = 2500;
+// A fault shorter than this keeps the filter and alarm state, so an intermittent
+// connector cannot keep restarting the alarm debounce.
+constexpr uint32_t kFaultResetMs = 3000;
 }  // namespace config

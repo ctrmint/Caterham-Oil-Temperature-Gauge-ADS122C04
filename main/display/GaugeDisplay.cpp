@@ -2,6 +2,7 @@
 #include "bsp/esp-bsp.h"
 #include "bsp/display.h"
 #include "Config.h"
+#include "core/Calibration.h"
 #include "esp_err.h"
 #include <cstdio>
 #include <cmath>
@@ -70,32 +71,50 @@ bool GaugeDisplay::begin() {
   return true;
 }
 
-void GaugeDisplay::render(const gauge::Reading& r, float max_temp_c, bool demo) {
+void GaugeDisplay::render(const gauge::Reading& r, float max_temp_c, bool max_above_range, bool demo) {
   if (!temp_ || bsp_display_lock(100) != ESP_OK) return;
   char buffer[80];
-  uint32_t c = gauge::isFault(r.status) ? kAmber : kGreen;
-  if (r.status == gauge::Status::Red) c = kRed;
-  else if (r.status == gauge::Status::Amber) c = kAmber;
+  // Built-in Montserrat fonts have the degree sign but no Greek letters, so write "ohm".
+  uint32_t c = kGreen;
+  if (gauge::isFault(r.status) || r.status == gauge::Status::AboveRange) c = kAmber;
+  else if (r.status == gauge::Status::BelowRange) c = kMute;
+  if (r.alarm == gauge::Status::Amber) c = kAmber;
+  if (r.alarm == gauge::Status::Red) c = kRed;
+  const bool beyond_table = r.status == gauge::Status::AboveRange || r.status == gauge::Status::BelowRange;
   if (r.has_temperature) {
     snprintf(buffer,sizeof(buffer),"%.1f °C",r.temperature_c);
     lv_label_set_text(temp_,buffer);
     const int gauge_value = static_cast<int>(fmaxf(0.0f,fminf(160.0f,r.temperature_c)));
     lv_arc_set_value(arc_,gauge_value);
-    if (max_temp_c > -200.f) {
-      snprintf(buffer,sizeof(buffer),"MAX %.1f °C  |  %.0f Ω",max_temp_c,r.resistance_ohms);
-      lv_label_set_text(footer_,buffer);
-    }
-  } else {
+  } else if (r.status == gauge::Status::AboveRange) {
+    snprintf(buffer,sizeof(buffer),"> %.0f °C",gauge::calibrationMaxC());
+    lv_label_set_text(temp_,buffer);
+    lv_arc_set_value(arc_,160);
+  } else if (r.status == gauge::Status::BelowRange) {
+    snprintf(buffer,sizeof(buffer),"< %.0f °C",gauge::calibrationMinC());
+    lv_label_set_text(temp_,buffer);
     lv_arc_set_value(arc_,0);
-    if (std::isfinite(r.resistance_ohms) && r.resistance_ohms > 0.0f &&
-        (r.status == gauge::Status::NeedsCalibration || r.status == gauge::Status::OutOfCalibration)) {
-      snprintf(buffer,sizeof(buffer),"%.0f Ω",r.resistance_ohms);
-      lv_label_set_text(temp_,buffer);
-      lv_label_set_text(footer_,"TEMPERATURE NOT VERIFIED");
-    } else {
-      lv_label_set_text(temp_,"--");
-      lv_label_set_text(footer_,"CHECK SENSOR AND SUPPLY");
-    }
+  } else if (r.status == gauge::Status::NeedsCalibration && std::isfinite(r.resistance_ohms) &&
+             r.resistance_ohms > 0.0f) {
+    snprintf(buffer,sizeof(buffer),"%.0f ohm",r.resistance_ohms);
+    lv_label_set_text(temp_,buffer);
+    lv_arc_set_value(arc_,0);
+  } else {
+    lv_label_set_text(temp_,"--");
+    lv_arc_set_value(arc_,0);
+  }
+  if (r.has_temperature || beyond_table) {
+    if (max_above_range)
+      snprintf(buffer,sizeof(buffer),"MAX > %.0f °C  |  %.0f ohm",gauge::calibrationMaxC(),r.resistance_ohms);
+    else if (max_temp_c > -200.f)
+      snprintf(buffer,sizeof(buffer),"MAX %.1f °C  |  %.0f ohm",max_temp_c,r.resistance_ohms);
+    else
+      snprintf(buffer,sizeof(buffer),"%.0f ohm",r.resistance_ohms);
+    lv_label_set_text(footer_,buffer);
+  } else if (r.status == gauge::Status::NeedsCalibration) {
+    lv_label_set_text(footer_,"TEMPERATURE NOT VERIFIED");
+  } else {
+    lv_label_set_text(footer_,"CHECK SENSOR AND WIRING");
   }
   lv_obj_set_style_arc_color(arc_,lv_color_hex(c),LV_PART_INDICATOR);
   lv_obj_set_style_text_color(temp_,lv_color_hex(c),0);
