@@ -16,7 +16,7 @@ An independent **oil-temperature gauge** for the Caterham 420R dry-sump tank's r
 6. Independently characterise the exact sender, generate `main/CalibrationData.h`, rebuild, and verify °C against a reference thermometer. See [docs/CALIBRATION.md](docs/CALIBRATION.md).
 7. Only consider vehicle mounting after power-conditioning, grounding, thermal, EMI and installation checks.
 
-`./scripts/test_host.sh` runs the host-based conversion and calibration tests without any ESP32 hardware. `idf.py menuconfig` → **Caterham oil temperature gauge** → **Display synthetic sensor readings** runs a clearly marked BENCH DEMO; it must remain **off** for a real vehicle.
+`./scripts/test_host.sh` runs the host-based conversion and calibration tests without any ESP32 hardware. GitHub Actions ([CI workflow](.github/workflows/ci.yml)) runs them, plus the normal and demo firmware builds, on every pull request and every push to `main`. `idf.py menuconfig` → **Caterham oil temperature gauge** → **Display synthetic sensor readings** runs a clearly marked BENCH DEMO; it must remain **off** for a real vehicle.
 
 ## Repository structure
 
