@@ -1,51 +1,6 @@
-# Task plan
+# CR-1 task plan
 
-This file is the hand-off point between the agents in `.claude/agents/`:
-
-```
-docs/spec.md ──► planner ──► docs/tasks.md ──► implementer (one task) ──► reviewer ──► merge
-                  (read-only)  (this file)       writes code, runs gates    re-runs gates, verdict
-```
-
-1. **Spec.** Each change request starts as a GitHub issue labelled `change-request`. Run `/spec-from-issue <n>` to draft it as the change request in `docs/spec.md`. Review the draft and set `Status: active`.
-2. **Plan.** Run the `planner` agent. It is read-only, so the caller (you or the main Claude session) pastes its full output under **Current plan** below, replacing the previous plan.
-3. **Approve.** For every task with `needs_human_approval: true`, a human adds an `approved:` line to the task block (see the conventions below). The implementer refuses unapproved tasks.
-4. **Implement.** Run the `implementer` agent with one task ID, e.g. "Implement T3 from docs/tasks.md". Work in dependency order; `parallel_safe` tasks may run together.
-5. **Review.**
-   - Run the `reviewer` agent with the same task ID and the implementer's report.
-   - `pass`: set the task's `status: done` and record the result in the **Progress log**.
-   - `fix`: send the reviewer's instructions back to the implementer, then review again (round 2, 3, ...).
-   - `escalate`: a human or the planner decides, and the task becomes `blocked` until then.
-6. **Finish.**
-   - When every task is `done`, run `/build`. Then do the **Definition of done** checks, including the hardware steps only a human can perform.
-   - Open the PR with `Closes #<issue>`, so merging closes the change-request issue.
-   - Tick the issue's acceptance-criteria checkboxes, and paste the reviewer's verdicts into the PR as a comment.
-   - If hardware steps are still owed, keep a `hardware-test` label on the issue (or a follow-up issue) until you record the results.
-
-## Conventions
-
-- Task blocks start with `### T<number>: <title>`, numbered from **T1**. Do not reuse numbers; if the plan is replaced, record what happened to the old tasks in the Progress log.
-- `status` is one of:
-  - `ready`: can start;
-  - `blocked`: waiting on an open question, a dependency or approval;
-  - `done`: the reviewer passed it.
-  Only the caller changes status; the agents only read it.
-- To approve, the human adds this line directly under `needs_human_approval: true` in the task block:
-  `- approved: <who>, <YYYY-MM-DD>, <scope of approval>`
-  The caller must also state the approval when invoking the implementer.
-- GitHub labels mirror these states:
-  - `blocked` on the issue while a question, dependency or approval is pending;
-  - `needs-approval` while a `needs_human_approval` task has no `approved:` line;
-  - `hardware-test` while bench or in-car checks are owed.
-  The files stay authoritative, and the labels are the public view.
-- `hardware_verification` steps (flashing, bench tests, in-car checks) are done by a human only. Record the outcome in the Progress log before the task counts as fully verified.
-- Gate commands are defined in `.claude/agents/*.md` and `.claude/commands/build.md`. Tasks should quote them exactly:
-  - `./scripts/test_host.sh`
-  - `idf.py build` with zero `main/` warnings
-  - the demo build
-- The task format is defined in `.claude/agents/planner.md`. Keep this file parseable: no task-like `### T` headings outside **Current plan**.
-
----
+Change request: [request.md](request.md). Workflow and conventions: [docs/changes/README.md](../README.md).
 
 ## Current plan
 
@@ -292,7 +247,7 @@ They run strictly in sequence. T1–T3 share a file, and every gate compiles bot
 #### 9. Definition of done
 - `./scripts/test_host.sh` exits 0.
 - `/build` passes: host tests, plus the normal and demo firmware builds with no `main/` warnings. `main/` is unchanged; this is a sanity check.
-- `git diff --stat main...HEAD` lists only `tests/demo_temperature_test.cpp` and `tests/temperature_test.cpp`, plus the `docs/tasks.md` bookkeeping.
+- `git diff --stat main...HEAD` lists only `tests/demo_temperature_test.cpp` and `tests/temperature_test.cpp`, plus the workflow and bookkeeping files.
 - The reviewer's mutation check passes for AC-1 to AC-5. It is run on a **copy under `/tmp/caterham-oil-gauge-review/`**, never on the repo.
 - No hardware verification is owed.
 - The PR says `Closes #5`.
@@ -320,3 +275,4 @@ Newest last. One row per implementer run, review round, approval, escalation or 
 | 2026-10-27 | T4 | Implemented + review round 1 | pass | +8 lines. Dropped/duplicated/empty/nullptr/"UNKNOWN" status-text mutants all caught (a dropped case also fails the build via -Werror=switch) |
 | 2026-10-27 | CR-1 | Follow-up (not in scope) | logged | Count guard misses an enumerator added after `Red` (R3); a `Status::Count` sentinel or static_assert needs a main/ change |
 | 2026-10-27 | CR-1 | Definition of done | pass | /build: host tests, normal and demo builds with 0 main/ warnings; code changes only in the two test files; CR-1 archived in docs/spec.md §5. PR to say Closes #5 |
+| 2026-10-27 | CR-1 | Restructure | moved | Docs moved to the per-CR layout: this plan is now docs/changes/CR-1/tasks.md, the request is docs/changes/CR-1/request.md (was docs/spec.md §3/§5), workflow in docs/changes/README.md |

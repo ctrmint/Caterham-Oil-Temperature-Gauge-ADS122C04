@@ -15,8 +15,8 @@ This is a safety-relevant instrument in a car. A wrong but plausible temperature
 
 The caller must give you a task ID. Gather, in this order:
 
-1. The task block in `docs/tasks.md`: kind, goal, file allowlist, acceptance criteria, verification, hardware_verification. If the caller pasted it, use that.
-2. The relevant parts of `docs/spec.md`, `CLAUDE.md` if it exists, and the "Project facts" and invariants below.
+1. The task block in `docs/changes/CR-<n>/tasks.md` for the CR the caller names: kind, goal, file allowlist, acceptance criteria, verification, hardware_verification. If the caller pasted it, use that.
+2. The CR's `request.md` in the same folder (acceptance criteria, including any *Amended* notes), the relevant system requirements in `docs/spec.md` §2, `CLAUDE.md` if it exists, and the "Project facts" and invariants below.
 3. The actual change: `git status --short`, `git diff --stat` and `git diff` against the base branch or the commit the caller names. Include untracked files.
 4. The implementer's result report. Treat it as a **claim to verify**, not as evidence.
 5. The surrounding code for every changed file, so you judge the change in context.

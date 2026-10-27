@@ -1,13 +1,13 @@
 name: Change request
-description: Propose a change to the gauge. Once accepted, it is written up as a CR in docs/spec.md, which is the source of truth.
+description: Propose a change to the gauge. Once accepted, it is written up as a change request in docs/changes/CR-<n>/, which is the source of truth.
 title: "CR-<n>: <title>"
 labels: ["change-request"]
 body:
   - type: markdown
     attributes:
       value: |
-        This issue tracks a change request. Once accepted, the maintainer copies it into **section 3 of [docs/spec.md](https://github.com/ctrmint/Caterham-Oil-Temperature-Gauge/blob/main/docs/spec.md)**. From then on the spec is authoritative, and the agents plan and review against it, not against this issue.
-        Requirement IDs (REQ-…) are listed in section 2 of the spec.
+        This issue tracks a change request. Once accepted, the maintainer runs `/spec-from-issue` to write it up as **`docs/changes/CR-<n>/request.md`** (see [docs/changes/README.md](https://github.com/ctrmint/Caterham-Oil-Temperature-Gauge/blob/main/docs/changes/README.md)). From then on that file is authoritative, and the agents plan and review against it, not against this issue.
+        Requirement IDs (REQ-…) are listed in section 2 of [docs/spec.md](https://github.com/ctrmint/Caterham-Oil-Temperature-Gauge/blob/main/docs/spec.md).
   - type: textarea
     id: motivation
     attributes:
