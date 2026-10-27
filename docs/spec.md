@@ -89,3 +89,4 @@ At most one change request is `active` at a time. Its folder is what the planner
 | CR | Issue | Title | Status | Folder |
 |----|-------|-------|--------|--------|
 | CR-1 | [#5](https://github.com/ctrmint/Caterham-Oil-Temperature-Gauge/issues/5) | Close host-test coverage gaps in the alarm and conversion logic | done | [docs/changes/CR-1/](changes/CR-1/) |
+| CR-2 | [#7](https://github.com/ctrmint/Caterham-Oil-Temperature-Gauge/issues/7) | Keep a latched alarm when the sender suddenly reads colder than the calibration table | active | [docs/changes/CR-2/](changes/CR-2/) |
