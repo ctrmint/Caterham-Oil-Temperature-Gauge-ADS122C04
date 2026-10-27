@@ -7,7 +7,7 @@ docs/spec.md ──► planner ──► docs/tasks.md ──► implementer (on
                   (read-only)  (this file)       writes code, runs gates    re-runs gates, verdict
 ```
 
-1. **Spec.** Each change request starts as a GitHub issue labelled `change-request`. Write it up as the active change request in `docs/spec.md`, with its testable acceptance criteria and the issue number.
+1. **Spec.** Each change request starts as a GitHub issue labelled `change-request`. Run `/spec-from-issue <n>` to draft it as the change request in `docs/spec.md`. Review the draft and set `Status: active`.
 2. **Plan.** Run the `planner` agent. It is read-only, so the caller (you or the main Claude session) pastes its full output under **Current plan** below, replacing the previous plan.
 3. **Approve.** For every task with `needs_human_approval: true`, a human adds an `approved:` line to the task block (see the conventions below). The implementer refuses unapproved tasks.
 4. **Implement.** Run the `implementer` agent with one task ID, e.g. "Implement T3 from docs/tasks.md". Work in dependency order; `parallel_safe` tasks may run together.

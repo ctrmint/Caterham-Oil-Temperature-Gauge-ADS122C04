@@ -5,7 +5,7 @@ The source of truth for what the gauge must do. It feeds the agents in `.claude/
 - **Section 2: system requirements.** These describe the behaviour the firmware already has. They are constraints: every change must keep them true unless a change request explicitly amends one, and amending one needs human approval.
 - **Section 3: active change request.** This is the only part the planner turns into tasks. There is one active change request at a time.
 - **GitHub issues** are where work is proposed and tracked publicly. Each change request has one issue, labelled `change-request` and opened from the issue template. This file stays authoritative: the agents read only this file, never issue text.
-- To start new work, open or accept a change-request issue. Then write it up in section 3 using the template in section 4, and record the issue number. When it is merged, move it to section 5.
+- To start new work, open or accept a change-request issue and run `/spec-from-issue <n>`. It drafts section 3 from the issue (using the template in section 4), checks the criteria against the requirements and the code, and stops for your review. Set `Status: active` once you're happy. When the change request is merged, move it to section 5.
 
 ---
 
