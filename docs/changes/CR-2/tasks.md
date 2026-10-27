@@ -339,3 +339,4 @@ Newest last. One row per implementer run, review round, approval, escalation or 
 | 2026-10-27 | CR-2 | For maintainer (not actioned) | noted | Approved REQ-T3 wording ("If such samples continue for kBelowRangeHoldMs") is silent on interleaved faults; behaviour is pinned by AC-9. Tightening the wording needs maintainer approval |
 | 2026-10-27 | T4 | Fix round 2 (commit 804ce4d) | T4-F1, T4-F2 fixed | 2 doc lines; spec.md untouched; no extras |
 | 2026-10-27 | T4 | Review round 2 | pass | Both fixed; REQ-T3 still byte-identical to the approved wording; host tests exit 0 (taken from the script itself) |
+| 2026-10-27 | CR-2 | Definition of done | pass | /build: host tests exit 0, normal and demo builds 0 main/ warnings; CalibrationData.h unchanged; all 5 findings fixed; REQ-T3 in spec §2 updated. Hardware decade-box check (Red, Amber) still owed |

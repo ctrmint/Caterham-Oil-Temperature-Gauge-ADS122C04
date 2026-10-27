@@ -1,6 +1,6 @@
 # CR-2: Keep a latched alarm when the sender suddenly reads colder than the calibration table
 
-- **Status:** active  (keep the docs/spec.md §3 index in step)
+- **Status:** done: all four tasks passed review, see [tasks.md](tasks.md). **Hardware verification is still owed** (decade-box check, Red and Amber).
 - **Issue:** [#7](https://github.com/ctrmint/Caterham-Oil-Temperature-Gauge/issues/7)
 - **Motivation:**
   - Hot oil cannot cool from 130 °C or more to below the bottom of the calibration table within seconds. A sudden reading colder than the table, while an alarm is latched, is far more likely to be a wiring or sender fault than real cooling. For example, a partly open or leaking connector reads as high resistance.
