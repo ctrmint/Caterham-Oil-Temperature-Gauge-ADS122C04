@@ -335,6 +335,17 @@ int main() {
         if (cold) { assert(r.alarm==Status::Normal && r.status==Status::BelowRange); break; }
       }
     }
+    {
+      // CR-2 AC-1 re-arm: an in-table sample ends the cold episode, so a later one gets a fresh window.
+      gauge::TemperatureState s; unsigned ms=0;
+      assert(hold(s,at(139),ms,4000).alarm==Status::Red);
+      uint32_t m=ms;
+      for (uint32_t end=m+1000; m<=end; m+=250) assert(s.update(kCold,m).alarm==Status::Red);
+      for (uint32_t end=m+kHold+1000; m<=end; m+=250) assert(s.update(at(139),m).alarm==Status::Red);
+      const uint32_t c0=m;
+      const float max_c=s.maximumC(); const bool above=s.maximumAboveRange();
+      expectHeld(s,m,c0,Status::Red,max_c,above);
+    }
   }
   std::puts("Demo calibration, interpolation and alarm test passed");
 }
