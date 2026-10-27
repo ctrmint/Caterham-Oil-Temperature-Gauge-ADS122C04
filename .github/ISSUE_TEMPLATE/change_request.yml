@@ -1,0 +1,78 @@
+name: Change request
+description: Propose a change to the gauge. Once accepted, it is written up as a CR in docs/spec.md, which is the source of truth.
+title: "CR-<n>: <title>"
+labels: ["change-request"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        This issue tracks a change request. Once accepted, the maintainer copies it into **section 3 of [docs/spec.md](https://github.com/ctrmint/Caterham-Oil-Temperature-Gauge/blob/main/docs/spec.md)**. From then on the spec is authoritative, and the agents plan and review against it, not against this issue.
+        Requirement IDs (REQ-…) are listed in section 2 of the spec.
+  - type: textarea
+    id: motivation
+    attributes:
+      label: Motivation
+      description: Why is this needed? Link REQ IDs, field observations or CSV log excerpts.
+    validations:
+      required: true
+  - type: dropdown
+    id: kind
+    attributes:
+      label: Kind of work
+      options: [feature, fix, tests, docs, hardware]
+    validations:
+      required: true
+  - type: textarea
+    id: scope
+    attributes:
+      label: Scope
+      description: Files or areas that may change, and what must not change.
+      placeholder: "May change: tests/…\nMust not change: main/, hardware/"
+    validations:
+      required: true
+  - type: textarea
+    id: amended
+    attributes:
+      label: Requirements amended
+      description: REQ IDs and their new wording, or "none". Any amendment needs maintainer approval (add the needs-approval label).
+      value: none
+    validations:
+      required: true
+  - type: textarea
+    id: hardware
+    attributes:
+      label: Hardware impact
+      description: Any circuit, BOM or wiring change, or "none". A circuit change needs approval and must update WIRING.md, BOM.md, wiring.svg and ARCHITECTURE.md together.
+      value: none
+    validations:
+      required: true
+  - type: textarea
+    id: criteria
+    attributes:
+      label: Acceptance criteria
+      description: Observable, testable statements, one per checkbox.
+      value: |
+        - [ ] **AC-1:**
+    validations:
+      required: true
+  - type: textarea
+    id: verification
+    attributes:
+      label: Verification
+      description: Host test or build command and its expected result, plus any bench or in-car steps (add the hardware-test label if there are any).
+      value: |
+        - `./scripts/test_host.sh` passes
+        - Hardware verification (human): none
+    validations:
+      required: true
+  - type: textarea
+    id: out_of_scope
+    attributes:
+      label: Out of scope
+  - type: checkboxes
+    id: safety
+    attributes:
+      label: Safety
+      options:
+        - label: This change keeps uncalibrated firmware showing ohms rather than °C, never extrapolates beyond the calibration table, and never lets synthetic demo data reach a live build (docs/SAFETY.md) — or it lists the affected requirements under "Requirements amended".
+          required: true

@@ -4,7 +4,8 @@ The source of truth for what the gauge must do. It feeds the agents in `.claude/
 
 - **Section 2: system requirements.** These describe the behaviour the firmware already has. They are constraints: every change must keep them true unless a change request explicitly amends one, and amending one needs human approval.
 - **Section 3: active change request.** This is the only part the planner turns into tasks. There is one active change request at a time.
-- To start new work, write a change request in section 3 using the template in section 4. Move the finished one to section 5.
+- **GitHub issues** are where work is proposed and tracked publicly. Each change request has one issue, labelled `change-request` and opened from the issue template. This file stays authoritative: the agents read only this file, never issue text.
+- To start new work, open or accept a change-request issue. Then write it up in section 3 using the template in section 4, and record the issue number. When it is merged, move it to section 5.
 
 ---
 
@@ -87,6 +88,7 @@ Evidence key: **H** = host test in `tests/`, **B** = firmware build, **HW** = be
 ### CR-1: Close host-test coverage gaps in the alarm and conversion logic
 
 - **Status:** active
+- **Issue:** [#5](https://github.com/ctrmint/Caterham-Oil-Temperature-Gauge/issues/5)
 - **Motivation:** The alarm logic is the most safety-relevant code that can be tested on the host. Several behaviours in REQ-T1, T3 and T5, and the calibration endpoints, have no direct test. A regression there would pass every current gate.
 - **Kind of work:** characterisation tests only. The tests describe current, intended behaviour and are **expected to pass against the existing code**. They are proven meaningful by the reviewer's mutation check, not by failing first.
 - **Scope:**
@@ -133,6 +135,7 @@ Evidence key: **H** = host test in `tests/`, **B** = firmware build, **HW** = be
 ```
 ### CR-<n>: <title>
 - Status: draft | active | done | withdrawn
+- Issue: #<n>  (opened from the "Change request" issue template; the final PR says "Closes #<n>")
 - Motivation: <why, with links to REQ IDs or field observations>
 - Kind of work: feature | fix | tests | docs | hardware
 - Scope: <files or areas that may change; what must not change>
@@ -153,6 +156,6 @@ Evidence key: **H** = host test in `tests/`, **B** = firmware build, **HW** = be
 
 ## 5. Change history
 
-| CR | Title | Status | Merged |
-|----|-------|--------|--------|
-| CR-1 | Close host-test coverage gaps in the alarm and conversion logic | active | |
+| CR | Issue | Title | Status | Merged |
+|----|-------|-------|--------|--------|
+| CR-1 | [#5](https://github.com/ctrmint/Caterham-Oil-Temperature-Gauge/issues/5) | Close host-test coverage gaps in the alarm and conversion logic | active | |

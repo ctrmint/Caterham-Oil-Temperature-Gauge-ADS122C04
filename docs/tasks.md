@@ -7,7 +7,7 @@ docs/spec.md ──► planner ──► docs/tasks.md ──► implementer (on
                   (read-only)  (this file)       writes code, runs gates    re-runs gates, verdict
 ```
 
-1. **Spec.** Write the requirement and its testable acceptance criteria in `docs/spec.md`.
+1. **Spec.** Each change request starts as a GitHub issue labelled `change-request`. Write it up as the active change request in `docs/spec.md`, with its testable acceptance criteria and the issue number.
 2. **Plan.** Run the `planner` agent. It is read-only, so the caller (you or the main Claude session) pastes its full output under **Current plan** below, replacing the previous plan.
 3. **Approve.** For every task with `needs_human_approval: true`, a human adds an `approved:` line to the task block (see the conventions below). The implementer refuses unapproved tasks.
 4. **Implement.** Run the `implementer` agent with one task ID, e.g. "Implement T3 from docs/tasks.md". Work in dependency order; `parallel_safe` tasks may run together.
@@ -16,7 +16,11 @@ docs/spec.md ──► planner ──► docs/tasks.md ──► implementer (on
    - `pass`: set the task's `status: done` and record the result in the **Progress log**.
    - `fix`: send the reviewer's instructions back to the implementer, then review again (round 2, 3, ...).
    - `escalate`: a human or the planner decides, and the task becomes `blocked` until then.
-6. **Finish.** When every task is `done`, run `/build`. Then do the **Definition of done** checks, including the hardware steps only a human can perform.
+6. **Finish.**
+   - When every task is `done`, run `/build`. Then do the **Definition of done** checks, including the hardware steps only a human can perform.
+   - Open the PR with `Closes #<issue>`, so merging closes the change-request issue.
+   - Tick the issue's acceptance-criteria checkboxes, and paste the reviewer's verdicts into the PR as a comment.
+   - If hardware steps are still owed, keep a `hardware-test` label on the issue (or a follow-up issue) until you record the results.
 
 ## Conventions
 
@@ -29,6 +33,11 @@ docs/spec.md ──► planner ──► docs/tasks.md ──► implementer (on
 - To approve, the human adds this line directly under `needs_human_approval: true` in the task block:
   `- approved: <who>, <YYYY-MM-DD>, <scope of approval>`
   The caller must also state the approval when invoking the implementer.
+- GitHub labels mirror these states:
+  - `blocked` on the issue while a question, dependency or approval is pending;
+  - `needs-approval` while a `needs_human_approval` task has no `approved:` line;
+  - `hardware-test` while bench or in-car checks are owed.
+  The files stay authoritative, and the labels are the public view.
 - `hardware_verification` steps (flashing, bench tests, in-car checks) are done by a human only. Record the outcome in the Progress log before the task counts as fully verified.
 - Gate commands are defined in `.claude/agents/*.md` and `.claude/commands/build.md`. Tasks should quote them exactly:
   - `./scripts/test_host.sh`
