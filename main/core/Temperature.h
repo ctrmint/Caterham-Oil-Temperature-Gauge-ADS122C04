@@ -40,6 +40,8 @@ class TemperatureState {
   uint32_t red_since_=0;
   bool in_fault_=false;
   uint32_t fault_since_=0;
+  bool below_hold_=false;
+  uint32_t below_since_=0;
   float max_c_=-999;
   bool max_above_range_=false;
 };
