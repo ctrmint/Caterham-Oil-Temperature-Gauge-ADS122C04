@@ -60,7 +60,7 @@ _Resolved by the maintainer on 2026-10-27 at plan review:_
 
 ### T1: Add kBelowRangeHoldMs to Config.h
 - kind: impl
-- status: ready
+- status: done
 - depends_on: []
 - parallel_safe: false
 - needs_human_approval: false  (covered by the approval in request.md)
@@ -319,3 +319,5 @@ Newest last. One row per implementer run, review round, approval, escalation or 
 | 2026-10-27 | CR-2 | Maintainer decisions | active | kBelowRangeHoldMs = 10 000 ms; REQ-T3 amendment approved (PurpleSentinel) |
 | 2026-10-27 | CR-2 | Planned (planner, auto-started on activation) | 4 tasks: T1 impl, T2 test, T3 impl, T4 docs | Awaiting maintainer plan review: Assumption 2 and the ARCHITECTURE.md scope question |
 | 2026-10-27 | CR-2 | Plan review (maintainer) | approved, "go" | Assumption 2 confirmed and pinned by new AC-9 (T2); docs/ARCHITECTURE.md added to T4; agent invariant 4 updated for the REQ-T3 exception |
+| 2026-10-27 | T1 | Implemented (round 1, commit 05219f5) | done | +3 lines in Config.h. First handback was an empty "placeholder"; full report requested and received before review |
+| 2026-10-27 | T1 | Review round 1 | pass | No findings. Gates re-run: host tests, both builds 0 main/ warnings. Mutation n/a (unused constant) |
