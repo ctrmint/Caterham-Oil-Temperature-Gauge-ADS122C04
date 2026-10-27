@@ -308,6 +308,8 @@ Review findings, kept by the caller. Columns and statuses: [README § Review rou
 |----|------|--------|----------|-------|--------|--------|-------|
 | T2-F1 | T2 | 1 | major | No test that an in-table sample clears the hold; with `else below_hold_=false;` removed from the reference T3, a second cold episode drops a latched Red at once and the suite still passes | fixed | 2 | Re-arm block added (commit 26e72eb); the no-clear mutation is now caught, and the reference T3 passes |
 | T3-F1 | T3 | 1 | nit | Hold comment says "sender wire open to a low value"; colder-than-table is high resistance (partly open or leaking connector) | fixed | 2 | Comment reworded (commit a0ff9a0); comment-only |
+| T4-F1 | T4 | 1 | minor | ARCHITECTURE.md:49 / VALIDATION.md:5 say "10 s of such samples"; the hold runs from the first cold sample and fault samples do not restart it (AC-9), which no doc says | open | | Chosen for fix in T4 round 2 (bench-test accuracy) |
+| T4-F2 | T4 | 1 | nit | ARCHITECTURE.md:49 "status stays `BelowRange`" should be "status is `BelowRange`" | open | | Chosen for fix in T4 round 2 |
 
 ---
 
@@ -332,3 +334,6 @@ Newest last. One row per implementer run, review round, approval, escalation or 
 | 2026-10-27 | CR-2 | Follow-up (not in scope) | logged | Debounce timers carry over across fault gaps and hold gaps, so one sample after a gap can confirm an escalation (fail-closed). Decide in a later CR whether to keep strict "held for kAlarmDebounceMs" semantics |
 | 2026-10-27 | T3 | Fix round 2 (commit a0ff9a0) | T3-F1 fixed | Comment-only; no extras |
 | 2026-10-27 | T3 | Review round 2 | pass | T3-F1 fixed; host tests and both builds (Temperature.cpp recompiled) pass, 0 main/ warnings. Hardware check still owed |
+| 2026-10-27 | T4 | Implemented (round 1, commit e5c4e0e) | done | 4 docs; REQ-T3 pasted from request.md |
+| 2026-10-27 | T4 | Review round 1 | pass + 1 minor + 1 nit | REQ-T3 checked byte-identical to the approved wording by script; docs match code; "partial" evidence tag correct (HW rows owed); raised T4-F1, T4-F2, both chosen for fix |
+| 2026-10-27 | CR-2 | For maintainer (not actioned) | noted | Approved REQ-T3 wording ("If such samples continue for kBelowRangeHoldMs") is silent on interleaved faults; behaviour is pinned by AC-9. Tightening the wording needs maintainer approval |
