@@ -28,4 +28,7 @@ constexpr uint32_t kAlarmDebounceMs = 2500;
 // A fault shorter than this keeps the filter and alarm state, so an intermittent
 // connector cannot keep restarting the alarm debounce.
 constexpr uint32_t kFaultResetMs = 3000;
+// While an alarm is latched, raw samples colder than the table are held for this long,
+// then the state resets as for a sustained fault.
+constexpr uint32_t kBelowRangeHoldMs = 10000;
 }  // namespace config
