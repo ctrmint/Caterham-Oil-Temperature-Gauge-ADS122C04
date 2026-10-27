@@ -93,7 +93,7 @@ None blocking.
 
 ### T1: Add debounce and escalation-timer characterisation tests (AC-1, AC-2, AC-3)
 - kind: test
-- status: ready
+- status: done
 - depends_on: []
 - parallel_safe: false
 - needs_human_approval: false
@@ -299,3 +299,6 @@ Newest last. One row per implementer run, review round, approval, escalation or 
 | Date | Task | Event | Result | Notes |
 |------|------|-------|--------|-------|
 | 2026-10-27 | CR-1 | Planned (planner) | 4 test tasks, no open questions | Plan saved; DoD mutation wording corrected to /tmp copy |
+| 2026-10-27 | T1 | Implemented (round 1) | done | AC-1..AC-3 blocks, +35 lines |
+| 2026-10-27 | T1 | Review round 1 | pass + 1 minor | AC-3 skipped asserts before t0; sent back. Mutations: `>` debounce, shared Red timer, ±250 ms all caught |
+| 2026-10-27 | T1 | Fix + review round 2 | pass | Pre-t0 Amber asserted; targeted Amber-drop mutation caught only by the new line |

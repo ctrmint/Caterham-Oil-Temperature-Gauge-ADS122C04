@@ -103,5 +103,40 @@ int main() {
     assert(r.has_temperature && r.temperature_c>110.f && r.temperature_c<115.f);
     assert(r.status==Status::Amber && r.alarm==Status::Amber);
   }
+  {
+    // AC-1: Amber escalates exactly at the debounce time, not before.
+    gauge::TemperatureState s;
+    for (unsigned ms=0; ms<=5000; ms+=250) {
+      auto r=s.update(at(120),ms);
+      if (ms<config::kAlarmDebounceMs) assert(r.alarm==Status::Normal);
+      else assert(r.alarm==Status::Amber && r.status==Status::Amber);
+    }
+  }
+  {
+    // AC-2: Red escalates exactly at the debounce time, not before.
+    gauge::TemperatureState s;
+    for (unsigned ms=0; ms<=5000; ms+=250) {
+      auto r=s.update(at(139),ms);
+      if (ms<config::kAlarmDebounceMs) assert(r.alarm==Status::Normal);
+      else assert(r.alarm==Status::Red);
+    }
+  }
+  {
+    // AC-3: with Amber latched, the Red timer starts only once the reported temperature
+    // reaches the Red threshold, so Red follows t0 by the debounce time.
+    gauge::TemperatureState s; unsigned ms=0;
+    auto r=hold(s,at(120),ms,4000);
+    assert(r.alarm==Status::Amber);
+    bool found=false; unsigned t0=0;
+    for (; ms<=20000; ms+=250) {
+      r=s.update(at(139),ms);
+      if (!found && r.has_temperature && r.temperature_c>=config::kRedThresholdC) {found=true;t0=ms;}
+      if (!found) {assert(r.alarm==Status::Amber);continue;}
+      if (ms-t0<config::kAlarmDebounceMs) assert(r.alarm==Status::Amber);
+      else assert(r.alarm==Status::Red);
+      if (ms-t0>=4000) break;
+    }
+    assert(found && ms-t0>=4000);
+  }
   std::puts("Demo calibration, interpolation and alarm test passed");
 }
