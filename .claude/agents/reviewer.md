@@ -86,6 +86,7 @@ Any violation is a **blocker**.
 4. **Alarm behaviour.**
    - Escalation is debounced by `kAlarmDebounceMs`.
    - De-escalation is immediate, with `kAlarmResetHysteresisC` of hysteresis, and Red steps down through Amber.
+   - **Exception (REQ-T3, approved in CR-2):** while an alarm is latched, raw samples colder than the calibration table are held out of the filter, the alarm and the maximum for `kBelowRangeHoldMs`, then the state resets as for a sustained fault. This hold is intended behaviour, not a violation of immediate de-escalation. The current wording of REQ-T3 in `docs/spec.md` §2, or an approved amendment in the active change request, is the authority.
    - Faults shorter than `kFaultResetMs` keep the filter and the latched alarm.
    - Sustained faults reset them.
 5. **Measurement.**
