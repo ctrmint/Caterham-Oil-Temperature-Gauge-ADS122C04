@@ -107,8 +107,8 @@ Evidence key: **H** = host test in `tests/`, **B** = firmware build, **HW** = be
 | AC-1 | REQ-T3 | A sustained reading at 120 °C (`at(120)`) leaves the alarm `Normal` at every update before 2500 ms, and the alarm and status are `Amber` from 2500 ms onward. |
 | AC-2 | REQ-T3 | A sustained reading at 139 °C leaves the alarm `Normal` at 2250 ms and makes it `Red` at 2500 ms. |
 | AC-3 | REQ-T3 | Once Amber is latched at 120 °C, a step to a sustained 139 °C keeps the alarm `Amber` at every update less than 2500 ms after the first update whose reported temperature is ≥ 130 °C, and makes it `Red` at every update from 2500 ms after that one. |
-| AC-4 | REQ-T5 | AC-2 and the sustained-fault reset (REQ-F2) give the same results when the timestamps start at `0xFFFFF000` and wrap past `UINT32_MAX` during the test. |
-| AC-5 | REQ-F2 | With Red latched, open-circuit samples held for `kFaultResetMs − 250` ms keep the alarm `Red`, and the next good 139 °C sample shows `Red` immediately, with no new debounce. |
+| AC-4 | REQ-T5 | (a) The sustained-fault reset (REQ-F2) gives the same result when its `kFaultResetMs` window crosses `UINT32_MAX`: timestamps start at `0xFFFFF000`, AC-2 is reproduced, and then a sustained fault begins 3000 ms after the start. (b) AC-2's debounce gives the same result when it crosses the wrap itself: a fresh state with timestamps starting at `0xFFFFFC00`. *Amended 2026-10-27 after T2 review: (b) added.* |
+| AC-5 | REQ-F2 | With Red latched at 139 °C, open-circuit samples held for `kFaultResetMs − 250` ms keep the alarm `Red`. The next good sample, at 120 °C, shows a **smoothed** temperature strictly between 130 °C and 139 °C (so the filter was kept, not re-seeded at 120), with alarm `Red` and no new debounce. *Amended 2026-10-27 after T2 review: the post-fault sample was 139 °C, which could not detect a filter reset.* |
 | AC-6 | REQ-T1 | A sustained calibrated reading at 30 °C has status `Cold`, `has_temperature == true` and alarm `Normal`. |
 | AC-7 | REQ-C3 | At exactly the first and last table resistances (1100 Ω, 47 Ω), `temperatureFromResistance` returns 20 °C and 140 °C (±0.01), and `calibrationSide` returns 0. |
 | AC-8 | REQ-T4 | While the temperature rises to 139 °C and then cools to 105 °C, `maximumC()` never decreases, and finally equals the highest reported temperature (±0.01). |
@@ -121,7 +121,8 @@ Evidence key: **H** = host test in `tests/`, **B** = firmware build, **HW** = be
   - for AC-1 and AC-2, change `>=config::kAlarmDebounceMs` to `>`, or remove the debounce;
   - for AC-3, share one escalation timer;
   - for AC-4, replace the unsigned subtraction with a signed comparison;
-  - for AC-5, reset on every fault.
+  - for AC-5, reset on every fault, or re-seed the filter on every fault (`filter_ready_=false`);
+  - for AC-4 (b), compare `ms>=red_since_+kAlarmDebounceMs` instead of using unsigned subtraction.
 - No hardware verification is needed for this change request.
 
 #### Out of scope

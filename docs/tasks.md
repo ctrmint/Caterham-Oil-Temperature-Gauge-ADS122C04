@@ -142,7 +142,7 @@ None blocking.
 
 ### T2: Add wraparound and brief-fault latch characterisation tests (AC-4, AC-5)
 - kind: test
-- status: ready
+- status: ready  (fix round 2 after escalation; AC-4/AC-5 amended by the maintainer)
 - depends_on: [T1]
 - parallel_safe: false
 - needs_human_approval: false
@@ -165,10 +165,17 @@ None blocking.
     2. Keep holding 139 °C. Start a sustained `kOpen` fault at a time chosen so that [fault_start, fault_start + `kFaultResetMs`] crosses `UINT32_MAX` → 0. Assert that it does: `fault_start > fault_start + kFaultResetMs` in `uint32_t`.
     3. At every fault update with elapsed time < `kFaultResetMs`: `alarm == Red`.
     4. At the first update with elapsed time ≥ `kFaultResetMs`: `status == OpenCircuit` and `alarm == Normal`.
+  - **AC-4 (b) block (amended).** Use a fresh state with `uint32_t` timestamps starting at `0xFFFFFC00u` and a sustained `at(139)`, stepping 250 ms with an explicit loop.
+    - Assert that `start + kAlarmDebounceMs` wraps (it is `< start` in `uint32_t`).
+    - `alarm == Normal` at every update with elapsed < `kAlarmDebounceMs`.
+    - `alarm == Red` from elapsed `kAlarmDebounceMs` to at least 5000.
   - **AC-5 block.**
     1. Use a fresh state and latch Red with `hold(s, at(139), ms, 4000)`.
     2. Feed `kOpen` for `kFaultResetMs − 250` ms, so updates fall at fault_start … fault_start + 2750. At each: `status == OpenCircuit` and `alarm == Red`.
-    3. Send one `at(139)` sample at fault_start + 3000. Assert `alarm == Red`, `status == Red` and `has_temperature`.
+    3. **(amended)** Send one `at(120)` sample at fault_start + 3000. Assert:
+       - `has_temperature`;
+       - `temperature_c > config::kRedThresholdC` and `temperature_c < 139`, proving the filter was kept (it reads about 135.2, whereas a re-seeded filter would read 120);
+       - `alarm == Red` and `status == Red`.
 - verification:
   - `./scripts/test_host.sh` -> exits 0; both C++ suites pass; Python OK
   - `git diff --stat` -> only `tests/demo_temperature_test.cpp`
@@ -179,7 +186,7 @@ None blocking.
   - The fault reset is at Temperature.cpp:92-93. The fault branch doesn't call `updateAlarm`, so the Red timer survives a brief fault (Temperature.cpp:90-96). That is why AC-5 gets Red immediately.
   - After `hold`, `ms` is one step past its last update.
   - Include `<cstdint>` and use a `u` suffix on the start constant (`-Werror`).
-- safety_notes: Tests only; covers invariant 4 (brief faults keep the alarm) and REQ-T5. No production change.
+- safety_notes: Tests only; covers invariant 4 (brief faults keep the alarm **and the filter**) and REQ-T5, including debounce across the wrap. No production change.
 - size: S
 
 ### T3: Add Cold, table-endpoint and max-tracking characterisation tests (AC-6, AC-7, AC-8)
@@ -302,3 +309,6 @@ Newest last. One row per implementer run, review round, approval, escalation or 
 | 2026-10-27 | T1 | Implemented (round 1) | done | AC-1..AC-3 blocks, +35 lines |
 | 2026-10-27 | T1 | Review round 1 | pass + 1 minor | AC-3 skipped asserts before t0; sent back. Mutations: `>` debounce, shared Red timer, ±250 ms all caught |
 | 2026-10-27 | T1 | Fix + review round 2 | pass | Pre-t0 Amber asserted; targeted Amber-drop mutation caught only by the new line |
+| 2026-10-27 | T2 | Implemented (round 1) | done | AC-4/AC-5 blocks, +37 lines |
+| 2026-10-27 | T2 | Review round 1 | **escalate** | All alarm/fault-reset mutations caught, but a filter re-seed on fault (REQ-F2) survives the whole suite; debounce never crosses the wrap. Reviewer left 7 core dumps in the repo root (deleted; reviewer.md now runs scratch tests with `ulimit -c 0` inside the copy) |
+| 2026-10-27 | T2 | Maintainer decision | AC-4 (b) and AC-5 amended | Post-fault sample changed to 120 °C with a smoothed-value assert; debounce-across-wrap sequence added. Both verified on current code and against both mutations |

@@ -140,7 +140,7 @@ Work through these in order and do not skip steps.
 - **Mutation check.** For a behaviour change in `main/core/`, confirm a test catches its reversal:
   1. Copy `main/`, `tests/`, `scripts/` and `examples/` (the Python tests read it) into `/tmp/caterham-oil-gauge-review/`.
   2. Revert or break the key line in the copy with `sed`.
-  3. Run `/tmp/caterham-oil-gauge-review/scripts/test_host.sh` there, and confirm it fails.
+  3. Run `ulimit -c 0; cd /tmp/caterham-oil-gauge-review && ./scripts/test_host.sh` (no core dumps, and every scratch command runs with its working directory inside the copy, never the repo), and confirm it fails.
   4. Report the mutation and the result.
   If no test fails, that is a **major** finding (a blocker for alarm or fault logic).
 
