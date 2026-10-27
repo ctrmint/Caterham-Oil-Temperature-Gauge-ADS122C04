@@ -95,9 +95,9 @@ Reading TemperatureState::update(const Sample &s, uint32_t ms) {
     return r;
   }
   in_fault_=false;
-  // A latched alarm survives a cold raw sample (e.g. a sender wire open to a low value)
-  // only for kBelowRangeHoldMs: the sample stays out of the filter, alarm and maximum,
-  // then the state resets as for a sustained fault.
+  // A latched alarm survives a cold raw sample (e.g. a partly open or leaking connector
+  // reading high resistance) only for kBelowRangeHoldMs: the sample stays out of the
+  // filter, alarm and maximum, then the state resets as for a sustained fault.
   if (r.status==Status::BelowRange && alarm_!=Status::Normal) {
     if (!below_hold_) {below_hold_=true;below_since_=ms;}
     if (uint32_t(ms-below_since_)<config::kBelowRangeHoldMs) {
