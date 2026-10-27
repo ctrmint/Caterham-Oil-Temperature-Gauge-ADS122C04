@@ -46,7 +46,7 @@ The ADS1115 is used in single-shot mode at 128 samples/s. One measurement cycle 
 * `Vs ≈ 0` / sender resistance under 20 Ω → `SENSOR SHORT`.
 * `Vp ≈ 0` (no current through the pull-up) → `SENSOR OPEN`. This no longer depends on the unreliable top end of the ESP32 ADC.
 * No human-verified curve → `CALIBRATION REQUIRED` and ohms only.
-* Colder than the first calibration point → `BELOW CAL RANGE`, shown as `< 20 °C` style text; not a fault and no alarm.
+* Colder than the first calibration point → `BELOW CAL RANGE`, shown as `< 20 °C` style text; not a fault and raises no alarm. If an alarm is already latched, it is held (status stays `BelowRange`, no temperature shown) for `kBelowRangeHoldMs` (10 s) of such samples, then cleared.
 * Hotter than the last calibration point → `ABOVE CAL RANGE`, shown as `> 140 °C` style text and treated as **critical** (debounced Red). No extrapolation in either direction.
 * Excess temperature sustained for the configured debounce (2.5 s) → warning/critical state. Alarms clear with 5 °C hysteresis, and Red steps down through Amber. The default alarm limits are **placeholders**.
 * A fault shorter than 3 s keeps the filter and the latched alarm (shown in the alarm colour with the fault text), so a vibrating connector cannot keep restarting the alarm debounce. A longer fault resets them.

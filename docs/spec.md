@@ -64,7 +64,7 @@ Evidence key: **H** = host test in `tests/`, **B** = firmware build, **HW** = be
 ### Temperature and alarms
 - **REQ-T1:** Resistance is EMA-filtered (`kFilterAlpha` 0.2) before conversion. A reading below `kWarmThresholdC` (60 °C) is `Cold`. *Evidence:* H (partial).
 - **REQ-T2:** Alarm targets are Amber at ≥ `kAmberThresholdC` (115 °C) and Red at ≥ `kRedThresholdC` (130 °C). `AboveRange` targets Red.
-- **REQ-T3:** Escalation must be held for `kAlarmDebounceMs` (2500 ms), with separate Amber and Red timers. De-escalation is immediate but uses `kAlarmResetHysteresisC` (5 °C) of hysteresis, and Red steps down through Amber. *Evidence:* H (partial; see CR-1).
+- **REQ-T3:** Escalation must be held for `kAlarmDebounceMs` (2500 ms), with separate Amber and Red timers. De-escalation is immediate but uses `kAlarmResetHysteresisC` (5 °C) of hysteresis, and Red steps down through Amber. **Exception:** while an alarm is latched, raw samples colder than the calibration table do not update the filter, the latched alarm or the maximum. The status is `BelowRange` and no temperature is shown. If such samples continue for `kBelowRangeHoldMs` (10 000 ms), the state resets as for a sustained fault (REQ-F2): alarm `Normal`, filter re-seeded. *Evidence:* H (partial; see CR-1 and CR-2 host tests).
 - **REQ-T4:** The maximum temperature seen, and whether the table was ever exceeded, are tracked for display.
 - **REQ-T5:** Millisecond timing uses `uint32_t` unsigned subtraction and must behave the same across counter wraparound. *Evidence:* none yet (see CR-1).
 
