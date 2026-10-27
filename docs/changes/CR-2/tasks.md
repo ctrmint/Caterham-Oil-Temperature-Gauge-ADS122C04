@@ -306,6 +306,7 @@ Review findings, kept by the caller. Columns and statuses: [README § Review rou
 
 | ID | Task | Raised | Severity | Title | Status | Closed | Notes |
 |----|------|--------|----------|-------|--------|--------|-------|
+| T2-F1 | T2 | 1 | major | No test that an in-table sample clears the hold; with `else below_hold_=false;` removed from the reference T3, a second cold episode drops a latched Red at once and the suite still passes | open | | Fix in T2 round 2: add a re-arm block (cold → in-table > kHold → cold, Red held) |
 
 ---
 
@@ -321,3 +322,5 @@ Newest last. One row per implementer run, review round, approval, escalation or 
 | 2026-10-27 | CR-2 | Plan review (maintainer) | approved, "go" | Assumption 2 confirmed and pinned by new AC-9 (T2); docs/ARCHITECTURE.md added to T4; agent invariant 4 updated for the REQ-T3 exception |
 | 2026-10-27 | T1 | Implemented (round 1, commit 05219f5) | done | +3 lines in Config.h. First handback was an empty "placeholder"; full report requested and received before review |
 | 2026-10-27 | T1 | Review round 1 | pass | No findings. Gates re-run: host tests, both builds 0 main/ warnings. Mutation n/a (unused constant) |
+| 2026-10-27 | T2 | Implemented (round 1, commit da03442) | done | +111 lines; fails in CR-2 AC-1 as intended after AC-5/6/4 pass |
+| 2026-10-27 | T2 | Review round 1 | **fix** | Reference T3 passes all tests; all 6 request.md mutations caught; raised T2-F1 (major) |
