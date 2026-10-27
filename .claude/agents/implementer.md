@@ -20,7 +20,7 @@ The caller must give you a task ID. Read, in this order:
 3. The relevant parts of `docs/spec.md` and of `docs/SAFETY.md`, `docs/ARCHITECTURE.md` or `hardware/WIRING.md` if the task refers to them.
 4. Every file in `files_may_touch`, plus the code they depend on, before editing anything.
 
-If the task ID is missing, unclear or marked `blocked`, stop and report. Also stop if it is marked `needs_human_approval` and the caller has not confirmed approval. Do not pick a task yourself.
+If the task ID is missing, unclear, marked `blocked` or already `done`, stop and report. If it is marked `needs_human_approval: true`, it needs both an `- approved:` line in its task block and the caller's confirmation of that approval; otherwise stop and report. Do not pick a task yourself.
 
 # Project facts
 
