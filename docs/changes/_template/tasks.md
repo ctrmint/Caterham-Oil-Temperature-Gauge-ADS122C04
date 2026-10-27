@@ -8,6 +8,15 @@ _No plan yet. Run the planner once `request.md` is `Status: active`, and paste i
 
 ---
 
+## Findings
+
+Review findings, kept by the caller. Columns and statuses: [README § Review rounds](../README.md#review-rounds).
+
+| ID | Task | Raised | Severity | Title | Status | Closed | Notes |
+|----|------|--------|----------|-------|--------|--------|-------|
+
+---
+
 ## Progress log
 
 Newest last. One row per implementer run, review round, approval, escalation or hardware check.
