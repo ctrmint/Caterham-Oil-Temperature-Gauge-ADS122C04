@@ -97,7 +97,7 @@ _Resolved by the maintainer on 2026-10-27 at plan review:_
 
 ### T2: Add failing tests for the below-range hold, plus preservation tests
 - kind: test
-- status: ready
+- status: done
 - depends_on: [T1]
 - parallel_safe: false
 - needs_human_approval: false
@@ -306,7 +306,7 @@ Review findings, kept by the caller. Columns and statuses: [README § Review rou
 
 | ID | Task | Raised | Severity | Title | Status | Closed | Notes |
 |----|------|--------|----------|-------|--------|--------|-------|
-| T2-F1 | T2 | 1 | major | No test that an in-table sample clears the hold; with `else below_hold_=false;` removed from the reference T3, a second cold episode drops a latched Red at once and the suite still passes | open | | Fix in T2 round 2: add a re-arm block (cold → in-table > kHold → cold, Red held) |
+| T2-F1 | T2 | 1 | major | No test that an in-table sample clears the hold; with `else below_hold_=false;` removed from the reference T3, a second cold episode drops a latched Red at once and the suite still passes | fixed | 2 | Re-arm block added (commit 26e72eb); the no-clear mutation is now caught, and the reference T3 passes |
 
 ---
 
@@ -324,3 +324,5 @@ Newest last. One row per implementer run, review round, approval, escalation or 
 | 2026-10-27 | T1 | Review round 1 | pass | No findings. Gates re-run: host tests, both builds 0 main/ warnings. Mutation n/a (unused constant) |
 | 2026-10-27 | T2 | Implemented (round 1, commit da03442) | done | +111 lines; fails in CR-2 AC-1 as intended after AC-5/6/4 pass |
 | 2026-10-27 | T2 | Review round 1 | **fix** | Reference T3 passes all tests; all 6 request.md mutations caught; raised T2-F1 (major) |
+| 2026-10-27 | T2 | Fix round 2 (commit 26e72eb) | T2-F1 fixed | +11 lines re-arm block; no extras |
+| 2026-10-27 | T2 | Review round 2 | pass | T2-F1 fixed; all 11 mutations caught against the reference T3; suite still fails in CR-2 AC-1 as expected before T3 |
