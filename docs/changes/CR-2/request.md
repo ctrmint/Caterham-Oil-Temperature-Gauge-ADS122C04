@@ -14,7 +14,7 @@
     - `main/core/Temperature.cpp` and `main/core/Temperature.h`;
     - `main/Config.h` (one new constant, `kBelowRangeHoldMs = 10000`);
     - `tests/demo_temperature_test.cpp`;
-    - the docs that describe alarm behaviour: `docs/spec.md` §2 (only at merge), `docs/VALIDATION.md` and `docs/CALIBRATION.md`.
+    - the docs that describe alarm behaviour: `docs/spec.md` §2 (only at merge), `docs/VALIDATION.md`, `docs/CALIBRATION.md` and `docs/ARCHITECTURE.md` (*added by the maintainer on 2026-10-27 at plan review: line 49 would otherwise contradict the new behaviour*).
   - Must not change:
     - `hardware/`;
     - `main/hal/` (the ADS1115 driver);
@@ -41,6 +41,7 @@ These are host tests, run with the synthetic demo table, simulated 250 ms steps,
 | AC-5 | REQ-T3 | Normal cooling is unchanged. With Red latched, cooling through the table in 0.25 °C steps from 139 to 105 °C changes the alarm exactly twice, Red → Amber → Normal. All existing assertions in `tests/demo_temperature_test.cpp` pass unmodified. |
 | AC-6 | REQ-C3 | With no alarm latched (fresh state), `kCold` samples give `status == BelowRange` and `alarm == Normal` at every update. No hold applies. |
 | AC-7 | REQ-T5 | AC-1 and AC-4 give the same results when the hold window crosses `UINT32_MAX` (for example, latch starting at `0xFFFFE000`). |
+| AC-9 | REQ-T3 (amended), REQ-F2 | *Added by the maintainer on 2026-10-27 at plan review.* With Red latched, alternating `kCold` and open-circuit (`kOpen`) samples starting at `c0`: the alarm stays `Red` at every update before `c0 + kBelowRangeHoldMs`. At the first `kCold` update at or after `c0 + kBelowRangeHoldMs`, `alarm == Normal` and `status == BelowRange`. Faults do not restart the hold, so a flaky connector cannot hold a stale alarm indefinitely. |
 | AC-8 | REQ-B2 | `./scripts/test_host.sh` passes. The normal and demo firmware builds succeed with no `main/` warnings. |
 
 ## Verification
@@ -52,7 +53,8 @@ These are host tests, run with the synthetic demo table, simulated 250 ms steps,
   - feeding held samples into the EMA (AC-3);
   - never ending the hold (AC-4);
   - a signed or additive hold-timer comparison (AC-7);
-  - applying the hold when no alarm is latched (AC-6).
+  - applying the hold when no alarm is latched (AC-6);
+  - letting a fault sample restart the hold timer (AC-9).
 - **Hardware verification (human).** This needs a build with a verified calibration table: uncalibrated firmware never raises an alarm, and the demo build ignores the sensor. Use a decade box.
   1. Set a resistance above the red threshold until CRITICAL latches.
   2. Switch to a value above the table's coldest point (~1500 Ω for a table like the demo one).

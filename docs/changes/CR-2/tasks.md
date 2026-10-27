@@ -41,7 +41,7 @@ Workflow and conventions: [docs/changes/README.md](../README.md). Task format: `
 2. **Fault samples during a hold neither restart nor clear the hold timer.**
    - They take the existing fault early-return first, and a cold sample resets `in_fault_`.
    - So alternating fault and cold samples still reset after `kBelowRangeHoldMs`, and the alarm cannot be held for ever.
-   - **Maintainer to confirm** (see Open questions).
+   - **Confirmed by the maintainer on 2026-10-27**, and pinned by the new AC-9 (in T2).
 3. The sample that ends the hold falls through after `reset()`. It seeds the filter with the cold resistance, giving `BelowRange` with alarm `Normal`.
 4. No display or CSV change is needed.
    - The display already renders `BelowRange` as `< min °C`, and the alarm colour takes precedence (`GaugeDisplay.cpp:79-96`).
@@ -51,10 +51,10 @@ Workflow and conventions: [docs/changes/README.md](../README.md). Task format: `
 7. The `docs/spec.md` §2 REQ-T3 edit is in T4, the last task before the PR. The caller changes the §3 status.
 
 #### 4. Open questions
-1. Confirm Assumption 2: interleaved fault and cold samples still reset after 10 s.
-2. Whether to add `docs/ARCHITECTURE.md` (line 49 says below range is "not a fault and no alarm") to T4's scope (see Follow-ups).
-
-Neither blocks a task.
+_Resolved by the maintainer on 2026-10-27 at plan review:_
+1. Assumption 2 is confirmed. A test is added as **AC-9** in `request.md`, covered by T2.
+2. `docs/ARCHITECTURE.md` is **added to T4's scope** (in request.md and T4).
+3. Agent invariant 4 is updated in the three agent files to name the approved REQ-T3 below-range exception. This was done by the caller as a workflow change, outside CR-2.
 
 #### 5. Tasks
 
@@ -123,7 +123,7 @@ Neither blocks a task.
     - at most one new file-scope `static const gauge::Sample kCold=forOhms(1500.f);`;
     - helper functions.
   - **Constant, not literal.** Tests use `config::kBelowRangeHoldMs`, never the literal 10000.
-  - **Block order:** AC-5, AC-6, AC-4, then AC-1, AC-2, AC-3, AC-7. Label the blocks "CR-2 AC-n".
+  - **Block order:** AC-5, AC-6, AC-4, then AC-1, AC-2, AC-3, AC-7, AC-9. Label the blocks "CR-2 AC-n".
   - **CR-2 AC-1.**
     - Latch Red with `hold(s,at(139),ms,4000)` and assert `alarm==Red`. Record `c0=ms`, `maximumC()` and `maximumAboveRange()`.
     - With explicit per-update assertions, for every `ms-c0 < kBelowRangeHoldMs`:
@@ -149,6 +149,11 @@ Neither blocks a task.
     - Assert that `c0+hold < c0` (the window crosses the wrap).
     - Repeat the AC-1 assertions while `uint32_t(ms−c0) < hold`.
     - Repeat the AC-4 assertions from the reset for at least 2000 ms more.
+  - **CR-2 AC-9 (added at plan review).**
+    - Latch Red at 139 °C and record `c0`. Then alternate `kCold` and `kOpen`, one per 250 ms update, starting with `kCold` at `c0`.
+    - Assert `alarm==Red` at every update before `c0+kBelowRangeHoldMs`.
+    - Assert `alarm==Normal` and `status==BelowRange` at the first `kCold` update at or after `c0+kBelowRangeHoldMs`.
+    - `kOpen` already exists in the file; do not redefine it.
   - **Warnings.** The file stays warning-free under `-Wall -Wextra -Werror`.
 - verification:
   - `./scripts/test_host.sh; echo "exit=$?"` -> the core suite passes. Then `demo_tests` **aborts on an assertion inside the CR-2 AC-1 block**, after the AC-5, AC-6 and AC-4 blocks have passed. The exit code is non-zero. This is the expected failing state before T3.
@@ -161,7 +166,8 @@ Neither blocks a task.
     - held samples fed into the EMA → AC-3 fails;
     - hold never ends → AC-4 fails;
     - additive or signed/widened comparison → AC-7 fails;
-    - hold applied with no alarm latched → the second part of AC-6 fails.
+    - hold applied with no alarm latched → the second part of AC-6 fails;
+    - a fault sample restarting the hold timer → AC-9 fails.
   - `hold()` (lines 23-27) is not wrap-safe. Copy the explicit-loop pattern of the CR-1 AC-4 block (lines 143-163).
   - `kCold=forOhms(1500)` is beyond the 1100 Ω end of the demo table.
 - safety_notes: Tests only. They pin fail-closed alarm retention and REQ-C3 preservation.
@@ -237,12 +243,12 @@ Neither blocks a task.
   - docs/spec.md
   - docs/VALIDATION.md
   - docs/CALIBRATION.md
+  - docs/ARCHITECTURE.md
 - files_must_not_touch:
   - main/
   - tests/
   - scripts/
   - hardware/
-  - docs/ARCHITECTURE.md
   - docs/changes/
   - README.md
   - build/
@@ -252,16 +258,16 @@ Neither blocks a task.
 - acceptance_criteria:
   - `docs/spec.md` §2 REQ-T3 reads exactly the **New** wording from `docs/changes/CR-2/request.md`, and its evidence tag cites the CR-2 host tests. No other §2 requirement changes, and §3 is not edited.
   - `docs/VALIDATION.md` lists the below-range hold among the host-tested behaviours, and adds a hardware row: "Alarm latched, then sender colder than table (decade box)" → "`< min °C`, alarm colour kept for `kBelowRangeHoldMs` (10 s), never an in-table number, then clears" → "photo/log".
+  - `docs/ARCHITECTURE.md` line 49 (below range is "not a fault and no alarm") keeps that meaning, and adds that a latched alarm is held for `kBelowRangeHoldMs`, then cleared. *Added at plan review.*
   - `docs/CALIBRATION.md` says a latched alarm is kept for `kBelowRangeHoldMs` (10 s) when the reading goes `BELOW CAL RANGE` (a probable wiring fault), then clears. `BelowRange` is still not a fault and shows no number.
 - verification:
-  - `grep -c 'kBelowRangeHoldMs' docs/spec.md docs/VALIDATION.md docs/CALIBRATION.md` -> each count ≥ 1
+  - `grep -c 'kBelowRangeHoldMs' docs/spec.md docs/VALIDATION.md docs/CALIBRATION.md docs/ARCHITECTURE.md` -> each count ≥ 1
   - `grep -n 'REQ-T3' docs/spec.md` -> one §2 line containing "**Exception:**" and "10 000 ms"
-  - `git diff --stat <task base>` -> only the three allowed doc files
+  - `git diff --stat <task base>` -> only the four allowed doc files
   - `./scripts/test_host.sh` -> exits 0
 - hardware_verification: none
 - notes:
   - Copy the REQ-T3 wording verbatim; do not paraphrase an approved requirement.
-  - `docs/ARCHITECTURE.md:49` is outside scope (see Open question 2).
 - safety_notes: Documentation must not suggest that `BelowRange` is a fault, or that the hold applies when no alarm is latched.
 - size: S
 
@@ -282,17 +288,14 @@ They run strictly in sequence: T1 and T3 both need firmware builds, and each tas
 - **`hold()` is not wrap-safe.** AC-7 uses explicit loops.
 
 #### 8. Out of scope / follow-ups
-- `docs/ARCHITECTURE.md:49` wording.
-- Agent invariant 4 wording.
-- A test pinning fault and cold interleaving.
 - A rate-of-change rule for sudden in-table drops.
 - A "SENSOR CHECK" display text during the hold.
 
 #### 9. Definition of done
 - `./scripts/test_host.sh` exits 0.
 - The normal and demo firmware builds have no `main/` warnings.
-- The reviewer's mutation check confirms all five request.md mutations fail a test.
-- `git diff main --stat` touches only `main/Config.h`, `main/core/Temperature.{h,cpp}`, `tests/demo_temperature_test.cpp`, `docs/spec.md`, `docs/VALIDATION.md`, `docs/CALIBRATION.md` and the CR-2 folder. `main/CalibrationData.h` is unchanged.
+- The reviewer's mutation check confirms all six request.md mutations fail a test.
+- `git diff main --stat` touches only `main/Config.h`, `main/core/Temperature.{h,cpp}`, `tests/demo_temperature_test.cpp`, `docs/spec.md`, `docs/VALIDATION.md`, `docs/CALIBRATION.md`, `docs/ARCHITECTURE.md` and the CR-2 folder. `main/CalibrationData.h` is unchanged.
 - Hardware verification is still owed by a human, with the `hardware-test` label on #7 until it is done: the decade-box test from Red and from Amber, recorded in the Progress log.
 
 ---
@@ -315,3 +318,4 @@ Newest last. One row per implementer run, review round, approval, escalation or 
 | 2026-10-27 | CR-2 | Drafted (/spec-from-issue 7) | draft | AC-1..AC-3, AC-7 fail on current code (expected for a fix); AC-4..AC-6 pass |
 | 2026-10-27 | CR-2 | Maintainer decisions | active | kBelowRangeHoldMs = 10 000 ms; REQ-T3 amendment approved (PurpleSentinel) |
 | 2026-10-27 | CR-2 | Planned (planner, auto-started on activation) | 4 tasks: T1 impl, T2 test, T3 impl, T4 docs | Awaiting maintainer plan review: Assumption 2 and the ARCHITECTURE.md scope question |
+| 2026-10-27 | CR-2 | Plan review (maintainer) | approved, "go" | Assumption 2 confirmed and pinned by new AC-9 (T2); docs/ARCHITECTURE.md added to T4; agent invariant 4 updated for the REQ-T3 exception |
