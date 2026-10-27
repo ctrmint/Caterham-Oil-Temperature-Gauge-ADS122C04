@@ -191,7 +191,7 @@ None blocking.
 
 ### T3: Add Cold, table-endpoint and max-tracking characterisation tests (AC-6, AC-7, AC-8)
 - kind: test
-- status: ready
+- status: done
 - depends_on: [T2]
 - parallel_safe: false
 - needs_human_approval: false
@@ -219,7 +219,7 @@ None blocking.
     - `temperatureFromResistance(47.f, t)` returns true with `fabs(t − 140) < 0.01`.
     - `calibrationSide(1100.f) == 0` and `calibrationSide(47.f) == 0`.
   - **AC-8 block.**
-    1. Use a fresh state. Hold `at(139)`, then hold `at(105)` for about 10000 ms so the filter settles.
+    1. Use a fresh state. Let the temperature **rise**: step `at(70)` for about 3000 ms, then hold `at(139)`, then hold `at(105)` for about 10000 ms so the filter settles. *(Aligned with spec AC-8 after T3 review round 1: the original text started at a constant 139 °C, so the maximum never rose.)*
     2. After every update, `maximumC()` is ≥ its previous value.
     3. At the end, `fabs(maximumC() − highest reported temperature) < 0.01`.
     4. The final reported temperature is below the maximum.
@@ -313,3 +313,7 @@ Newest last. One row per implementer run, review round, approval, escalation or 
 | 2026-10-27 | T2 | Review round 1 | **escalate** | All alarm/fault-reset mutations caught, but a filter re-seed on fault (REQ-F2) survives the whole suite; debounce never crosses the wrap. Reviewer left 7 core dumps in the repo root (deleted; reviewer.md now runs scratch tests with `ulimit -c 0` inside the copy) |
 | 2026-10-27 | T2 | Maintainer decision | AC-4 (b) and AC-5 amended | Post-fault sample changed to 120 °C with a smoothed-value assert; debounce-across-wrap sequence added. Both verified on current code and against both mutations |
 | 2026-10-27 | T2 | Fix + review round 2 | pass | +52 lines. Filter re-seed (M7) now caught by AC-5; debounce-across-wrap mutations caught by AC-4 (b); M1–M6 still caught. 1 nit (loose AC-5 band), not actioned |
+| 2026-10-27 | T3 | Implemented (round 1) | done | AC-6..AC-8 blocks, +33 lines |
+| 2026-10-27 | T3 | Review round 1 | **fix** | AC-8 started at a constant 139 °C, so max never rose; "first reading only" and "lags 1 °C" mutants survived. Planner text lacked "rises" from spec AC-8 |
+| 2026-10-27 | T3 | Fix + review round 2 | pass | AC-8 now rises 70 → 139 → 105 °C; all max-tracking, Cold and endpoint mutants caught |
+| 2026-10-27 | CR-1 | Follow-up (not in scope) | logged | `convertSample` Cold/Normal status is not pinned by any test (update() overwrites it); candidate for a later CR |

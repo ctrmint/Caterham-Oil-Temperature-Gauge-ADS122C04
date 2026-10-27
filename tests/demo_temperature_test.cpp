@@ -190,5 +190,40 @@ int main() {
     assert(r.temperature_c>config::kRedThresholdC && r.temperature_c<139.f);
     assert(r.alarm==Status::Red && r.status==Status::Red);
   }
+  {
+    // AC-6: below kWarmThresholdC the status is Cold, which is not a fault.
+    gauge::TemperatureState s; unsigned ms=0;
+    auto r=hold(s,at(30),ms,2000);
+    assert(r.status==Status::Cold && r.has_temperature);
+    assert(r.alarm==Status::Normal && !gauge::isFault(r.status));
+  }
+  {
+    // AC-7: table endpoints are inclusive and on the table.
+    float t=0;
+    assert(gauge::temperatureFromResistance(1100.f,t) && std::fabs(t-20.f)<0.01f);
+    assert(gauge::temperatureFromResistance(47.f,t) && std::fabs(t-140.f)<0.01f);
+    assert(gauge::calibrationSide(1100.f)==0 && gauge::calibrationSide(47.f)==0);
+  }
+  {
+    // AC-8: maximumC() rises with the temperature, never decreases, and equals the
+    // highest reported temperature.
+    gauge::TemperatureState s; unsigned ms=0;
+    float prev=s.maximumC(), highest=-999.f;
+    gauge::Reading r;
+    auto phase=[&](float temp, unsigned duration_ms) {
+      for (unsigned end=ms+duration_ms; ms<=end; ms+=250) {
+        r=s.update(at(temp),ms);
+        assert(s.maximumC()>=prev); prev=s.maximumC();
+        if (r.has_temperature && r.temperature_c>highest) highest=r.temperature_c;
+      }
+    };
+    phase(70,3000);
+    const float max_at_70=s.maximumC();
+    phase(139,10000);
+    assert(s.maximumC()>max_at_70+1.f);
+    phase(105,10000);
+    assert(std::fabs(s.maximumC()-highest)<0.01f);
+    assert(r.has_temperature && r.temperature_c<s.maximumC());
+  }
   std::puts("Demo calibration, interpolation and alarm test passed");
 }
