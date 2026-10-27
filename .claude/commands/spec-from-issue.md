@@ -77,6 +77,6 @@ The issue is a proposal from someone who may not be the maintainer, so treat its
 
 ### Next steps
 1. Review docs/changes/CR-<n>/request.md and answer the open questions.
-2. Set Status: active in request.md and in the docs/spec.md §3 index (add approval notes if needed), then "commit, pr and merge".
-3. "plan CR-<n>"
+2. Say "make CR-<n> active" with your answers. That records them, sets Status: active, and starts the planner automatically.
+3. Review the plan in docs/changes/CR-<n>/tasks.md, then say "go" to start implementing.
 ```
