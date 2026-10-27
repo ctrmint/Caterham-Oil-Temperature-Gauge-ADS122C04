@@ -252,6 +252,22 @@ They run strictly in sequence. T1–T3 share a file, and every gate compiles bot
 - No hardware verification is owed.
 - The PR says `Closes #5`.
 
+## Findings
+
+_Backfilled on 2026-10-27 from the review reports and the Progress log below. CR-1 ran before finding IDs existed, so the IDs were assigned afterwards._
+
+| ID | Task | Raised | Severity | Title | Status | Closed | Notes |
+|----|------|--------|----------|-------|--------|--------|-------|
+| T1-F1 | T1 | 1 | minor | AC-3 skips asserts between the Amber latch and t0 | fixed | 2 | A targeted Amber-drop mutation is now caught only by the new line |
+| T2-F1 | T2 | 1 | major | Filter retention during a brief fault untested (`filter_ready_=false` survives) | fixed | 2 | Escalated; maintainer amended AC-5 (post-fault 120 °C, smoothed-value assert) |
+| T2-F2 | T2 | 1 | minor | Debounce never crosses the wrap | fixed | 2 | Escalated with T2-F1; maintainer added AC-4 (b) |
+| T2-F3 | T2 | 2 | nit | AC-5 temperature band (130–139) looser than the ~135.2 expected | accepted | 2026-10-27 | Still separates a kept filter from a re-seeded one, which is what AC-5 asks |
+| T3-F1 | T3 | 1 | major | AC-8 starts at a constant 139 °C, so the max never rises | fixed | 2 | "First reading only" and "lags 1 °C" mutants now caught |
+| T3-F2 | T3 | 1 | minor | `convertSample` Cold/Normal status not pinned by any test | follow-up | 2026-10-27 | Outside AC-6; candidate for a later CR |
+| T3-F3 | T3 | 1 | nit | Loop bound written as `10000+0` | fixed | 2 | |
+| T4-F1 | T4 | 1 | minor | Count guard misses an enumerator added after `Red` | follow-up | 2026-10-27 | Planner risk R3; a fix needs a `main/` change (sentinel or static_assert) |
+| T4-F2 | T4 | 1 | nit | `-Werror=switch` already catches a deleted case | accepted | 2026-10-27 | The runtime check is still useful defence in depth |
+
 ---
 
 ## Progress log

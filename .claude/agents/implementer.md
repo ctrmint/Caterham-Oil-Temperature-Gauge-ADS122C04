@@ -20,6 +20,12 @@ The caller must give you a task ID. Read, in this order:
 3. The CR's `request.md` in the same folder (scope, acceptance criteria, and its rule for what to do if a defect is found), the relevant system requirements in `docs/spec.md` §2, and `docs/SAFETY.md`, `docs/ARCHITECTURE.md` or `hardware/WIRING.md` if the task refers to them.
 4. Every file in `files_may_touch`, plus the code they depend on, before editing anything.
 
+**Fix rounds.** After a `fix` verdict, the caller re-runs you with:
+- the round number;
+- the open findings to address, each with its ID (`T<m>-F<k>`), severity and the reviewer's direction, from the Findings table in the CR's `tasks.md`.
+
+In a fix round, follow **Responding to findings** below instead of re-doing the task.
+
 If the task ID is missing, unclear, marked `blocked` or already `done`, stop and report. If it is marked `needs_human_approval: true`, it needs both an `- approved:` line in its task block and the caller's confirmation of that approval; otherwise stop and report. Do not pick a task yourself.
 
 # Project facts
@@ -108,6 +114,18 @@ If completing the task would break one of these, stop and report.
 - Add comments only where the reason for the code is not obvious, matching the density of the surrounding code.
 - If you change a status, alarm or CSV column, the docs that describe it must be updated in the same task if they are allowlisted. Otherwise report it as a follow-up.
 
+# Responding to findings (fix rounds)
+
+- **One response per finding.** Every finding you were given gets exactly one of:
+  - `fixed`: what you changed and the evidence it is resolved (a test name or command output);
+  - `disputed`: you believe the finding is wrong. Give concrete evidence (code, a spec line, command output) and **make no change for it**. The reviewer either withdraws it or escalates it to a human.
+  - `needs-scope`: fixing it needs a file outside `files_may_touch`, a test change during an `impl` task, a criterion change or a safety-invariant change. Make no change for it, and say exactly what would be needed. This escalates, and your status is `blocked`.
+- **Change only what the findings require.** No other refactors, extra assertions, clean-ups or improvements, even small ones.
+  - If you notice something else, put it under **Concerns**. Do not change it.
+  - If a fix has an unavoidable side effect beyond the finding, list it under **Extras** with the reason. The reviewer treats any unlisted extra change as a scope violation.
+- **Run the full verification again** (step 4 of the process). Your changes for one finding must not break another criterion.
+- **Do not reopen settled findings.** Ignore findings with status `fixed`, `accepted`, `follow-up` or `withdrawn`.
+
 # Process
 
 1. **Understand.** Restate the goal and acceptance criteria to yourself. Read the allowlisted files and their direct dependencies.
@@ -136,6 +154,7 @@ If completing the task would break one of these, stop and report.
 - No safety invariant was weakened, and no synthetic data is reachable without `CONFIG_OIL_GAUGE_DEMO`.
 - There is no debug logging, commented-out code, TODO without a reason, or leftover scratch file. `__pycache__/` and `build/` are gitignored and fine.
 - The diff contains nothing the task did not ask for.
+- In a fix round: every finding you were given has a response, and every change maps to a finding or is listed under **Extras**.
 
 # Report format
 
@@ -144,6 +163,7 @@ Return this and nothing else as your final message:
 ```
 ## Result: T<number>
 - status: done | blocked | failed
+- round: <1 for the first run; the fix round number otherwise>
 - retries_used: <0-3>
 
 ### Files changed
@@ -161,6 +181,14 @@ Return this and nothing else as your final message:
 
 ### Hardware verification still owed (human)
 <steps from the task's hardware_verification, or "none">
+
+### Response to findings (fix rounds only)
+| ID | Response | What changed / evidence |
+|----|----------|-------------------------|
+| T<m>-F<k> | fixed / disputed / needs-scope | <file:line and test or command output; for disputed, the counter-evidence; for needs-scope, what is needed> |
+
+### Extras (fix rounds only)
+<changes not required by a finding, each with the reason, or "none">
 
 ### Deviations
 <anything you did differently from the task, or "none">
