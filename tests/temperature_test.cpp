@@ -4,6 +4,7 @@
 #include <cassert>
 #include <cmath>
 #include <cstdio>
+#include <cstring>
 
 // ADS1115 readings for a sender of the given resistance, with the tank ground sitting
 // ground_offset volts above the gauge GND.
@@ -33,5 +34,12 @@ int main() {
   assert(gauge::convertSample(forOhms(100000)).status==gauge::Status::OpenCircuit);
   assert(gauge::isFault(gauge::Status::GroundFault));
   assert(!gauge::isFault(gauge::Status::AboveRange) && !gauge::isFault(gauge::Status::BelowRange));
+  // Every Status needs its own text. Update this count and statusText() when adding a Status.
+  assert(static_cast<int>(gauge::Status::Red)==11);
+  for(int i=0;i<=static_cast<int>(gauge::Status::Red);i++) {
+    const char* a=gauge::statusText(static_cast<gauge::Status>(i));
+    assert(a && a[0] && std::strcmp(a,"UNKNOWN")!=0);
+    for(int j=0;j<i;j++) assert(std::strcmp(a,gauge::statusText(static_cast<gauge::Status>(j)))!=0);
+  }
   std::puts("Temperature conversion and fault tests passed");
 }

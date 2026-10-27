@@ -235,7 +235,7 @@ None blocking.
 
 ### T4: Add statusText completeness and uniqueness test (AC-9)
 - kind: test
-- status: ready
+- status: done
 - depends_on: [T3]
 - parallel_safe: false
 - needs_human_approval: false
@@ -317,3 +317,5 @@ Newest last. One row per implementer run, review round, approval, escalation or 
 | 2026-10-27 | T3 | Review round 1 | **fix** | AC-8 started at a constant 139 °C, so max never rose; "first reading only" and "lags 1 °C" mutants survived. Planner text lacked "rises" from spec AC-8 |
 | 2026-10-27 | T3 | Fix + review round 2 | pass | AC-8 now rises 70 → 139 → 105 °C; all max-tracking, Cold and endpoint mutants caught |
 | 2026-10-27 | CR-1 | Follow-up (not in scope) | logged | `convertSample` Cold/Normal status is not pinned by any test (update() overwrites it); candidate for a later CR |
+| 2026-10-27 | T4 | Implemented + review round 1 | pass | +8 lines. Dropped/duplicated/empty/nullptr/"UNKNOWN" status-text mutants all caught (a dropped case also fails the build via -Werror=switch) |
+| 2026-10-27 | CR-1 | Follow-up (not in scope) | logged | Count guard misses an enumerator added after `Red` (R3); a `Status::Count` sentinel or static_assert needs a main/ change |
