@@ -1,0 +1,278 @@
+# CR-1 task plan
+
+Change request: [request.md](request.md). Workflow and conventions: [docs/changes/README.md](../README.md).
+
+## Current plan
+
+### Plan for CR-1 (issue #5): Close host-test coverage gaps in the alarm and conversion logic
+
+#### 1. Summary
+CR-1 adds characterisation host tests for:
+- alarm debounce and the separate escalation timers;
+- millisecond wraparound;
+- the latched alarm through a brief fault;
+- the Cold status;
+- the calibration table endpoints;
+- max tracking;
+- `statusText`.
+
+The tests are expected to pass against the current `main/core/` code. The reviewer's mutation check proves they are strong enough.
+
+There are four `test` tasks and no `impl` tasks:
+- T1–T3 edit `tests/demo_temperature_test.cpp` (built with `-DGAUGE_DEMO`).
+- T4 edits `tests/temperature_test.cpp`.
+- Each task is verified with `./scripts/test_host.sh` plus a `git diff --stat` scope check.
+
+#### 2. Acceptance criteria → tasks
+| AC | Tasks |
+|----|-------|
+| AC-1, AC-2, AC-3 | T1 |
+| AC-4, AC-5 | T2 |
+| AC-6, AC-7, AC-8 | T3 |
+| AC-9 | T4 |
+| AC-10 | T1–T4 (each task's verification), Definition of done |
+
+All criteria can be tested on the host. No bench checks.
+
+#### 3. Assumptions
+- No `CLAUDE.md` exists. The rules come from the agent prompts and `docs/spec.md`.
+- CR-1 explicitly overrides the usual "test-first fails" rule. These tests must pass against the current code, so there are no `impl` tasks.
+- If an assertion fails, follow the CR-1 defect rule: leave it out, record the evidence and escalate. Never change `main/`.
+- AC-9 goes in `tests/temperature_test.cpp`, because `statusText` doesn't depend on calibration.
+- AC-4 is a single `TemperatureState` sequence. It starts at `0xFFFFF000`, reproduces AC-2, holds Red, then runs a sustained open-circuit fault whose `kFaultResetMs` window crosses the wrap.
+
+#### 4. Open questions
+None blocking.
+
+#### 5. Tasks
+
+### T1: Add debounce and escalation-timer characterisation tests (AC-1, AC-2, AC-3)
+- kind: test
+- status: done
+- depends_on: []
+- parallel_safe: false
+- needs_human_approval: false
+- goal: Pin down the exact Amber and Red debounce timing and the separate escalation timers, so a change to the `>=` comparison or a shared timer in `Temperature.cpp` fails the host tests.
+- files_may_touch:
+  - tests/demo_temperature_test.cpp
+- files_must_not_touch:
+  - tests/temperature_test.cpp
+  - tests/test_calibration_tool.py
+  - main/**
+  - scripts/**
+  - hardware/**
+  - docs/**
+  - build/
+  - managed_components/
+  - sdkconfig
+- acceptance_criteria:
+  - **AC-1 block.** Use a fresh `TemperatureState` and step `at(120)` every 250 ms from 0.
+    - At every update with ms < 2500: `alarm == Status::Normal`.
+    - At every update from 2500 ms to at least 5000 ms: `alarm == Status::Amber` and `status == Status::Amber`.
+  - **AC-2 block.** Use a fresh state and step `at(139)` every 250 ms from 0.
+    - At 2250: `alarm == Normal`.
+    - At 2500: `alarm == Red`.
+    - Assert at these exact timestamps, not only at the end of a `hold`.
+  - **AC-3 block.**
+    1. Use a fresh state, latch Amber with `at(120)` (for example `hold` for 4000 ms), and assert `alarm == Amber`.
+    2. Step to a sustained `at(139)`. Record `t0`, the ms of the first update with `has_temperature && temperature_c >= 130`.
+    3. Assert `alarm == Amber` at every update before `t0 + 2500`.
+    4. Assert `alarm == Red` at every update from `t0 + 2500` to at least `t0 + 4000`.
+    5. Assert that `t0` was actually found.
+  - Each AC is its own `{ ... }` block with a comment naming the AC, in the existing test style.
+- verification:
+  - `./scripts/test_host.sh` -> exits 0; both C++ suites print their "passed" lines; the Python unittests report OK
+  - `git diff --stat` -> only `tests/demo_temperature_test.cpp`
+- hardware_verification: none
+- notes:
+  - Reuse `forOhms`, `at`, `hold` and `kOpen` (tests/demo_temperature_test.cpp:10-26). Don't change `hold`'s signature.
+  - Per-update assertions need an explicit loop over `s.update(x, ms)`.
+  - The first update seeds the EMA (Temperature.cpp:98), so a sustained `at(T)` reads T from ms 0.
+  - The debounce check is `uint32_t(ms - since) >= kAlarmDebounceMs` (Temperature.cpp:83-84). Asserting at exactly 2500 catches the `>` mutation.
+  - In AC-3 the Red timer only starts once t ≥ 130, because Amber is latched rather than Red (Temperature.cpp:70). That is why `t0` is defined from the reported temperature.
+  - Prefer `config::kAlarmDebounceMs` to the literal 2500.
+  - The build uses `-Werror`, so avoid sign-compare warnings.
+- safety_notes: Tests only; covers invariant 4 (debounced escalation). No production change.
+- size: S
+
+### T2: Add wraparound and brief-fault latch characterisation tests (AC-4, AC-5)
+- kind: test
+- status: done
+- depends_on: [T1]
+- parallel_safe: false
+- needs_human_approval: false
+- goal: Prove that debounce and fault-reset timing are unchanged across `uint32_t` millisecond wraparound, and that a fault shorter than `kFaultResetMs` keeps the latched Red alarm and the filter.
+- files_may_touch:
+  - tests/demo_temperature_test.cpp
+- files_must_not_touch:
+  - tests/temperature_test.cpp
+  - tests/test_calibration_tool.py
+  - main/**
+  - scripts/**
+  - hardware/**
+  - docs/**
+  - build/
+  - managed_components/
+  - sdkconfig
+- acceptance_criteria:
+  - **AC-4 block.** Use a fresh state with `uint32_t` timestamps starting at `0xFFFFF000u`, advancing 250 ms per update.
+    1. Sustained `at(139)`: `alarm == Normal` at start+2250 and `alarm == Red` at start+2500.
+    2. Keep holding 139 °C. Start a sustained `kOpen` fault at a time chosen so that [fault_start, fault_start + `kFaultResetMs`] crosses `UINT32_MAX` → 0. Assert that it does: `fault_start > fault_start + kFaultResetMs` in `uint32_t`.
+    3. At every fault update with elapsed time < `kFaultResetMs`: `alarm == Red`.
+    4. At the first update with elapsed time ≥ `kFaultResetMs`: `status == OpenCircuit` and `alarm == Normal`.
+  - **AC-4 (b) block (amended).** Use a fresh state with `uint32_t` timestamps starting at `0xFFFFFC00u` and a sustained `at(139)`, stepping 250 ms with an explicit loop.
+    - Assert that `start + kAlarmDebounceMs` wraps (it is `< start` in `uint32_t`).
+    - `alarm == Normal` at every update with elapsed < `kAlarmDebounceMs`.
+    - `alarm == Red` from elapsed `kAlarmDebounceMs` to at least 5000.
+  - **AC-5 block.**
+    1. Use a fresh state and latch Red with `hold(s, at(139), ms, 4000)`.
+    2. Feed `kOpen` for `kFaultResetMs − 250` ms, so updates fall at fault_start … fault_start + 2750. At each: `status == OpenCircuit` and `alarm == Red`.
+    3. **(amended)** Send one `at(120)` sample at fault_start + 3000. Assert:
+       - `has_temperature`;
+       - `temperature_c > config::kRedThresholdC` and `temperature_c < 139`, proving the filter was kept (it reads about 135.2, whereas a re-seeded filter would read 120);
+       - `alarm == Red` and `status == Red`.
+- verification:
+  - `./scripts/test_host.sh` -> exits 0; both C++ suites pass; Python OK
+  - `git diff --stat` -> only `tests/demo_temperature_test.cpp`
+- hardware_verification: none
+- notes:
+  - **Pitfall:** `hold()` (demo_temperature_test.cpp:22-26) computes `end = ms + duration_ms` in `unsigned`. Across the wrap, `end < ms`, so the loop does nothing and the test passes for the wrong reason. **Do not use `hold` across the wrap.** Use an explicit loop over a step count with `uint32_t ms += 250`.
+  - Starting at `0xFFFFF000` leaves only 4096 ms before the wrap. AC-2's debounce therefore finishes before the wrap, and the fault-reset window is the part that must cross it. Example: start the fault at start+3000, so the window is start+3000 … start+6000 and wraps at start+4096.
+  - The fault reset is at Temperature.cpp:92-93. The fault branch doesn't call `updateAlarm`, so the Red timer survives a brief fault (Temperature.cpp:90-96). That is why AC-5 gets Red immediately.
+  - After `hold`, `ms` is one step past its last update.
+  - Include `<cstdint>` and use a `u` suffix on the start constant (`-Werror`).
+- safety_notes: Tests only; covers invariant 4 (brief faults keep the alarm **and the filter**) and REQ-T5, including debounce across the wrap. No production change.
+- size: S
+
+### T3: Add Cold, table-endpoint and max-tracking characterisation tests (AC-6, AC-7, AC-8)
+- kind: test
+- status: done
+- depends_on: [T2]
+- parallel_safe: false
+- needs_human_approval: false
+- goal: Pin down the `Cold` status below `kWarmThresholdC`, the inclusive table endpoints, and the rule that `maximumC()` never decreases.
+- files_may_touch:
+  - tests/demo_temperature_test.cpp
+- files_must_not_touch:
+  - tests/temperature_test.cpp
+  - tests/test_calibration_tool.py
+  - main/**
+  - scripts/**
+  - hardware/**
+  - docs/**
+  - build/
+  - managed_components/
+  - sdkconfig
+- acceptance_criteria:
+  - **AC-6 block.** Use a fresh state and `hold(s, at(30), ms, 2000)`. Assert:
+    - `status == Status::Cold`;
+    - `has_temperature`;
+    - `alarm == Status::Normal`;
+    - `!gauge::isFault(status)`.
+  - **AC-7 block.**
+    - `temperatureFromResistance(1100.f, t)` returns true with `fabs(t − 20) < 0.01`.
+    - `temperatureFromResistance(47.f, t)` returns true with `fabs(t − 140) < 0.01`.
+    - `calibrationSide(1100.f) == 0` and `calibrationSide(47.f) == 0`.
+  - **AC-8 block.**
+    1. Use a fresh state. Let the temperature **rise**: step `at(70)` for about 3000 ms, then hold `at(139)`, then hold `at(105)` for about 10000 ms so the filter settles. *(Aligned with spec AC-8 after T3 review round 1: the original text started at a constant 139 °C, so the maximum never rose.)*
+    2. After every update, `maximumC()` is ≥ its previous value.
+    3. At the end, `fabs(maximumC() − highest reported temperature) < 0.01`.
+    4. The final reported temperature is below the maximum.
+- verification:
+  - `./scripts/test_host.sh` -> exits 0; both C++ suites pass; Python OK
+  - `git diff --stat` -> only `tests/demo_temperature_test.cpp`
+- hardware_verification: none
+- notes:
+  - The demo table is at Calibration.cpp:8-11 (20 °C/1100 Ω … 140 °C/47 Ω), and its endpoints are inclusive (Calibration.cpp:35, 62-63).
+  - `maximumC()` starts at −999 (Temperature.h:43) and updates only on in-table readings (Temperature.cpp:114). Initialise "previous" from `s.maximumC()`.
+- safety_notes: Tests only; covers invariant 2 at the table boundaries and REQ-T1/T4. No production change.
+- size: S
+
+### T4: Add statusText completeness and uniqueness test (AC-9)
+- kind: test
+- status: done
+- depends_on: [T3]
+- parallel_safe: false
+- needs_human_approval: false
+- goal: Every `Status` has its own human-readable text, so a missing switch case (the "UNKNOWN" fallback) or a duplicate string fails the host tests.
+- files_may_touch:
+  - tests/temperature_test.cpp
+- files_must_not_touch:
+  - tests/demo_temperature_test.cpp
+  - tests/test_calibration_tool.py
+  - main/**
+  - scripts/**
+  - hardware/**
+  - docs/**
+  - build/
+  - managed_components/
+  - sdkconfig
+- acceptance_criteria:
+  - Loop i from 0 to `static_cast<int>(Status::Red)` and use `static_cast<Status>(i)`.
+    - `statusText` returns non-null, non-empty text other than "UNKNOWN".
+    - The strings are unique (pairwise `strcmp`).
+  - Guard the count: assert `static_cast<int>(Status::Red) == 11`, with a comment telling whoever adds a `Status` to update this test.
+- verification:
+  - `./scripts/test_host.sh` -> exits 0; both C++ suites pass; Python OK
+  - `git diff --stat` -> only `tests/temperature_test.cpp` for this task
+- hardware_verification: none
+- notes:
+  - The enum is at Temperature.h:4-7 (`uint8_t`, contiguous, Red last), and `statusText` at Temperature.cpp:42-58.
+  - Add `<cstring>`. This file builds without `GAUGE_DEMO`.
+  - Match the loop index types to avoid `-Wsign-compare`.
+- safety_notes: Tests only. A wrong or duplicated status text could hide a fault from the driver, and this test guards it. No production change.
+- size: S
+
+#### 6. Execution order
+1. T1
+2. T2
+3. T3
+4. T4
+
+They run strictly in sequence. T1–T3 share a file, and every gate compiles both test files into fixed paths under `/tmp/caterham-oil-gauge-tests/`.
+
+#### 7. Risks
+- **R1 (AC-4 strength).** Only the fault-reset window crosses the wrap, so only it can catch a timing mutation there. Some signed mutations, such as `int32_t(ms)-int32_t(since)`, behave the same in practice and would survive. The reviewer should use a mutation that really differs, such as `ms >= fault_since_ + kFaultResetMs` or a 64-bit signed difference.
+- **R2 (false pass).** `hold()` does nothing across a wrap. T2 forbids using it there, and the reviewer checks.
+- **R3 (enum coverage).** AC-9 relies on Red being the last enumerator. The count guard helps, but a new enumerator still needs a manual test update.
+- **R4 (float edges).** Readings round-trip through `forOhms`, so compare with margins. Exact equality is used only where AC-7 specifies ±0.01.
+- **R5 (scope).** A defect found here is escalated, not fixed in `main/`.
+
+#### 8. Out of scope / follow-ups
+- Making `hold()` wrap-safe.
+- Display and ADS1115 driver tests.
+- Whether BelowRange should clear a latched alarm. This is issue #7, the next CR.
+- A `Status::Count` sentinel, which would need a change to `main/`.
+
+#### 9. Definition of done
+- `./scripts/test_host.sh` exits 0.
+- `/build` passes: host tests, plus the normal and demo firmware builds with no `main/` warnings. `main/` is unchanged; this is a sanity check.
+- `git diff --stat main...HEAD` lists only `tests/demo_temperature_test.cpp` and `tests/temperature_test.cpp`, plus the workflow and bookkeeping files.
+- The reviewer's mutation check passes for AC-1 to AC-5. It is run on a **copy under `/tmp/caterham-oil-gauge-review/`**, never on the repo.
+- No hardware verification is owed.
+- The PR says `Closes #5`.
+
+---
+
+## Progress log
+
+Newest last. One row per implementer run, review round, approval, escalation or hardware check.
+
+| Date | Task | Event | Result | Notes |
+|------|------|-------|--------|-------|
+| 2026-10-27 | CR-1 | Planned (planner) | 4 test tasks, no open questions | Plan saved; DoD mutation wording corrected to /tmp copy |
+| 2026-10-27 | T1 | Implemented (round 1) | done | AC-1..AC-3 blocks, +35 lines |
+| 2026-10-27 | T1 | Review round 1 | pass + 1 minor | AC-3 skipped asserts before t0; sent back. Mutations: `>` debounce, shared Red timer, ±250 ms all caught |
+| 2026-10-27 | T1 | Fix + review round 2 | pass | Pre-t0 Amber asserted; targeted Amber-drop mutation caught only by the new line |
+| 2026-10-27 | T2 | Implemented (round 1) | done | AC-4/AC-5 blocks, +37 lines |
+| 2026-10-27 | T2 | Review round 1 | **escalate** | All alarm/fault-reset mutations caught, but a filter re-seed on fault (REQ-F2) survives the whole suite; debounce never crosses the wrap. Reviewer left 7 core dumps in the repo root (deleted; reviewer.md now runs scratch tests with `ulimit -c 0` inside the copy) |
+| 2026-10-27 | T2 | Maintainer decision | AC-4 (b) and AC-5 amended | Post-fault sample changed to 120 °C with a smoothed-value assert; debounce-across-wrap sequence added. Both verified on current code and against both mutations |
+| 2026-10-27 | T2 | Fix + review round 2 | pass | +52 lines. Filter re-seed (M7) now caught by AC-5; debounce-across-wrap mutations caught by AC-4 (b); M1–M6 still caught. 1 nit (loose AC-5 band), not actioned |
+| 2026-10-27 | T3 | Implemented (round 1) | done | AC-6..AC-8 blocks, +33 lines |
+| 2026-10-27 | T3 | Review round 1 | **fix** | AC-8 started at a constant 139 °C, so max never rose; "first reading only" and "lags 1 °C" mutants survived. Planner text lacked "rises" from spec AC-8 |
+| 2026-10-27 | T3 | Fix + review round 2 | pass | AC-8 now rises 70 → 139 → 105 °C; all max-tracking, Cold and endpoint mutants caught |
+| 2026-10-27 | CR-1 | Follow-up (not in scope) | logged | `convertSample` Cold/Normal status is not pinned by any test (update() overwrites it); candidate for a later CR |
+| 2026-10-27 | T4 | Implemented + review round 1 | pass | +8 lines. Dropped/duplicated/empty/nullptr/"UNKNOWN" status-text mutants all caught (a dropped case also fails the build via -Werror=switch) |
+| 2026-10-27 | CR-1 | Follow-up (not in scope) | logged | Count guard misses an enumerator added after `Red` (R3); a `Status::Count` sentinel or static_assert needs a main/ change |
+| 2026-10-27 | CR-1 | Definition of done | pass | /build: host tests, normal and demo builds with 0 main/ warnings; code changes only in the two test files; CR-1 archived in docs/spec.md §5. PR to say Closes #5 |
+| 2026-10-27 | CR-1 | Restructure | moved | Docs moved to the per-CR layout: this plan is now docs/changes/CR-1/tasks.md, the request is docs/changes/CR-1/request.md (was docs/spec.md §3/§5), workflow in docs/changes/README.md |

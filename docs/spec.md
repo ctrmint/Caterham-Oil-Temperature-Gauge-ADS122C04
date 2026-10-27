@@ -1,11 +1,10 @@
 # Specification
 
-The source of truth for what the gauge must do. It feeds the agents in `.claude/agents/` (see the workflow in [tasks.md](tasks.md)).
+The source of truth for how the gauge must behave **now**. It feeds the agents in `.claude/agents/`.
 
-- **Section 2: system requirements.** These describe the behaviour the firmware already has. They are constraints: every change must keep them true unless a change request explicitly amends one, and amending one needs human approval.
-- **Section 3: active change request.** This is the only part the planner turns into tasks. There is one active change request at a time.
-- **GitHub issues** are where work is proposed and tracked publicly. Each change request has one issue, labelled `change-request` and opened from the issue template. This file stays authoritative: the agents read only this file, never issue text.
-- To start new work, open or accept a change-request issue. Then write it up in section 3 using the template in section 4, and record the issue number. When it is merged, move it to section 5.
+- **Sections 1 and 2** describe the product and its system requirements: the behaviour the firmware already has. They are constraints. Every change must keep them true unless a change request explicitly amends one, and amending one needs human approval. When an amending change request is merged, its new wording is written into section 2.
+- **Change requests** live in their own folders under [`docs/changes/`](changes/README.md), one folder per change request (`request.md` plus `tasks.md`). Section 3 is the index. The workflow, from issue to merge, is in [docs/changes/README.md](changes/README.md).
+- **GitHub issues** are where work is proposed and tracked publicly. Each change request has one issue. The files stay authoritative, and the agents never read issue text.
 
 ---
 
@@ -83,79 +82,10 @@ Evidence key: **H** = host test in `tests/`, **B** = firmware build, **HW** = be
 
 ---
 
-## 3. Active change request
+## 3. Change requests
 
-### CR-1: Close host-test coverage gaps in the alarm and conversion logic
+At most one change request is `active` at a time. Its folder is what the planner, implementer and reviewer work from. To start one, run `/spec-from-issue <n>`.
 
-- **Status:** active
-- **Issue:** [#5](https://github.com/ctrmint/Caterham-Oil-Temperature-Gauge/issues/5)
-- **Motivation:** The alarm logic is the most safety-relevant code that can be tested on the host. Several behaviours in REQ-T1, T3 and T5, and the calibration endpoints, have no direct test. A regression there would pass every current gate.
-- **Kind of work:** characterisation tests only. The tests describe current, intended behaviour and are **expected to pass against the existing code**. They are proven meaningful by the reviewer's mutation check, not by failing first.
-- **Scope:**
-  - may change `tests/demo_temperature_test.cpp` and `tests/temperature_test.cpp`;
-  - nothing under `main/`, `scripts/`, `hardware/` or build configuration changes.
-- **If a test exposes a real defect:** do not fix it in this CR. Leave the test out, record the evidence in the task report, and escalate. The fix becomes its own change request.
-- **Conventions:**
-  - use the existing helpers (`forOhms`, `at`, `hold`, `kOpen`), plain `assert` and simulated millisecond timestamps;
-  - use the synthetic demo table (20–140 °C) for calibrated behaviour;
-  - one commented block per criterion, like the existing tests.
-
-#### Acceptance criteria
-
-| ID | Requirement | Criterion (all timestamps are simulated, 250 ms steps from a fresh `TemperatureState`) |
-|----|-------------|------------------------------------------|
-| AC-1 | REQ-T3 | A sustained reading at 120 °C (`at(120)`) leaves the alarm `Normal` at every update before 2500 ms, and the alarm and status are `Amber` from 2500 ms onward. |
-| AC-2 | REQ-T3 | A sustained reading at 139 °C leaves the alarm `Normal` at 2250 ms and makes it `Red` at 2500 ms. |
-| AC-3 | REQ-T3 | Once Amber is latched at 120 °C, a step to a sustained 139 °C keeps the alarm `Amber` at every update less than 2500 ms after the first update whose reported temperature is ≥ 130 °C, and makes it `Red` at every update from 2500 ms after that one. |
-| AC-4 | REQ-T5 | AC-2 and the sustained-fault reset (REQ-F2) give the same results when the timestamps start at `0xFFFFF000` and wrap past `UINT32_MAX` during the test. |
-| AC-5 | REQ-F2 | With Red latched, open-circuit samples held for `kFaultResetMs − 250` ms keep the alarm `Red`, and the next good 139 °C sample shows `Red` immediately, with no new debounce. |
-| AC-6 | REQ-T1 | A sustained calibrated reading at 30 °C has status `Cold`, `has_temperature == true` and alarm `Normal`. |
-| AC-7 | REQ-C3 | At exactly the first and last table resistances (1100 Ω, 47 Ω), `temperatureFromResistance` returns 20 °C and 140 °C (±0.01), and `calibrationSide` returns 0. |
-| AC-8 | REQ-T4 | While the temperature rises to 139 °C and then cools to 105 °C, `maximumC()` never decreases, and finally equals the highest reported temperature (±0.01). |
-| AC-9 | REQ-F1 | `statusText` returns a non-empty string other than `"UNKNOWN"` for every `Status` enumerator, and no two enumerators share a string. |
-| AC-10 | REQ-B2 | `./scripts/test_host.sh` passes. `git diff --stat` shows changes only in the two allowed test files. |
-
-#### Verification
-- `./scripts/test_host.sh`: every suite passes.
-- Reviewer mutation check: for each of AC-1 to AC-5, a one-line change in `main/core/Temperature.cpp` makes at least one new assertion fail. Suggested mutations:
-  - for AC-1 and AC-2, change `>=config::kAlarmDebounceMs` to `>`, or remove the debounce;
-  - for AC-3, share one escalation timer;
-  - for AC-4, replace the unsigned subtraction with a signed comparison;
-  - for AC-5, reset on every fault.
-- No hardware verification is needed for this change request.
-
-#### Out of scope
-- Display rendering and ADS1115 driver tests: they need hardware or LVGL mocks, which would be a separate change request.
-- Any change in behaviour, including the open question of whether `BelowRange` should clear a latched alarm immediately.
-
----
-
-## 4. Change request template
-
-```
-### CR-<n>: <title>
-- Status: draft | active | done | withdrawn
-- Issue: #<n>  (opened from the "Change request" issue template; the final PR says "Closes #<n>")
-- Motivation: <why, with links to REQ IDs or field observations>
-- Kind of work: feature | fix | tests | docs | hardware
-- Scope: <files or areas that may change; what must not change>
-- Requirements amended: <REQ IDs and new wording, or "none">  (needs human approval)
-- Hardware impact: <circuit/BOM/wiring change, or "none">  (needs human approval)
-
-#### Acceptance criteria
-| ID | Requirement | Criterion (observable, testable) |
-|----|-------------|----------------------------------|
-
-#### Verification
-- <host test / build command -> expected result>
-- Hardware verification (human): <bench or vehicle steps, or "none">
-
-#### Out of scope
-- <deliberately excluded work>
-```
-
-## 5. Change history
-
-| CR | Issue | Title | Status | Merged |
+| CR | Issue | Title | Status | Folder |
 |----|-------|-------|--------|--------|
-| CR-1 | [#5](https://github.com/ctrmint/Caterham-Oil-Temperature-Gauge/issues/5) | Close host-test coverage gaps in the alarm and conversion logic | active | |
+| CR-1 | [#5](https://github.com/ctrmint/Caterham-Oil-Temperature-Gauge/issues/5) | Close host-test coverage gaps in the alarm and conversion logic | done | [docs/changes/CR-1/](changes/CR-1/) |

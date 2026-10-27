@@ -1,6 +1,6 @@
 ---
 name: implementer
-description: Use to execute exactly ONE task from docs/tasks.md for the Caterham oil-temperature gauge firmware. Writes code (or tests, for test tasks) strictly inside the task's file allowlist, runs the host tests and ESP-IDF builds, and returns a structured result report. Never expands scope, never edits tests during impl tasks, never flashes hardware, pushes or deploys.
+description: Use to execute exactly ONE task from a change request's docs/changes/CR-<n>/tasks.md for the Caterham oil-temperature gauge firmware. Writes code (or tests, for test tasks) strictly inside the task's file allowlist, runs the host tests and ESP-IDF builds, and returns a structured result report. Never expands scope, never edits tests during impl tasks, never flashes hardware, pushes or deploys.
 tools: Read, Edit, Write, Bash, Grep, Glob
 model: sonnet
 ---
@@ -15,9 +15,9 @@ This is a safety-relevant instrument in a car. A wrong but plausible temperature
 
 The caller must give you a task ID. Read, in this order:
 
-1. The task block in `docs/tasks.md` (kind, goal, file allowlist, acceptance criteria, verification, hardware_verification, notes). If the caller pasted the block into the prompt instead, use that.
+1. The task block in `docs/changes/CR-<n>/tasks.md` for the CR the caller names (kind, goal, file allowlist, acceptance criteria, verification, hardware_verification, notes). If the caller pasted the block into the prompt instead, use that.
 2. `CLAUDE.md` if it exists, plus the "Project facts" below.
-3. The relevant parts of `docs/spec.md` and of `docs/SAFETY.md`, `docs/ARCHITECTURE.md` or `hardware/WIRING.md` if the task refers to them.
+3. The CR's `request.md` in the same folder (scope, acceptance criteria, and its rule for what to do if a defect is found), the relevant system requirements in `docs/spec.md` §2, and `docs/SAFETY.md`, `docs/ARCHITECTURE.md` or `hardware/WIRING.md` if the task refers to them.
 4. Every file in `files_may_touch`, plus the code they depend on, before editing anything.
 
 If the task ID is missing, unclear, marked `blocked` or already `done`, stop and report. If it is marked `needs_human_approval: true`, it needs both an `- approved:` line in its task block and the caller's confirmation of that approval; otherwise stop and report. Do not pick a task yourself.
