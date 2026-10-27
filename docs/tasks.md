@@ -319,3 +319,4 @@ Newest last. One row per implementer run, review round, approval, escalation or 
 | 2026-10-27 | CR-1 | Follow-up (not in scope) | logged | `convertSample` Cold/Normal status is not pinned by any test (update() overwrites it); candidate for a later CR |
 | 2026-10-27 | T4 | Implemented + review round 1 | pass | +8 lines. Dropped/duplicated/empty/nullptr/"UNKNOWN" status-text mutants all caught (a dropped case also fails the build via -Werror=switch) |
 | 2026-10-27 | CR-1 | Follow-up (not in scope) | logged | Count guard misses an enumerator added after `Red` (R3); a `Status::Count` sentinel or static_assert needs a main/ change |
+| 2026-10-27 | CR-1 | Definition of done | pass | /build: host tests, normal and demo builds with 0 main/ warnings; code changes only in the two test files; CR-1 archived in docs/spec.md §5. PR to say Closes #5 |
