@@ -307,6 +307,7 @@ Review findings, kept by the caller. Columns and statuses: [README § Review rou
 | ID | Task | Raised | Severity | Title | Status | Closed | Notes |
 |----|------|--------|----------|-------|--------|--------|-------|
 | T2-F1 | T2 | 1 | major | No test that an in-table sample clears the hold; with `else below_hold_=false;` removed from the reference T3, a second cold episode drops a latched Red at once and the suite still passes | fixed | 2 | Re-arm block added (commit 26e72eb); the no-clear mutation is now caught, and the reference T3 passes |
+| T3-F1 | T3 | 1 | nit | Hold comment says "sender wire open to a low value"; colder-than-table is high resistance (partly open or leaking connector) | open | | Chosen for fix in T3 round 2 (misleading comment in safety code) |
 
 ---
 
@@ -326,3 +327,6 @@ Newest last. One row per implementer run, review round, approval, escalation or 
 | 2026-10-27 | T2 | Review round 1 | **fix** | Reference T3 passes all tests; all 6 request.md mutations caught; raised T2-F1 (major) |
 | 2026-10-27 | T2 | Fix round 2 (commit 26e72eb) | T2-F1 fixed | +11 lines re-arm block; no extras |
 | 2026-10-27 | T2 | Review round 2 | pass | T2-F1 fixed; all 11 mutations caught against the reference T3; suite still fails in CR-2 AC-1 as expected before T3 |
+| 2026-10-27 | T3 | Implemented (round 1, commit e93aaed) | done | +14/−1 in Temperature.{cpp,h}; suite passes; both builds 0 main/ warnings |
+| 2026-10-27 | T3 | Review round 1 | pass + 1 nit | All request.md mutations caught (M4c int32 and M9 are equivalent mutants); edge cases AboveRange-in-hold, NaN-in-hold and AboveRange-latched-then-cold behave fail-closed; raised T3-F1 (nit), chosen for fix |
+| 2026-10-27 | CR-2 | Follow-up (not in scope) | logged | Debounce timers carry over across fault gaps and hold gaps, so one sample after a gap can confirm an escalation (fail-closed). Decide in a later CR whether to keep strict "held for kAlarmDebounceMs" semantics |
