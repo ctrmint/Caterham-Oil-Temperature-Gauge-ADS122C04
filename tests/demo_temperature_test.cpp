@@ -2,6 +2,7 @@
 #include "core/Temperature.h"
 #include "Config.h"
 #include <cassert>
+#include <cstdint>
 #include <cmath>
 #include <cstdio>
 
@@ -137,6 +138,57 @@ int main() {
       if (ms-t0>=4000) break;
     }
     assert(found && ms-t0>=4000);
+  }
+  {
+    // AC-4: debounce and fault reset are unchanged across uint32_t ms wraparound.
+    // hold() cannot be used here: its end value wraps and the loop would not run.
+    gauge::TemperatureState s;
+    const uint32_t start=0xFFFFF000u;
+    uint32_t ms=start;
+    gauge::Reading r;
+    for (int i=0; i<12; i++, ms+=250) { // start .. start+2750
+      r=s.update(at(139),ms);
+      if (ms-start<2500) assert(r.alarm==Status::Normal);
+      else assert(r.alarm==Status::Red);
+    }
+    const uint32_t fault_start=ms; // start+3000
+    assert(fault_start==start+3000u);
+    assert(fault_start > fault_start+config::kFaultResetMs); // window crosses the wrap
+    for (int i=0; i<=12; i++, ms+=250) { // fault_start .. fault_start+3000
+      r=s.update(kOpen,ms);
+      assert(r.status==Status::OpenCircuit);
+      if (ms-fault_start<config::kFaultResetMs) assert(r.alarm==Status::Red);
+      else assert(r.alarm==Status::Normal);
+    }
+  }
+  {
+    // AC-4 (b): the debounce interval itself spans the wrap.
+    gauge::TemperatureState s;
+    const uint32_t start=0xFFFFFC00u;
+    assert(start+config::kAlarmDebounceMs<start);
+    uint32_t ms=start;
+    for (int i=0; i<=20; i++, ms+=250) { // elapsed 0 .. 5000
+      auto r=s.update(at(139),ms);
+      if (ms-start<config::kAlarmDebounceMs) assert(r.alarm==Status::Normal);
+      else assert(r.alarm==Status::Red);
+    }
+  }
+  {
+    // AC-5: a fault shorter than kFaultResetMs keeps the latched Red alarm and the filter.
+    gauge::TemperatureState s; unsigned ms=0;
+    hold(s,at(139),ms,4000);
+    const unsigned fault_start=ms;
+    gauge::Reading r;
+    for (; ms-fault_start<=config::kFaultResetMs-250; ms+=250) {
+      r=s.update(kOpen,ms);
+      assert(r.status==Status::OpenCircuit && r.alarm==Status::Red);
+    }
+    assert(ms==fault_start+config::kFaultResetMs);
+    r=s.update(at(120),ms);
+    assert(r.has_temperature);
+    // Kept filter reads ~135.2; a re-seeded one would read 120.
+    assert(r.temperature_c>config::kRedThresholdC && r.temperature_c<139.f);
+    assert(r.alarm==Status::Red && r.status==Status::Red);
   }
   std::puts("Demo calibration, interpolation and alarm test passed");
 }

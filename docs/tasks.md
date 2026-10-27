@@ -142,7 +142,7 @@ None blocking.
 
 ### T2: Add wraparound and brief-fault latch characterisation tests (AC-4, AC-5)
 - kind: test
-- status: ready  (fix round 2 after escalation; AC-4/AC-5 amended by the maintainer)
+- status: done
 - depends_on: [T1]
 - parallel_safe: false
 - needs_human_approval: false
@@ -312,3 +312,4 @@ Newest last. One row per implementer run, review round, approval, escalation or 
 | 2026-10-27 | T2 | Implemented (round 1) | done | AC-4/AC-5 blocks, +37 lines |
 | 2026-10-27 | T2 | Review round 1 | **escalate** | All alarm/fault-reset mutations caught, but a filter re-seed on fault (REQ-F2) survives the whole suite; debounce never crosses the wrap. Reviewer left 7 core dumps in the repo root (deleted; reviewer.md now runs scratch tests with `ulimit -c 0` inside the copy) |
 | 2026-10-27 | T2 | Maintainer decision | AC-4 (b) and AC-5 amended | Post-fault sample changed to 120 °C with a smoothed-value assert; debounce-across-wrap sequence added. Both verified on current code and against both mutations |
+| 2026-10-27 | T2 | Fix + review round 2 | pass | +52 lines. Filter re-seed (M7) now caught by AC-5; debounce-across-wrap mutations caught by AC-4 (b); M1–M6 still caught. 1 nit (loose AC-5 band), not actioned |
