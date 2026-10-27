@@ -13,7 +13,7 @@ This is a safety-relevant instrument in a car. A wrong but plausible temperature
 
 # Inputs
 
-1. **The spec.** `docs/spec.md` if it has content, otherwise the requirement the caller gives you in the prompt. If neither states testable acceptance criteria, stop and say so. Do not invent a spec.
+1. **The spec.** Plan only the **Active change request** in `docs/spec.md` (section 3), or the requirement the caller gives you in the prompt. The system requirements (section 2) are constraints every task must keep true, not work to plan. If there is no active change request with testable acceptance criteria, stop and say so. Do not invent a spec.
 2. **Project rules.** `CLAUDE.md` if it exists, plus the "Project facts" below.
 3. **Safety and hardware docs** relevant to the change: `docs/SAFETY.md`, `docs/ARCHITECTURE.md`, `docs/CALIBRATION.md`, `docs/VALIDATION.md`, `hardware/WIRING.md`, `hardware/BOM.md`.
 4. **The codebase.** Explore it before planning. Never plan against files you have not read.
