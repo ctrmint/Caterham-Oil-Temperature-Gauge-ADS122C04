@@ -225,5 +225,127 @@ int main() {
     assert(std::fabs(s.maximumC()-highest)<0.01f);
     assert(r.has_temperature && r.temperature_c<s.maximumC());
   }
+  {
+    // CR-2: below-range hold while an alarm is latched (REQ-T3).
+    const gauge::Sample kCold = forOhms(1500.f);
+    const uint32_t kHold = config::kBelowRangeHoldMs;
+    // Cold samples inside the hold window: alarm kept, BelowRange, no temperature, maximum untouched.
+    auto expectHeld = [&](gauge::TemperatureState &s, uint32_t &ms, uint32_t c0, Status alarm, float max_c, bool above) {
+      while (uint32_t(ms-c0)<kHold) {
+        auto r=s.update(kCold,ms);
+        assert(r.alarm==alarm);
+        assert(r.status==Status::BelowRange);
+        assert(!r.has_temperature && !gauge::isFault(r.status));
+        assert(s.maximumC()==max_c && s.maximumAboveRange()==above);
+        ms+=250;
+      }
+    };
+    // From the first update at or after the window: reset, BelowRange, Normal, for extra_ms more.
+    auto expectReset = [&](gauge::TemperatureState &s, uint32_t &ms, uint32_t extra_ms) {
+      for (uint32_t n=0; n<=extra_ms/250; ++n, ms+=250) {
+        auto r=s.update(kCold,ms);
+        assert(r.alarm==Status::Normal && r.status==Status::BelowRange && !r.has_temperature);
+      }
+    };
+    {
+      // AC-5: a real cool-down still steps Red -> Amber -> Normal.
+      gauge::TemperatureState s; unsigned ms=0;
+      auto r=hold(s,at(139),ms,4000);
+      assert(r.alarm==Status::Red);
+      Status prev=r.alarm; int changes=0;
+      auto track=[&](const gauge::Reading &x) {
+        if (x.alarm!=prev) {
+          ++changes;
+          assert((prev==Status::Red && x.alarm==Status::Amber) || (prev==Status::Amber && x.alarm==Status::Normal));
+          prev=x.alarm;
+        }
+      };
+      for (int i=0; i<=136; ++i, ms+=250) { r=s.update(at(139.f-0.25f*i),ms); track(r); }
+      for (unsigned end=ms+2000; ms<=end; ms+=250) { r=s.update(at(105),ms); track(r); }
+      assert(changes==2 && r.alarm==Status::Normal);
+    }
+    {
+      // AC-6: cold with no alarm latched is unchanged.
+      gauge::TemperatureState s; unsigned ms=0;
+      for (unsigned end=kHold+2000; ms<=end; ms+=250) {
+        auto r=s.update(kCold,ms);
+        assert(r.status==Status::BelowRange && r.alarm==Status::Normal && !r.has_temperature);
+      }
+      // The cold samples went into the filter: one 70 C sample must not read as 70 C.
+      gauge::TemperatureState f; unsigned m=0;
+      hold(f,kCold,m,1000);
+      auto r=f.update(at(70),m);
+      assert(r.status==Status::BelowRange && !r.has_temperature);
+    }
+    {
+      // AC-4: after the hold the state resets and stays reset.
+      gauge::TemperatureState s; unsigned ms=0;
+      assert(hold(s,at(139),ms,4000).alarm==Status::Red);
+      uint32_t m=ms, c0=ms;
+      while (uint32_t(m-c0)<kHold) s.update(kCold,m), m+=250;
+      expectReset(s,m,5000);
+    }
+    {
+      // AC-1: Red is held for the whole window.
+      gauge::TemperatureState s; unsigned ms=0;
+      assert(hold(s,at(139),ms,4000).alarm==Status::Red);
+      uint32_t m=ms, c0=ms;
+      const float max_c=s.maximumC(); const bool above=s.maximumAboveRange();
+      expectHeld(s,m,c0,Status::Red,max_c,above);
+    }
+    {
+      // AC-2: Amber is held for the whole window.
+      gauge::TemperatureState s; unsigned ms=0;
+      assert(hold(s,at(120),ms,4000).alarm==Status::Amber);
+      uint32_t m=ms, c0=ms;
+      const float max_c=s.maximumC(); const bool above=s.maximumAboveRange();
+      expectHeld(s,m,c0,Status::Amber,max_c,above);
+    }
+    {
+      // AC-3: held cold samples stay out of the filter; a hot sample at the end is read at once.
+      gauge::TemperatureState s; unsigned ms=0;
+      assert(hold(s,at(139),ms,4000).alarm==Status::Red);
+      uint32_t m=ms, c0=ms;
+      for (; uint32_t(m-c0)<=kHold-250; m+=250) s.update(kCold,m);
+      assert(m-c0==kHold);
+      auto r=s.update(at(139),m);
+      assert(r.has_temperature && std::fabs(r.temperature_c-139.f)<=0.5f);
+      assert(r.alarm==Status::Red && r.status==Status::Red);
+    }
+    {
+      // AC-7: the window crosses the uint32_t millisecond wrap.
+      gauge::TemperatureState s; uint32_t ms=0xFFFFE000u;
+      gauge::Reading r;
+      for (int i=0; i<17; ++i, ms+=250) r=s.update(at(139),ms);
+      assert(r.alarm==Status::Red);
+      const uint32_t c0=ms;
+      assert(uint32_t(c0+kHold)<c0);
+      const float max_c=s.maximumC(); const bool above=s.maximumAboveRange();
+      expectHeld(s,ms,c0,Status::Red,max_c,above);
+      expectReset(s,ms,2000);
+    }
+    {
+      // AC-9: alternating cold and fault samples cannot hold the alarm for ever.
+      gauge::TemperatureState s; unsigned ms=0;
+      assert(hold(s,at(139),ms,4000).alarm==Status::Red);
+      uint32_t m=ms, c0=ms;
+      for (bool cold=true; ; cold=!cold, m+=250) {
+        auto r=s.update(cold ? kCold : kOpen,m);
+        if (uint32_t(m-c0)<kHold) { assert(r.alarm==Status::Red); continue; }
+        if (cold) { assert(r.alarm==Status::Normal && r.status==Status::BelowRange); break; }
+      }
+    }
+    {
+      // CR-2 AC-1 re-arm: an in-table sample ends the cold episode, so a later one gets a fresh window.
+      gauge::TemperatureState s; unsigned ms=0;
+      assert(hold(s,at(139),ms,4000).alarm==Status::Red);
+      uint32_t m=ms;
+      for (uint32_t end=m+1000; m<=end; m+=250) assert(s.update(kCold,m).alarm==Status::Red);
+      for (uint32_t end=m+kHold+1000; m<=end; m+=250) assert(s.update(at(139),m).alarm==Status::Red);
+      const uint32_t c0=m;
+      const float max_c=s.maximumC(); const bool above=s.maximumAboveRange();
+      expectHeld(s,m,c0,Status::Red,max_c,above);
+    }
+  }
   std::puts("Demo calibration, interpolation and alarm test passed");
 }

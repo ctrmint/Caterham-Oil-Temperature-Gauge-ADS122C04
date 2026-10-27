@@ -26,8 +26,11 @@ issue ──► /spec-from-issue ──► CR-<n>/request.md ──► planner �
 1. **Request.**
    - Each CR starts as a GitHub issue labelled `change-request`.
    - Run `/spec-from-issue <n>`. It creates `docs/changes/CR-<n>/` from `_template/`, drafts `request.md` with `Status: draft`, and adds the CR to the index in `docs/spec.md` §3.
-   - Review the draft, answer its open questions, and set `Status: active` in both places.
-2. **Plan.** Run the `planner` agent on the active CR. It is read-only, so the caller (you or the main Claude session) pastes its full output under **Current plan** in that CR's `tasks.md`.
+   - Review the draft and answer its open questions. Then say "make CR-<n> active". The caller records your answers and any approvals, and sets `Status: active` in both places.
+2. **Plan (starts automatically).**
+   - Making a CR active is the go-ahead to plan it, so the caller runs the `planner` agent straight away. No separate "plan" request is needed.
+   - The planner is read-only. The caller pastes its full output under **Current plan** in that CR's `tasks.md`, then **stops** so you can review the plan before any code is written.
+   - Say "go" (or ask for changes) to start implementing.
 3. **Approve.** For every task with `needs_human_approval: true`, a human adds an `approved:` line to the task block (see the conventions below). The implementer refuses unapproved tasks.
 4. **Implement.**
    - Note the task base commit (`git rev-parse HEAD`).

@@ -61,7 +61,7 @@ bool isFault(Status s) {
          s==Status::ShortCircuit || s==Status::OpenCircuit || s==Status::NeedsCalibration;
 }
 void TemperatureState::reset() {
-  filter_ready_=false;alarm_=Status::Normal;amber_timing_=red_timing_=false;
+  filter_ready_=false;alarm_=Status::Normal;amber_timing_=red_timing_=false;below_hold_=false;
 }
 Status TemperatureState::targetFor(float t) const {
   // Hysteresis: an active alarm holds until the temperature falls below its threshold
@@ -95,6 +95,17 @@ Reading TemperatureState::update(const Sample &s, uint32_t ms) {
     return r;
   }
   in_fault_=false;
+  // A latched alarm survives a cold raw sample (e.g. a partly open or leaking connector
+  // reading high resistance) only for kBelowRangeHoldMs: the sample stays out of the
+  // filter, alarm and maximum, then the state resets as for a sustained fault.
+  if (r.status==Status::BelowRange && alarm_!=Status::Normal) {
+    if (!below_hold_) {below_hold_=true;below_since_=ms;}
+    if (uint32_t(ms-below_since_)<config::kBelowRangeHoldMs) {
+      r.has_temperature=false;r.temperature_c=0;r.alarm=alarm_;
+      return r;
+    }
+    reset();
+  } else below_hold_=false;
   if (!filter_ready_) {filtered_resistance_=r.resistance_ohms;filter_ready_=true;}
   else filtered_resistance_ +=config::kFilterAlpha*(r.resistance_ohms-filtered_resistance_);
   r.has_temperature=false;r.temperature_c=0;
