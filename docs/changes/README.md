@@ -101,6 +101,33 @@ The review loop keeps its state in the CR's `tasks.md`, not in anyone's memory. 
   - a `needs-scope` response;
   - a dispute the reviewer rejects.
 
+## Slack notifications
+
+The main session posts short **status-only** messages to Slack at each lifecycle point using `.claude/hooks/slack-notify.sh`. Every message names the CR, because task numbers restart at T1 in each change request. The agents never post. No agent output, diff, finding text or error text is ever sent: only IDs, verdicts, counts and short codes.
+
+| When (caller) | Command | Needs you? |
+|---|---|---|
+| Plan saved to `tasks.md`, stopping for review | `plan-ready cr=CR-<n> tasks=<k>` | yes: review the plan, then "go" |
+| A `needs_human_approval` task is next and has no `approved:` line | `approval-needed cr=CR-<n> task=T<m>` | yes |
+| Implementer started on a task (any round) | `task-start cr=CR-<n> task=T<m> round=<r>` | no |
+| Implementer reported, round committed | `gates cr=CR-<n> task=T<m> host=pass build=pass demo=skip` | no |
+| Reviewer returned a verdict | `review cr=CR-<n> task=T<m> round=<r> verdict=pass\|fix\|escalate blockers=<b> majors=<j>` | no |
+| Reviewer escalated | `escalation cr=CR-<n> task=T<m> reason=<short-code>` | yes: decide |
+| Task marked `done` | `task-done cr=CR-<n> task=T<m> rounds=<r>` | no |
+| PR opened / CI finished | `pr-ready cr=CR-<n> pr=#<p> ci=pending\|pass\|fail` | yes when `ci=pass`: merge |
+| Hardware follow-up issue opened | `bench-owed cr=CR-<n> issue=#<i> step=<short-code>` | yes, at the bench |
+| PR merged | `cr-done cr=CR-<n> tasks=<k> findings=<f> pr=#<p>` | no |
+
+Notes:
+- **Short codes.** `reason` and `step` are short kebab-case codes, such as `criterion-gap`, `needs-scope`, `dispute-rejected` or `below-range-hold`. They are never free text.
+- **Idle prompts.** `.claude/settings.json` registers a **Notification** hook (`needs-attention`) for idle, permission and question prompts, so you're also told when the session is simply waiting for you.
+  - There is deliberately **no Stop hook**. Stop fires at the end of every turn, including turns that end while background agents are still working, so it would send false "waiting for you" messages.
+  - To opt in for yourself anyway, set `NOTIFY_STOP=1` and add a Stop hook to your own `.claude/settings.local.json`.
+- **Setup and testing:**
+  - **Setup:** the webhook URL goes in `~/.config/oil-gauge/slack_webhook` (`chmod 600`), never in the repo.
+  - **Preview without posting:** `NOTIFY_DRY_RUN=1 .claude/hooks/slack-notify.sh <type> ...`.
+  - **No webhook file:** nothing is sent. The script logs and exits 0, so a missing or broken Slack setup never blocks the workflow.
+
 ## Conventions
 
 - Task blocks start with `### T<number>: <title>`, numbered from **T1** within each change request. Refer to a task as `CR-<n> T<m>`. Do not reuse numbers; if the plan is replaced, record what happened to the old tasks in the Progress log.

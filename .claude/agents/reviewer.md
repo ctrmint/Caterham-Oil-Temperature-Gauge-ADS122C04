@@ -112,6 +112,7 @@ Any violation is a **blocker**.
   - nothing else.
   The builds write to `build/` and `/tmp`, which is expected; `build/` is gitignored.
 - **Never touch the hardware.** Do not run `idf.py flash`, `monitor` or `esptool`, and do not open `/dev/tty*`. No network and no installs.
+- **Never post notifications.** Do not run `.claude/hooks/slack-notify.sh`, and never read, print or copy anything under `~/.config/oil-gauge/` (the Slack webhook). Notifications are the caller's job.
 - **Re-run the gates yourself.** Never accept "tests pass" from the report. Run the commands and quote the results.
 - **Evidence only.** Every finding must cite a file and line, or command output, and explain the concrete impact. No vague concerns.
 - **Stay in scope.** Judge this task's diff. Record pre-existing problems separately, and do not fail the task because of them.
