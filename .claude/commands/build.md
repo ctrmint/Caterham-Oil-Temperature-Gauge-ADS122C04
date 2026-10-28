@@ -7,6 +7,8 @@ argument-hint: "[all | host | firmware | demo | clean] ... (default: all)"
 
 Run the build and test gates in the **Build profile** below and report the results. Only the profile is project-specific. The procedure, rules and report are generic.
 
+This is the local pre-check. For this project, `.github/workflows/ci.yml` runs the same gates on every PR and every push to `main`, so keep the two in step when a gate changes.
+
 To reuse this command in another project, copy the file and rewrite only the profile:
 - **Similar projects** (ESP-IDF, PlatformIO, Zephyr, CMake firmware): change the toolchain, the step commands, the warning filters and the artefact paths.
 - **Other projects** (an app, a library or a service): drop the `toolchain` block, set `needs_toolchain: false`, and make each step one of the project's gates, such as `npm test`, `cargo build` or `pytest`.

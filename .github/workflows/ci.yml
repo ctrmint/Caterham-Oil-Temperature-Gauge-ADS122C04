@@ -1,0 +1,93 @@
+name: CI
+
+# The same gates as /build (.claude/commands/build.md): host tests, then the normal and demo
+# firmware builds with zero warnings from main/. Hardware checks stay with a human.
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  host-tests:
+    name: Host tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - name: C++ and Python host tests
+        run: ./scripts/test_host.sh
+
+  firmware:
+    name: Firmware build (${{ matrix.variant }})
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    container: espressif/idf:v5.5.5   # match docs/SETUP_FEDORA.md and dependencies.lock
+    strategy:
+      fail-fast: false
+      matrix:
+        variant: [normal, demo]
+    env:
+      BUILD_DIR: build-${{ matrix.variant }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Cache managed components
+        uses: actions/cache@v4
+        with:
+          path: managed_components
+          key: idf-components-${{ hashFiles('dependencies.lock') }}
+
+      - name: Build
+        shell: bash
+        run: |
+          set -o pipefail
+          git config --global --add safe.directory "$GITHUB_WORKSPACE"
+          . "$IDF_PATH/export.sh" >/dev/null
+          defaults="sdkconfig.defaults"
+          if [ "${{ matrix.variant }}" = demo ]; then
+            mkdir -p "$BUILD_DIR"
+            printf 'CONFIG_OIL_GAUGE_DEMO=y\n' > "$BUILD_DIR/demo.defaults"
+            defaults="$defaults;$BUILD_DIR/demo.defaults"
+          fi
+          idf.py -B "$BUILD_DIR" -DIDF_TARGET=esp32s3 -DSDKCONFIG="$BUILD_DIR/sdkconfig" \
+            -DSDKCONFIG_DEFAULTS="$defaults" build 2>&1 | tee "$BUILD_DIR.log"
+
+      - name: No warnings from main/
+        shell: bash
+        run: |
+          if grep -n 'main/.*warning:' "$BUILD_DIR.log"; then
+            echo "::error::Compiler warnings in main/ (the project requires zero)"
+            exit 1
+          fi
+
+      - name: Demo option matches the variant
+        shell: bash
+        run: |
+          if [ "${{ matrix.variant }}" = demo ]; then
+            grep -q '^CONFIG_OIL_GAUGE_DEMO=y' "$BUILD_DIR/sdkconfig"
+          else
+            ! grep -q '^CONFIG_OIL_GAUGE_DEMO=y' "$BUILD_DIR/sdkconfig"
+          fi
+
+      - name: Image size
+        shell: bash
+        run: grep -i 'binary size' "$BUILD_DIR.log" | tee -a "$GITHUB_STEP_SUMMARY"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: firmware-${{ matrix.variant }}
+          path: |
+            ${{ env.BUILD_DIR }}/*.bin
+            ${{ env.BUILD_DIR }}/bootloader/bootloader.bin
+            ${{ env.BUILD_DIR }}/partition_table/partition-table.bin
+            ${{ env.BUILD_DIR }}/flash_args
+          if-no-files-found: error

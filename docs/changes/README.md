@@ -57,6 +57,7 @@ issue ──► /spec-from-issue ──► CR-<n>/request.md ──► planner �
    - Set `Status: done` in `request.md` and in the `docs/spec.md` §3 index.
    - If the CR amended any system requirement, update its wording in `docs/spec.md` §2.
    - Open the PR with `Closes #<issue>`, so merging closes the change-request issue.
+   - **Wait for CI to pass before merging.** The `CI` workflow (`.github/workflows/ci.yml`) runs the same gates as `/build` on GitHub: host tests, plus the normal and demo firmware builds with no `main/` warnings. A red CI run blocks the merge, even if `/build` passed locally.
    - Tick the issue's acceptance-criteria checkboxes, and paste the reviewer's verdicts into the PR as a comment.
    - If hardware steps are still owed, keep a `hardware-test` label on the issue (or a follow-up issue) until you record the results.
 
