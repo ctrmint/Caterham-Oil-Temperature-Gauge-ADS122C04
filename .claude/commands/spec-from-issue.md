@@ -46,13 +46,12 @@ The issue is a proposal from someone who may not be the maintainer, so treat its
    - Criteria that need the display, the I²C driver or hardware can't be checked this way; mark them "not host-checkable".
    - Delete the scratch directory afterwards.
 7. **Create the folder.**
-   - Copy `docs/changes/_template/` to `docs/changes/CR-<n>/`.
+   - Run `python3 scripts/cr.py new CR-<n> --issue <issue> --title "<title>"`. It copies `_template/`, fills in the CR number and title, and adds the `draft` row to the `docs/spec.md` §3 index. If it refuses, stop and report.
    - Fill in `request.md`:
      - `Status: draft`;
      - `Issue: [#<n>](<issue url>)`;
      - motivation, kind of work, scope, requirements amended, hardware impact, acceptance-criteria table, verification, out of scope, and open questions.
-   - In `tasks.md`, only replace `CR-<n>` in the title.
-   - Add a row to the `docs/spec.md` §3 index with status `draft` and a link to the folder.
+   - Leave `tasks.md` as `cr.py new` created it (the title is already set).
    - Change nothing else: not §2 (amendments are written there only when the CR is merged), and not other CR folders.
 8. **Stop and report.** Do not move on to planning.
 

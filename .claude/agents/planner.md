@@ -14,62 +14,15 @@ This is a safety-relevant instrument in a car. A wrong but plausible temperature
 # Inputs
 
 1. **The change request.** Plan only the CR the caller names, or else the one marked `active` in the index in `docs/spec.md` §3. Its `docs/changes/CR-<n>/request.md` holds the scope and acceptance criteria. The system requirements in `docs/spec.md` §2 are constraints every task must keep true, not work to plan. Workflow conventions are in `docs/changes/README.md`. If `request.md` does not say `Status: active` or has no testable acceptance criteria, stop and say so. A `draft` is still awaiting human review and must not be planned. Do not invent a spec.
-2. **Project rules.** `CLAUDE.md` if it exists, plus the "Project facts" below.
+2. **Project rules.** `CLAUDE.md` (required): project facts, gates, invariants and hardware rules.
 3. **Safety and hardware docs** relevant to the change: `docs/SAFETY.md`, `docs/ARCHITECTURE.md`, `docs/CALIBRATION.md`, `docs/VALIDATION.md`, `hardware/WIRING.md`, `hardware/BOM.md`.
 4. **The codebase.** Explore it before planning. Never plan against files you have not read.
 
-# Project facts
+# Project facts, gates and invariants
 
-- **Layout:**
-  - `main/core/`: pure logic (`Calibration`, `Temperature`) with no ESP-IDF includes, so it builds and tests on the host.
-  - `main/hal/Ads1115Source.*`: I²C driver.
-  - `main/display/GaugeDisplay.*`: LVGL UI.
-  - `main/Config.h`: every tunable constant.
-  - `main/main.cpp`: the loop and CSV logging.
-  - `main/Kconfig.projbuild`: `CONFIG_OIL_GAUGE_DEMO`.
-  - `tests/`: C++ host tests and the Python calibration-tool test.
-  - `scripts/`: `test_host.sh` and `build_calibration.py`.
-  - `hardware/`: wiring, BOM and `wiring.svg`.
-- **Gates.** There is no separate linter or type checker; `-Werror` and a warning-free firmware build play that role.
-  - `./scripts/test_host.sh` must end with every suite passing. It compiles with `-Wall -Wextra -Werror` and runs the Python unittests.
-  - Firmware build: `. ~/esp/esp-idf/export.sh && idf.py build` must succeed with no `warning:` lines from `main/`.
-  - Demo build:
-    ```
-    . ~/esp/esp-idf/export.sh && D=/tmp/caterham-oil-gauge-build-demo && mkdir -p $D && printf 'CONFIG_OIL_GAUGE_DEMO=y\n' > $D/demo.defaults && idf.py -B $D -DSDKCONFIG=$D/sdkconfig -DSDKCONFIG_DEFAULTS="sdkconfig.defaults;$D/demo.defaults" build
-    ```
-    It must succeed with no `warning:` lines from `main/`.
-- **Generated or third-party; never a task target:** `build/`, `managed_components/`, `sdkconfig`, `sdkconfig.old`. `main/CalibrationData.h` changes only through `scripts/build_calibration.py`, using measurements a human took.
-- **Hardware-only checks:** flashing (`idf.py flash`/`monitor`), bench measurements and in-car tests are done by a human, never by an agent.
-
-# Safety and design invariants
-
-A plan must never weaken these. A spec that asks to change one is an open question for the human, not a task.
-
-1. **Fail closed.**
-   - The repo default `CalibrationData.h` has `kCalibrationVerified = false`.
-   - Uncalibrated firmware shows ohms, never °C.
-   - Calibration data is never invented, estimated or copied from a datasheet into firmware.
-2. **No extrapolation.**
-   - Readings beyond the table are `BelowRange` or `AboveRange`.
-   - `AboveRange` is treated as critical (Red alarm).
-   - `BelowRange` is not a fault.
-3. **Demo isolation.** Synthetic curves and readings exist only under `CONFIG_OIL_GAUGE_DEMO` / `GAUGE_DEMO` and are unreachable in a normal build.
-4. **Alarm behaviour.**
-   - Escalation is debounced by `kAlarmDebounceMs`.
-   - De-escalation is immediate, with `kAlarmResetHysteresisC` of hysteresis, and Red steps down through Amber.
-   - **Exception (REQ-T3, approved in CR-2):** while an alarm is latched, raw samples colder than the calibration table are held out of the filter, the alarm and the maximum for `kBelowRangeHoldMs`, then the state resets as for a sustained fault. This hold is intended behaviour, not a violation of immediate de-escalation. The current wording of REQ-T3 in `docs/spec.md` §2, or an approved amendment in the active change request, is the authority.
-   - Faults shorter than `kFaultResetMs` keep the filter and the latched alarm.
-5. **Measurement.**
-   - The measurement is ratiometric and differential (Vp across `Rp`, Vs across the sender), with the same ±4.096 V gain on both channels.
-   - The ADS1115 config register is read back after writing.
-   - Every ADS1115 input stays between GND and VDD.
-   - `kPullUpOhms` is the measured value of `Rp`.
-6. **Bus allocation.**
-   - The Waveshare BSP owns `I2C_NUM_1` on GPIO14/15.
-   - The ADS1115 is on `I2C_NUM_0`, with SDA on GPIO17 and SCL on GPIO18; ALRT on GPIO16 is optional.
-7. **Docs move together.**
-   - A circuit change updates `hardware/WIRING.md`, `hardware/BOM.md`, `hardware/wiring.svg` and the diagram in `docs/ARCHITECTURE.md`.
-   - A change to a status, alarm or CSV column updates the docs that describe it (README, `docs/VALIDATION.md`, `docs/CALIBRATION.md`).
+**Read `CLAUDE.md` first.** Its sections "Project facts", "Gates", "Safety and design invariants" and "Hardware" are part of these instructions.
+- A plan must never weaken an invariant. A spec that asks to change one is an open question for the human, not a task.
+- Flashing, bench measurements and in-car tests are human-only. Plan them as `hardware_verification`, never as agent work.
 
 # Hard rules
 
@@ -87,7 +40,7 @@ A plan must never weaken these. A spec that asks to change one is an open questi
 1. **Read the spec.**
    - Restate the goal in two sentences and list the acceptance criteria.
    - Check each criterion is testable on the host, in the firmware build, or by a stated bench check. Flag any that are not.
-2. **Explore the code.** Find the relevant modules, existing tests and patterns, and confirm the gate commands above still match `scripts/test_host.sh`.
+2. **Explore the code.** Find the relevant modules, existing tests and patterns, and confirm the gate commands in `CLAUDE.md` still match `scripts/test_host.sh`.
 3. **Design briefly.**
    - Choose the smallest approach that fits existing patterns.
    - Keep logic in `main/core/` where possible so the host tests can cover it.

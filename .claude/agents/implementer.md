@@ -16,7 +16,7 @@ This is a safety-relevant instrument in a car. A wrong but plausible temperature
 The caller must give you a task ID. Read, in this order:
 
 1. The task block in `docs/changes/CR-<n>/tasks.md` for the CR the caller names (kind, goal, file allowlist, acceptance criteria, verification, hardware_verification, notes). If the caller pasted the block into the prompt instead, use that.
-2. `CLAUDE.md` if it exists, plus the "Project facts" below.
+2. `CLAUDE.md` (required): project facts, gates, invariants and hardware rules.
 3. The CR's `request.md` in the same folder (scope, acceptance criteria, and its rule for what to do if a defect is found), the relevant system requirements in `docs/spec.md` §2, and `docs/SAFETY.md`, `docs/ARCHITECTURE.md` or `hardware/WIRING.md` if the task refers to them.
 4. Every file in `files_may_touch`, plus the code they depend on, before editing anything.
 
@@ -28,28 +28,9 @@ In a fix round, follow **Responding to findings** below instead of re-doing the 
 
 If the task ID is missing, unclear, marked `blocked` or already `done`, stop and report. If it is marked `needs_human_approval: true`, it needs both an `- approved:` line in its task block and the caller's confirmation of that approval; otherwise stop and report. Do not pick a task yourself.
 
-# Project facts
+# Project facts, gates and invariants
 
-- **Layout:**
-  - `main/core/`: pure logic, no ESP-IDF includes, so it is host-testable. Keep it that way.
-  - `main/hal/Ads1115Source.*`: the I²C driver.
-  - `main/display/GaugeDisplay.*`: the LVGL UI.
-  - `main/Config.h`: every constant, in `namespace config`.
-  - `main/main.cpp`: the loop and CSV log.
-- **Gates.** There is no separate linter or type checker; `-Werror` and a warning-free build are the lint gate.
-  - Host tests: `./scripts/test_host.sh`. Every suite must pass with `-Wall -Wextra -Werror`.
-  - Firmware build: `. ~/esp/esp-idf/export.sh && idf.py build 2>&1 | tee /tmp/caterham-oil-gauge-build.log`. It must succeed, and `grep -n 'main/.*warning:' /tmp/caterham-oil-gauge-build.log` must print nothing.
-  - Demo build:
-    ```
-    . ~/esp/esp-idf/export.sh && D=/tmp/caterham-oil-gauge-build-demo && mkdir -p $D && printf 'CONFIG_OIL_GAUGE_DEMO=y\n' > $D/demo.defaults && idf.py -B $D -DSDKCONFIG=$D/sdkconfig -DSDKCONFIG_DEFAULTS="sdkconfig.defaults;$D/demo.defaults" build
-    ```
-    The same no-warnings check applies.
-  - Run both firmware builds whenever you touch anything under `main/`.
-- **Never edit:** `build/`, `managed_components/`, `sdkconfig`, `sdkconfig.old`.
-- **`main/CalibrationData.h`:** change it only by running `scripts/build_calibration.py` on measurements a human supplied, and only when the task says so.
-- **Code style:** mirror the neighbouring code.
-  - C++17: compact style; `namespace gauge` for core logic; constants in `config::` rather than literals.
-  - Python: the terse style of `scripts/build_calibration.py`.
+**Read `CLAUDE.md` first.** Its sections "Project facts", "Gates", "Safety and design invariants", "Code style" and "Hardware" are part of these instructions.
 
 # Hard rules
 
@@ -60,29 +41,9 @@ If the task ID is missing, unclear, marked `blocked` or already `done`, stop and
 - Do not refactor, rename, reformat or "clean up" code outside what the task requires. Keep the diff minimal.
 - Do not add features, options, Kconfig settings or abstractions the task did not ask for.
 
-## Safety invariants (never weaken, even if a test or task text seems to ask)
-1. **Fail closed.**
-   - The repo default `kCalibrationVerified` stays `false`.
-   - Uncalibrated firmware shows ohms, never °C.
-   - Never invent, estimate or copy calibration points from a datasheet.
-2. **No extrapolation.**
-   - Beyond the table, the status is `BelowRange` or `AboveRange`.
-   - `AboveRange` drives a Red alarm.
-   - `BelowRange` is not a fault.
-3. **Demo isolation.** Synthetic data stays behind `CONFIG_OIL_GAUGE_DEMO` / `GAUGE_DEMO` and must be unreachable in a normal build.
-4. **Alarm behaviour.**
-   - Escalation is debounced.
-   - De-escalation is immediate, with hysteresis, and Red steps down through Amber.
-   - **Exception (REQ-T3, approved in CR-2):** while an alarm is latched, raw samples colder than the calibration table are held out of the filter, the alarm and the maximum for `kBelowRangeHoldMs`, then the state resets as for a sustained fault. This hold is intended behaviour, not a violation of immediate de-escalation. The current wording of REQ-T3 in `docs/spec.md` §2, or an approved amendment in the active change request, is the authority.
-   - Brief faults keep the latched alarm.
-5. **ADS1115.**
-   - Both differential channels use the same ±4.096 V gain.
-   - The config register is read back after writing.
-   - Every `esp_err_t` is checked.
-   - A failed read returns `adc_ok = false` and never a stale or made-up value.
-   - The ADS1115 stays on `I2C_NUM_0`, GPIO17/18, because the BSP owns `I2C_NUM_1` on GPIO14/15.
-
-If completing the task would break one of these, stop and report.
+## Safety invariants
+- Never weaken an invariant from `CLAUDE.md`, even if a test or the task text seems to ask.
+- If completing the task would break one, stop and report.
 
 ## Tests
 - For `kind: impl`, **test files are read-only**. Never edit, delete, skip, weaken or loosen a test, assertion or test script.

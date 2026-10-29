@@ -16,6 +16,19 @@ docs/changes/
 
 `request.md` carries the status: `draft` → `active` → `done` (or `withdrawn`). At most one CR is `active` at a time. Folders are never deleted. Once a CR is `done` or `withdrawn`, its folder is a read-only record.
 
+## Running it
+
+- **`/cr`** (`.claude/commands/cr.md`) is the caller's playbook. Its commands are `/cr status`, `/cr activate CR-n`, `/cr plan`, `/cr go` (or `/cr next` for one step), `/cr pr` and `/cr merge`. It tells the main session exactly what to give each agent, how to check their reports, what to record, when to notify Slack and when to stop for you.
+- **`scripts/cr.py`** does all the bookkeeping in these files deterministically:
+  - `new` and `set-status`;
+  - `task-status`;
+  - `add-finding` and `close-finding`;
+  - `log`;
+  - `status` and `check`.
+
+  It refuses malformed edits, such as a reused finding ID, an unknown status or a second active CR. `tests/test_cr_tool.py` covers it, and `check` runs against every existing CR in the host tests.
+- **`CLAUDE.md`** holds the project facts, gates and invariants that every agent reads.
+
 ## Workflow
 
 ```
@@ -85,7 +98,7 @@ The review loop keeps its state in the CR's `tasks.md`, not in anyone's memory. 
 | 1 | the task ID | task ID, round 1, task base commit, the implementer's report |
 | ≥2 | task ID, round number, the findings to fix (ID, severity, direction): every open blocker and major, plus any minors or nits chosen | task ID, round number, task base commit, previous review commit, the open findings rows, the implementer's report with its **Response to findings** |
 
-**After each review, the caller:**
+**After each review, the caller** (with `scripts/cr.py`):
 1. adds new findings to the table, with the reviewer's IDs;
 2. updates the status of each prior finding from the reviewer's **Prior findings** verdicts: `fixed`, `open`, `withdrawn`, or `escalated` when a dispute is rejected;
 3. adds a Progress log row: round, verdict, and finding IDs raised or closed.
