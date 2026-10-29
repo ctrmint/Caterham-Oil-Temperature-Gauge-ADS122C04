@@ -21,7 +21,7 @@ The caller must give you a task ID, the **review round** (1, 2, ...) and the **t
 Gather, in this order:
 
 1. The task block in `docs/changes/CR-<n>/tasks.md` for the CR the caller names: kind, goal, file allowlist, acceptance criteria, verification, hardware_verification. If the caller pasted it, use that.
-2. The CR's `request.md` in the same folder (acceptance criteria, including any *Amended* notes), the relevant system requirements in `docs/spec.md` §2, `CLAUDE.md` if it exists, and the "Project facts" and invariants below.
+2. The CR's `request.md` in the same folder (acceptance criteria, including any *Amended* notes), the relevant system requirements in `docs/spec.md` §2, `CLAUDE.md` (required): project facts, gates, invariants and hardware rules.
 3. The actual change, which the caller commits before each review:
    - **The whole task:** `git diff --stat <task base>..HEAD` and `git diff <task base>..HEAD`. Use this for scope and for the gates.
    - **Round 2 and later, this round's fix:** `git diff <previous review commit>..HEAD`.
@@ -49,56 +49,11 @@ Findings carry stable IDs. Track them across rounds, rather than re-reviewing fr
   4. **Never re-raise** a finding whose status is `accepted`, `follow-up` or `withdrawn`.
   5. Report extra changes beyond the findings that the implementer did not list under **Extras** as a scope finding.
 
-# Project facts
+# Project facts, gates and invariants
 
-- **Layout:**
-  - `main/core/`: pure, host-testable logic with no ESP-IDF includes.
-  - `main/hal/Ads1115Source.*`: the I²C driver.
-  - `main/display/GaugeDisplay.*`: the LVGL UI.
-  - `main/Config.h`: constants.
-  - `main/main.cpp`: the loop and CSV log.
-  - `main/Kconfig.projbuild`: `CONFIG_OIL_GAUGE_DEMO`.
-  - `tests/`: host tests.
-  - `hardware/`: wiring, BOM and `wiring.svg`.
-- **Gates.** There is no separate linter or type checker.
-  - Host tests: `./scripts/test_host.sh`. Every suite must pass with `-Wall -Wextra -Werror`.
-  - Firmware build: `. ~/esp/esp-idf/export.sh && idf.py build 2>&1 | tee /tmp/caterham-oil-gauge-build.log`. Then `grep -n 'main/.*warning:' /tmp/caterham-oil-gauge-build.log` must print nothing.
-  - Demo build:
-    ```
-    . ~/esp/esp-idf/export.sh && D=/tmp/caterham-oil-gauge-build-demo && mkdir -p $D && printf 'CONFIG_OIL_GAUGE_DEMO=y\n' > $D/demo.defaults && idf.py -B $D -DSDKCONFIG=$D/sdkconfig -DSDKCONFIG_DEFAULTS="sdkconfig.defaults;$D/demo.defaults" build
-    ```
-    The same no-warnings check applies.
-- **Generated or third-party, must not appear in a diff:** `build/`, `managed_components/`, `sdkconfig`, `sdkconfig.old`. `main/CalibrationData.h` may change only through `scripts/build_calibration.py` using human-supplied measurements.
-
-# Safety and design invariants
-
-Any violation is a **blocker**.
-
-1. **Fail closed.**
-   - The repo default `kCalibrationVerified` is `false`.
-   - Uncalibrated firmware shows ohms, never °C.
-   - No calibration points are invented, estimated or taken from a datasheet.
-2. **No extrapolation.**
-   - Beyond the table, the status is `BelowRange` or `AboveRange` and no number is shown.
-   - `AboveRange` drives a Red alarm.
-   - `BelowRange` is not a fault.
-3. **Demo isolation.** Synthetic curves and readings are reachable only under `CONFIG_OIL_GAUGE_DEMO` / `GAUGE_DEMO`.
-4. **Alarm behaviour.**
-   - Escalation is debounced by `kAlarmDebounceMs`.
-   - De-escalation is immediate, with `kAlarmResetHysteresisC` of hysteresis, and Red steps down through Amber.
-   - **Exception (REQ-T3, approved in CR-2):** while an alarm is latched, raw samples colder than the calibration table are held out of the filter, the alarm and the maximum for `kBelowRangeHoldMs`, then the state resets as for a sustained fault. This hold is intended behaviour, not a violation of immediate de-escalation. The current wording of REQ-T3 in `docs/spec.md` §2, or an approved amendment in the active change request, is the authority.
-   - Faults shorter than `kFaultResetMs` keep the filter and the latched alarm.
-   - Sustained faults reset them.
-5. **Measurement.**
-   - The measurement is ratiometric and differential, with the same ±4.096 V gain on both channels.
-   - The ADS1115 config register is read back after writing.
-   - Every `esp_err_t` is checked.
-   - A failed read gives `adc_ok = false`, never a stale or invented value.
-   - No ADS1115 input can exceed GND to VDD under the documented wiring.
-6. **Bus allocation.** The ADS1115 is on `I2C_NUM_0` with SDA on GPIO17 and SCL on GPIO18, because the BSP owns `I2C_NUM_1` on GPIO14/15.
-7. **Docs consistency.**
-   - A circuit change updates `hardware/WIRING.md`, `hardware/BOM.md`, `hardware/wiring.svg` and the `docs/ARCHITECTURE.md` diagram together.
-   - A status, alarm or CSV column change updates the docs that describe it.
+**Read `CLAUDE.md` first.** Its sections "Project facts", "Gates", "Safety and design invariants", "Code style" and "Hardware" are part of these instructions.
+- Any violation of an invariant is a **blocker**.
+- Generated or third-party paths must not appear in a diff, and `main/CalibrationData.h` may change only as `CLAUDE.md` describes.
 
 # Hard rules
 
@@ -107,7 +62,7 @@ Any violation is a **blocker**.
   - Never stage, commit, stash, reset, checkout or push.
 - **Bash is limited to inspection, verification and scratch mutation testing.** Allowed:
   - `git status`, `git diff`, `git log` and `git show`;
-  - the gate commands above and the task's verification commands;
+  - the gate commands in `CLAUDE.md` and the task's verification commands;
   - the mutation check in step 5 below, which works on a copy under `/tmp/caterham-oil-gauge-review/`;
   - nothing else.
   The builds write to `build/` and `/tmp`, which is expected; `build/` is gitignored.
@@ -140,7 +95,7 @@ Work through these in order and do not skip steps.
 - A criterion that needs hardware is "unverified: bench step owed", never "met".
 
 ## 4. Safety invariants and correctness
-- Check the diff against every invariant above.
+- Check the diff against every invariant in `CLAUDE.md`.
 - Edge cases to consider:
   - NaN or inf samples;
   - zero or negative voltages;
@@ -166,7 +121,7 @@ Work through these in order and do not skip steps.
   - tests that assert nothing meaningful or mirror the implementation;
   - logic gated on `GAUGE_DEMO` that changes live behaviour.
 - **Mutation check.** For a behaviour change in `main/core/`, confirm a test catches its reversal:
-  1. Copy `main/`, `tests/`, `scripts/` and `examples/` (the Python tests read it) into `/tmp/caterham-oil-gauge-review/`.
+  1. Copy `main/`, `tests/`, `scripts/`, `examples/` and `docs/` (the Python tests read the last two) into `/tmp/caterham-oil-gauge-review/`.
   2. Revert or break the key line in the copy with `sed`.
   3. Run `ulimit -c 0; cd /tmp/caterham-oil-gauge-review && ./scripts/test_host.sh` (no core dumps, and every scratch command runs with its working directory inside the copy, never the repo), and confirm it fails.
   4. Report the mutation and the result.
