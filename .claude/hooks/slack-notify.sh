@@ -1,9 +1,11 @@
 #!/usr/bin/env bash
-# slack-notify.sh - status-only Slack notifications for the change-request workflow.
+# slack-notify.sh - status-only Slack notifications for a Claude Code change-request workflow.
 #
-# Who calls it: the main session that runs the change-request lifecycle
-# (docs/changes/README.md, "Slack notifications"). The planner, implementer and reviewer
-# agents never call it. Every lifecycle type takes cr=CR-<n>, because task numbers restart
+# Project-agnostic: copy .claude/hooks/slack-notify.sh into any repo. Messages are labelled
+# with the repo name, and each repo can post to its own channel (see Setup).
+#
+# Who calls it: the main session that runs the change-request lifecycle (in this repo,
+# docs/changes/README.md, "Slack notifications"). Sub-agents never call it. Every lifecycle type takes cr=CR-<n>, because task numbers restart
 # at T1 in each change request.
 #
 #   slack-notify.sh test
@@ -26,8 +28,10 @@
 #                                      sends false "waiting for you" messages.
 #
 # Setup:
-#   1. Put the Slack incoming-webhook URL in ~/.config/oil-gauge/slack_webhook
-#      (override with SLACK_WEBHOOK_FILE), then chmod 600 that file.
+#   1. Put a Slack incoming-webhook URL in ~/.config/claude-slack-notify/webhook (used by
+#      every project), or in ~/.config/claude-slack-notify/<project>.webhook to send one
+#      project to its own channel. <project> is the repo folder name. SLACK_WEBHOOK_FILE
+#      overrides both. chmod 600 the file.
 #   2. Needs bash, curl and jq.
 #   3. Check the wording without posting:  NOTIFY_DRY_RUN=1 .claude/hooks/slack-notify.sh test
 #   4. Post one real test message:          .claude/hooks/slack-notify.sh test
@@ -44,21 +48,37 @@
 #     Bash. The deny rules in .claude/settings.json are a speed bump, not a guarantee. An
 #     incoming webhook can only post to its one channel, so if the URL ever shows up in a
 #     transcript or log, rotate it in Slack.
-#   - Failures are logged (type and result only) to ~/.local/state/oil-gauge/notify.log.
+#   - Failures are logged (project, type and result only) to
+#     ~/.local/state/claude-slack-notify/notify.log.
+#
+# Environment: SLACK_WEBHOOK_FILE, NOTIFY_LABEL (default: repo name), NOTIFY_DRY_RUN=1,
+# NOTIFY_THROTTLE_SECS (default 60, hook types only), NOTIFY_STOP=1.
 
 set -u
 
-WEBHOOK_FILE="${SLACK_WEBHOOK_FILE:-$HOME/.config/oil-gauge/slack_webhook}"
-STATE_DIR="${XDG_STATE_HOME:-$HOME/.local/state}/oil-gauge"
-LABEL="${NOTIFY_LABEL:-oil-gauge}"
+# Keep a small safe character set only, then cap the length. No * or _ (Slack bold/italics).
+clean() { printf '%s' "$1" | tr -cd 'A-Za-z0-9 .:/#,+()=-' | cut -c1-120; }
+
+# The project is the repo folder name: from Claude Code, else git, else the current folder.
+project_root() {
+  [ -n "${CLAUDE_PROJECT_DIR:-}" ] && { printf '%s' "$CLAUDE_PROJECT_DIR"; return; }
+  git rev-parse --show-toplevel 2>/dev/null || printf '%s' "$PWD"
+}
+PROJECT="$(clean "$(basename "$(project_root)")")"
+PROJECT="${PROJECT:-project}"
+
+CONFIG_DIR="${XDG_CONFIG_HOME:-$HOME/.config}/claude-slack-notify"
+if [ -n "${SLACK_WEBHOOK_FILE:-}" ]; then WEBHOOK_FILE="$SLACK_WEBHOOK_FILE"
+elif [ -e "$CONFIG_DIR/$PROJECT.webhook" ]; then WEBHOOK_FILE="$CONFIG_DIR/$PROJECT.webhook"
+else WEBHOOK_FILE="$CONFIG_DIR/webhook"
+fi
+STATE_DIR="${XDG_STATE_HOME:-$HOME/.local/state}/claude-slack-notify"
+LABEL="${NOTIFY_LABEL:-$PROJECT}"
 THROTTLE_SECS="${NOTIFY_THROTTLE_SECS:-60}"   # applies to hook types only
 
 mkdir -p "$STATE_DIR" 2>/dev/null && chmod 700 "$STATE_DIR" 2>/dev/null
 
-log() { printf '%s %s\n' "$(date -u +%Y-%m-%dT%H:%M:%SZ)" "$*" >>"$STATE_DIR/notify.log" 2>/dev/null; }
-
-# Keep a small safe character set only, then cap the length. No * or _ (Slack bold/italics).
-clean() { printf '%s' "$1" | tr -cd 'A-Za-z0-9 .:/#,+()=-' | cut -c1-120; }
+log() { printf '%s %s %s\n' "$(date -u +%Y-%m-%dT%H:%M:%SZ)" "$PROJECT" "$*" >>"$STATE_DIR/notify.log" 2>/dev/null; }
 
 TYPE="${1:-}"
 [ $# -gt 0 ] && shift
@@ -98,8 +118,6 @@ hook_field() {
   command -v jq >/dev/null 2>&1 || return 0
   printf '%s' "$HOOK_JSON" | jq -r "$1 // empty" 2>/dev/null
 }
-
-project_name() { clean "$(basename "${CLAUDE_PROJECT_DIR:-$PWD}")"; }
 
 MSG=""
 case "$TYPE" in
@@ -157,13 +175,13 @@ case "$TYPE" in
       agent_needs_input) what="has an agent waiting for input" ;;
       *) what="needs your attention" ;;
     esac
-    MSG="🙋 Claude Code $what ($(project_name))" ;;
+    MSG="🙋 Claude Code $what" ;;
 
   stopped)
     [ "${NOTIFY_STOP:-0}" = "1" ] || exit 0
     # Avoid loops: if this Stop was itself caused by a stop hook, say nothing.
     [ "$(hook_field .stop_hook_active)" = "true" ] && exit 0
-    MSG="⏸️ Claude Code stopped ($(project_name))" ;;
+    MSG="⏸️ Claude Code stopped" ;;
 
   *)
     log "unknown type: $(clean "$TYPE")"
@@ -182,7 +200,7 @@ fi
 # Throttle repeated hook messages so a chatty session cannot flood the channel.
 case "$TYPE" in
   needs-attention|stopped)
-    stamp="$STATE_DIR/last-$TYPE"
+    stamp="$STATE_DIR/last-$PROJECT-$TYPE"
     now="$(date +%s)"
     last="$(cat "$stamp" 2>/dev/null || echo 0)"
     case "$last" in ''|*[!0-9]*) last=0 ;; esac

@@ -124,7 +124,8 @@ Notes:
   - There is deliberately **no Stop hook**. Stop fires at the end of every turn, including turns that end while background agents are still working, so it would send false "waiting for you" messages.
   - To opt in for yourself anyway, set `NOTIFY_STOP=1` and add a Stop hook to your own `.claude/settings.local.json`.
 - **Setup and testing:**
-  - **Setup:** the webhook URL goes in `~/.config/oil-gauge/slack_webhook` (`chmod 600`), never in the repo.
+  - **Setup:** the webhook URL goes in `~/.config/claude-slack-notify/webhook`, shared by all your projects, or in `~/.config/claude-slack-notify/Caterham-Oil-Temperature-Gauge.webhook` for a channel of its own. `chmod 600` it, and never put it in the repo.
+  - **Reuse:** the script has no project-specific names. To reuse it, copy `.claude/hooks/slack-notify.sh` and the `hooks` and `deny` entries from `.claude/settings.json` into another repo. Messages are labelled with that repo's folder name.
   - **Preview without posting:** `NOTIFY_DRY_RUN=1 .claude/hooks/slack-notify.sh <type> ...`.
   - **No webhook file:** nothing is sent. The script logs and exits 0, so a missing or broken Slack setup never blocks the workflow.
 

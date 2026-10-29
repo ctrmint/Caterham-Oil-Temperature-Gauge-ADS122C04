@@ -1,9 +1,9 @@
 {
   "permissions": {
     "deny": [
-      "Read(~/.config/oil-gauge/**)",
-      "Edit(~/.config/oil-gauge/**)",
-      "Bash(cat ~/.config/oil-gauge/*)"
+      "Read(~/.config/claude-slack-notify/**)",
+      "Edit(~/.config/claude-slack-notify/**)",
+      "Bash(cat ~/.config/claude-slack-notify/*)"
     ]
   },
   "hooks": {
