@@ -6,18 +6,15 @@
       "Bash(cat ~/.config/claude-slack-notify/*)"
     ]
   },
-  "hooks": {
-    "Notification": [
-      {
-        "matcher": "idle_prompt|permission_prompt|elicitation_dialog|agent_needs_input",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "${CLAUDE_PROJECT_DIR}/.claude/hooks/slack-notify.sh",
-            "args": ["needs-attention"]
-          }
-        ]
+  "extraKnownMarketplaces": {
+    "ctrmint-plugins": {
+      "source": {
+        "source": "github",
+        "repo": "ctrmint/cr-workflow"
       }
-    ]
+    }
+  },
+  "enabledPlugins": {
+    "cr-workflow@ctrmint-plugins": true
   }
 }
