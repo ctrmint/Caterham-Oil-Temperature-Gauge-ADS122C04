@@ -2,7 +2,7 @@
 
 ESP-IDF 5.5.5 C++17 firmware for a Waveshare ESP32-S3-Touch-AMOLED-1.75 (LVGL 9). It reads a dry-sump oil-temperature sender through an ADS1115 over I²C. This is a **safety-relevant instrument in a car**: a wrong but plausible temperature is worse than no reading. The firmware is supplementary to the factory warnings (`docs/SAFETY.md`).
 
-This file is the **project contract** for the `cr-workflow` plugin (`ctrmint/cr-workflow`, installed as `cr-workflow@ctrmint-plugins`). The plugin's `planner`, `implementer` and `reviewer` agents read the sections below as part of their instructions, so keep these headings exactly as written. Run `python3 <plugin>/scripts/cr.py doctor` to check them.
+This file is the **project contract** for the `cr-workflow` plugin (`ellanlabs/cr-workflow`, installed as `cr-workflow@ellanlabs-plugins`). The plugin's `planner`, `implementer` and `reviewer` agents read the sections below as part of their instructions, so keep these headings exactly as written. Run `python3 <plugin>/scripts/cr.py doctor` to check them.
 
 ## Project facts
 

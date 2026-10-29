@@ -7,14 +7,14 @@
     ]
   },
   "extraKnownMarketplaces": {
-    "ctrmint-plugins": {
+    "ellanlabs-plugins": {
       "source": {
         "source": "github",
-        "repo": "ctrmint/cr-workflow"
+        "repo": "ellanlabs/cr-workflow"
       }
     }
   },
   "enabledPlugins": {
-    "cr-workflow@ctrmint-plugins": true
+    "cr-workflow@ellanlabs-plugins": true
   }
 }
