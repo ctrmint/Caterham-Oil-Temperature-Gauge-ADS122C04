@@ -1,6 +1,6 @@
 # Specification
 
-The source of truth for how the gauge must behave **now**. It feeds the agents in `.claude/agents/`.
+The source of truth for how the gauge must behave **now**. It feeds the agents of the `cr-workflow` plugin (see `CLAUDE.md`).
 
 - **Sections 1 and 2** describe the product and its system requirements: the behaviour the firmware already has. They are constraints. Every change must keep them true unless a change request explicitly amends one, and amending one needs human approval. When an amending change request is merged, its new wording is written into section 2.
 - **Change requests** live in their own folders under [`docs/changes/`](changes/README.md), one folder per change request (`request.md` plus `tasks.md`). Section 3 is the index. The workflow, from issue to merge, is in [docs/changes/README.md](changes/README.md).
@@ -26,7 +26,7 @@ An experimental, supplementary dry-sump oil-temperature display for a Caterham. 
 - **Gates:**
   - `./scripts/test_host.sh`;
   - `idf.py build` and the demo build, both with no `main/` warnings;
-  - `/build` runs all three.
+  - `/cr-workflow:build` runs all three locally; CI runs them on every PR.
 - **Out of scope:** ECU or CAN integration, engine protection or intervention, logging to storage, wireless, touch interaction.
 
 ## 2. System requirements (baseline, implemented)
@@ -78,13 +78,13 @@ Evidence key: **H** = host test in `tests/`, **B** = firmware build, **HW** = be
 
 ### Build and demo isolation
 - **REQ-B1:** Synthetic curves and readings exist only under `CONFIG_OIL_GAUGE_DEMO` (firmware) / `GAUGE_DEMO` (host tests). *Evidence:* B (both builds).
-- **REQ-B2:** Host tests pass with `-Wall -Wextra -Werror`, and both firmware builds compile with no warnings from `main/`. *Evidence:* `/build`.
+- **REQ-B2:** Host tests pass with `-Wall -Wextra -Werror`, and both firmware builds compile with no warnings from `main/`. *Evidence:* `/cr-workflow:build` locally; CI on every PR.
 
 ---
 
 ## 3. Change requests
 
-At most one change request is `active` at a time. Its folder is what the planner, implementer and reviewer work from. To start one, run `/spec-from-issue <n>`.
+At most one change request is `active` at a time. Its folder is what the planner, implementer and reviewer work from. To start one, run `/cr-workflow:spec-from-issue <n>`.
 
 | CR | Issue | Title | Status | Folder |
 |----|-------|-------|--------|--------|

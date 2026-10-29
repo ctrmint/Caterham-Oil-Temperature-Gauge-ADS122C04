@@ -1,6 +1,6 @@
 name: CI
 
-# The same gates as /build (.claude/commands/build.md): host tests, then the normal and demo
+# The same gates as `## Gates` in CLAUDE.md (run locally with /cr-workflow:build): host tests, then the normal and demo
 # firmware builds with zero warnings from main/. Hardware checks stay with a human.
 
 on:
