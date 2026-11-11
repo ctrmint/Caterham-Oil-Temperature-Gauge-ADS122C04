@@ -1371,7 +1371,7 @@ One row per review round, kept by the caller with cr.py start-round and record-r
 | T3 | 1 | d691858128e9c0bf701167375df67843b325cc3c | a237b381b8c18d77dfa9f1b109b95b1036ffbc57 | fix |
 | T3 | 2 | d691858128e9c0bf701167375df67843b325cc3c | c5fe8add8b651c907f29507e4f618536d92a6497 | pass |
 | T4 | 1 | f24185f8a250f77f424d61cb890ce2c6eb3e53ad | 8f198be1744961233152cb9c68b2164983ca6fd2 | pass |
-| T5 | 1 | 4883a907f4274571a1079ab5ed8d8d99e6941489 |  |  |
+| T5 | 1 | 4883a907f4274571a1079ab5ed8d8d99e6941489 | ab317f2b0aa1ea62c58b705686317e2c5848f9e5 | fix |
 
 ---
 
@@ -1393,6 +1393,10 @@ Review findings, kept by the caller. Columns and statuses: see "Review rounds" i
 | T3-F2 | T3 | 1 | major | Fault and BelowRange guards never exercised in the calibrated build (guard removal and latched-Red fault mutants survive) | fixed | 2 |  |
 | T3-F3 | T3 | 1 | minor | Only NaN tested as non-finite temperature; +inf/-inf untested | fixed | 2 |  |
 | T4-F1 | T4 | 1 | nit | The '-' and blank seven-segment masks are bare literals outside the mask table | accepted | 1 | Style nit; every mask is pinned by tests, no behaviour impact (caller, under maintainer delegation) |
+| T5-F1 | T5 | 1 | major | No second long press on the same detector, and every press is at (100,100) (fire-once-ever and first-press-point mutants survive) | open |  |  |
+| T5-F2 | T5 | 1 | major | Slop checked only as one jump before the threshold (slow-swipe and time-before-slop mutants survive) | open |  |  |
+| T5-F3 | T5 | 1 | major | Hold-before-press assertion passes only because of its coordinates (armed-from-construction mutant with zero origin survives) | open |  |  |
+| T5-F4 | T5 | 1 | nit | Literal 1000 stands in for kLongPressMs at line 42 | open |  |  |
 
 ---
 
@@ -1422,3 +1426,4 @@ Newest last. One row per implementer run, review round, approval, escalation or 
 | 2026-11-11 | T4 | Implementer round 1 | done | files: main/CMakeLists.txt, main/core/SweepModel.cpp, main/core/SweepModel.h; gates: tests=pass build=pass build-demo=pass |
 | 2026-11-11 | T4 | Review round 1 | pass | raised: T4-F1 |
 | 2026-11-11 | T5 | Implementer round 1 | done | files: scripts/test_host.sh, tests/layout_choice_test.cpp; gates: tests=fail |
+| 2026-11-11 | T5 | Review round 1 | fix | raised: T5-F1, T5-F2, T5-F3, T5-F4 |
