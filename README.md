@@ -25,9 +25,9 @@ There are two layouts of the same readings.
 * **Classic:** the title reads `OIL °C`, `OIL °F` or `OIL ohm`. The reading itself has no unit: large fixed-width digits in 4 right-aligned cells, so the ones digit stays in place. The bottom line reads like `MAX 112  |  123 ohm` (maximum, then the sender resistance).
 * **Sweep:** a 40-segment ring around the edge with scale labels 40…140 °C (100…300 °F), large seven-segment digits with dim ghost segments behind them, the unit above `OIL TEMP`, and the status, footer and demo text below.
 
-Beyond the calibration table the reading shows `<min` or `>max` (for example `<20` or `>140`) with no number in between, and the unit stays in the label. Uncalibrated firmware shows `ohm` in both layouts, with no scale numbers and no lit segments in Sweep.
+Beyond the calibration table the reading shows `<min` or `>max` (for example `<20` or `>140`) and no temperature reading, and the unit stays in the label. Uncalibrated firmware shows `ohm` in both layouts, with no scale numbers and no lit segments in Sweep.
 
-**Changing layout:** press anywhere on the screen for at least 1 s (a long-press). A short tap or a swipe does nothing. The choice is stored in flash and restored at power-up; it is Classic on first boot, or if storage fails.
+**Changing layout:** press anywhere on the screen for at least 1 s (a long-press). A short tap or a swipe does nothing. The choice is stored in flash and restored at power-up; it is Classic on first boot, or if the stored choice is missing or can't be read.
 
 **Choosing °F:** `idf.py menuconfig` → **Caterham oil temperature gauge** → **Display temperature unit**, then rebuild. °C is the default. The unit applies to the display only; the serial CSV log stays in °C.
 
