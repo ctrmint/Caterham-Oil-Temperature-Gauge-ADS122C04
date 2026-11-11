@@ -56,11 +56,11 @@ class ClassicLayout : public LayoutView {
   lv_obj_t* demo_ = nullptr;
 };
 
-// Sweep geometry on the 466 px screen, shared with the digit renderer. The digit area is reserved and empty here.
+// Sweep geometry on the 466 px screen, for the digit block, scale labels and small texts.
 namespace sweep {
 constexpr int kCentre = 233;
-constexpr int kDigitW = 224, kDigitH = 80;
-constexpr int kDigitCx = 233, kDigitCy = 215;
+constexpr int kDigitW = 224, kDigitH = 96;       // 4 cells of 56 px; digit height 96 px
+constexpr int kDigitCx = 233, kDigitCy = 205;
 constexpr int kMaxLabels = 11;  // 100..300 step 20 in Fahrenheit
 } // namespace sweep
 
