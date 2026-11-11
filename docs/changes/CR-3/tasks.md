@@ -331,7 +331,7 @@ None blocking. The maintainer delegated these choices. Two judgement calls are w
 
 ### T4: Implement the Sweep model in main/core
 - kind: impl
-- status: ready
+- status: done
 - depends_on: [T3]
 - needs_human_approval: false
 - install: none
@@ -1391,7 +1391,7 @@ Review findings, kept by the caller. Columns and statuses: see "Review rounds" i
 | T3-F1 | T3 | 1 | major | Lit count only tested with Status::Normal; Cold/Amber/Red readings unpinned (dark ring in alarm and Red full-ring mutants survive) | fixed | 2 |  |
 | T3-F2 | T3 | 1 | major | Fault and BelowRange guards never exercised in the calibrated build (guard removal and latched-Red fault mutants survive) | fixed | 2 |  |
 | T3-F3 | T3 | 1 | minor | Only NaN tested as non-finite temperature; +inf/-inf untested | fixed | 2 |  |
-| T4-F1 | T4 | 1 | nit | The '-' and blank seven-segment masks are bare literals outside the mask table | open |  |  |
+| T4-F1 | T4 | 1 | nit | The '-' and blank seven-segment masks are bare literals outside the mask table | accepted | 1 | Style nit; every mask is pinned by tests, no behaviour impact (caller, under maintainer delegation) |
 
 ---
 
