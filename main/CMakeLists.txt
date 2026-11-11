@@ -2,6 +2,7 @@ idf_component_register(
     SRCS
         "main.cpp"
         "core/Calibration.cpp"
+        "core/DisplayText.cpp"
         "core/Temperature.cpp"
         "hal/Ads1115Source.cpp"
         "display/GaugeDisplay.cpp"
