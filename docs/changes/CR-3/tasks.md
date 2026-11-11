@@ -974,7 +974,7 @@ None blocking. The maintainer delegated these choices. Two judgement calls are w
 
 ### T14: Document both layouts, the long-press, the °F option and the new display text
 - kind: docs
-- status: ready
+- status: done
 - depends_on: [T13]
 - needs_human_approval: false
 - install: none
@@ -1386,7 +1386,7 @@ One row per review round, kept by the caller with cr.py start-round and record-r
 | T13 | 1 | c21e48b28265a484eb915b40eed20ae6fe5f896f | 311d21ecc879213b9e635c06b953a4f1551a9b62 | pass |
 | T14 | 1 | 1ca045595d4de90244b87d87c6ab2b2ff7d57a76 | 1aeb316fe73731226b667a494f42f774cc78d1a5 | fix |
 | T14 | 2 | 1ca045595d4de90244b87d87c6ab2b2ff7d57a76 | a7d8227fa8717cde546e61e60294b14ccd4bd101 | fix |
-| T14 | 3 | 1ca045595d4de90244b87d87c6ab2b2ff7d57a76 |  |  |
+| T14 | 3 | 1ca045595d4de90244b87d87c6ab2b2ff7d57a76 | 54a344d69f977870b8d06615fa39100daa781c47 | pass |
 
 ---
 
@@ -1427,7 +1427,7 @@ Review findings, kept by the caller. Columns and statuses: see "Review rounds" i
 | T10-F3 | T10 | 1 | nit | Sweep unit, title and status labels show LVGL default Text until the first render | fixed | 2 |  |
 | T11-F1 | T11 | 1 | nit | Sweep digits start blank, while Classic starts as -- | accepted | 1 | Cosmetic, one loop pass before the first render; a dim 8888 is not a plausible value (caller, under maintainer delegation) |
 | T12-F1 | T12 | 1 | nit | The no-switch sentinel 0xFF is a bare literal in three places | accepted | 1 | Style nit in one small file; no later task may touch GaugeDisplay, and the three uses sit within six lines (caller, under maintainer delegation) |
-| T14-F1 | T14 | 1 | major | VALIDATION claims a host test covers Sweep ring colour | open |  |  |
+| T14-F1 | T14 | 1 | major | VALIDATION claims a host test covers Sweep ring colour | fixed | 3 |  |
 | T14-F2 | T14 | 1 | minor | SAFETY calibration bullet still names only °C | fixed | 2 |  |
 | T14-F3 | T14 | 1 | minor | Demo °C validation row omits the digit-size check | fixed | 2 |  |
 | T14-F4 | T14 | 1 | nit | Ambiguous wording in README Display text | fixed | 2 |  |
@@ -1494,3 +1494,4 @@ Newest last. One row per implementer run, review round, approval, escalation or 
 | 2026-11-11 | T14 | Implementer round 2 | done | files: README.md, docs/ARCHITECTURE.md, docs/SAFETY.md, docs/VALIDATION.md; gates: tests=pass; responses: T14-F1 fixed, T14-F2 fixed, T14-F3 fixed, T14-F4 fixed |
 | 2026-11-11 | T14 | Review round 2 | fix | closed: T14-F2 fixed, T14-F3 fixed, T14-F4 fixed |
 | 2026-11-11 | T14 | Implementer round 3 | done | files: docs/VALIDATION.md; gates: tests=pass; responses: T14-F1 fixed |
+| 2026-11-11 | T14 | Review round 3 | pass | closed: T14-F1 fixed |
