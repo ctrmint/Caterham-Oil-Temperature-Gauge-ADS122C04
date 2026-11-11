@@ -1375,7 +1375,7 @@ One row per review round, kept by the caller with cr.py start-round and record-r
 | T5 | 2 | 4883a907f4274571a1079ab5ed8d8d99e6941489 | d5a16c2a0d0cf7ba06ce9560fb50645dc9d81d38 | pass |
 | T6 | 1 | e78d12f63e6b382865d17141dc3c57859968f5b1 | 6c9fb7ae93dd23db3bb2c5b8265f2274d36e6a8b | escalate |
 | T5 | 3 | d2d9bd23c1f66d9da8b698340f1014d0905375fd | 6c490fdc1c2fdde1c0d69fa16c32995caf48914f | pass |
-| T6 | 2 | e78d12f63e6b382865d17141dc3c57859968f5b1 |  |  |
+| T6 | 2 | e78d12f63e6b382865d17141dc3c57859968f5b1 | 32884e1fd6bb71a72f6f974e2566707f36fb4231 | pass |
 
 ---
 
@@ -1444,3 +1444,4 @@ Newest last. One row per implementer run, review round, approval, escalation or 
 | 2026-11-11 | T6 | Decision | reopen-T5 | Caller under maintainer delegation: reopen T5 to add an off-diagonal press point and a re-press-without-release case; then re-review T6 against them |
 | 2026-11-11 | T5 | Implementer round 3 | done | files: tests/layout_choice_test.cpp; gates: tests=pass; responses: T5-F5 fixed, T5-F6 fixed |
 | 2026-11-11 | T5 | Review round 3 | pass | closed: T5-F5 fixed, T5-F6 fixed |
+| 2026-11-11 | T6 | Review round 2 | pass |  |
