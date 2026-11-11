@@ -1393,7 +1393,7 @@ One row per review round, kept by the caller with cr.py start-round and record-r
 | T17 | 1 | 7619a3f7347ccf419d3ea8d14ecf16e507dd4f7a | 7b9a4c9fd8598c0e9fb81649229e58f7c28df06d | pass |
 | CR-3 | 1 | cd28248e19b2d08ad78fd64d2511ecb7e315bf37 | c82a2c38a675429eb7f1e2dd17999eca9dc0ca58 | fix |
 | T17 | 2 | 37019eec7e71a2f62243757a1de1469dd7b3576e | 9d2163352a953f51a0187fccd8dca8c4555c4884 | pass |
-| CR-3 | 2 | cd28248e19b2d08ad78fd64d2511ecb7e315bf37 |  |  |
+| CR-3 | 2 | cd28248e19b2d08ad78fd64d2511ecb7e315bf37 | e24b97c3606637333718eceb6238075fe2657f14 | pass |
 
 ---
 
@@ -1524,3 +1524,4 @@ Newest last. One row per implementer run, review round, approval, escalation or 
 | 2026-11-11 | T14 | Follow-up note | T14-F5 open as follow-up | Correction to the T14-F5 note: cr.py closes a reopened task with no open findings without a new round, so docs/VALIDATION.md still says ghost 888. The human-check issue and the PR state the correct 8888; fix the doc in a follow-up |
 | 2026-11-11 | T17 | Implementer round 2 | done | files: docs/spec.md; gates: tests=pass; responses: T17-F2 fixed |
 | 2026-11-11 | T17 | Review round 2 | pass | closed: T17-F2 fixed |
+| 2026-11-11 | CR-3 | Review round 2 | pass |  |
