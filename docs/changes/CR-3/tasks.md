@@ -508,7 +508,7 @@ None blocking. The maintainer delegated these choices. Two judgement calls are w
 
 ### T7: Add the display-unit choice to Kconfig (°C default)
 - kind: config
-- status: ready
+- status: done
 - depends_on: []
 - needs_human_approval: false
 - install: none
