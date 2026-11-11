@@ -5,6 +5,7 @@
 #include "core/Calibration.h"
 #include "esp_err.h"
 #include <cstdio>
+#include <cstring>
 #include <cmath>
 
 namespace {
@@ -23,9 +24,18 @@ void center_text(lv_obj_t* label, int y, const lv_font_t* font, uint32_t color) 
   lv_obj_set_style_text_color(label, lv_color_hex(color), 0);
   lv_obj_align(label, LV_ALIGN_CENTER, 0, y);
 }
+
+// Static one-character strings, so the cell labels never allocate. Index i is kCellChars[i].
+constexpr char kCellChars[] = " 0123456789-<>";
+const char* const kCellText[] = {" ", "0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "-", "<", ">"};
+const char* cellText(char ch) {
+  const char* p = strchr(kCellChars, ch);
+  return (ch != '\0' && p) ? kCellText[p - kCellChars] : kCellText[0];
+}
 } // namespace
 
-bool GaugeDisplay::begin() {
+bool GaugeDisplay::begin(gauge::Unit unit) {
+  unit_ = unit;
   // Vendor BSP initializes QSPI CO5300 display, CST9217 touch and LVGL task.
   // BSP display_start is the exact API used by Waveshare's IDF v9 demo.
   if (bsp_display_start() == nullptr) return false;
@@ -52,11 +62,27 @@ bool GaugeDisplay::begin() {
   lv_obj_remove_style(arc_, nullptr, LV_PART_KNOB);
 
   label_ = lv_label_create(root);
-  lv_label_set_text(label_, "OIL TEMPERATURE");
+  lv_label_set_text_static(label_, gauge::titleText(unit_));
   center_text(label_, -105, &lv_font_montserrat_24, kWhite);
-  temp_ = lv_label_create(root);
-  lv_label_set_text(temp_, "--");
-  center_text(temp_, -26, &lv_font_montserrat_48, kWhite);
+  // Equal-width cells: the widest digit-font glyph of the reading characters.
+  const lv_font_t* digit_font = &lv_font_montserrat_48;
+  int32_t cell_w = 0;
+  for (const char* p = kCellChars + 1; *p; ++p) {
+    const int32_t w = static_cast<int32_t>(lv_font_get_glyph_width(digit_font, static_cast<uint32_t>(*p), 0));
+    if (w > cell_w) cell_w = w;
+  }
+  const int32_t n = static_cast<int32_t>(gauge::kReadingCells);
+  for (int32_t i = 0; i < n; ++i) {
+    lv_obj_t* cell = lv_label_create(root);
+    lv_label_set_long_mode(cell, LV_LABEL_LONG_CLIP);
+    lv_obj_set_width(cell, cell_w);
+    lv_obj_set_style_text_align(cell, LV_TEXT_ALIGN_CENTER, 0);
+    lv_obj_set_style_text_font(cell, digit_font, 0);
+    lv_obj_set_style_text_color(cell, lv_color_hex(kWhite), 0);
+    lv_obj_align(cell, LV_ALIGN_CENTER, (2 * i - (n - 1)) * cell_w / 2, -26);
+    lv_label_set_text_static(cell, kCellText[0]);
+    cells_[i] = cell;
+  }
   subtitle_ = lv_label_create(root);
   lv_label_set_text(subtitle_, "SENSOR CHECK");
   center_text(subtitle_, 44, &lv_font_montserrat_16, kAmber);
@@ -72,52 +98,31 @@ bool GaugeDisplay::begin() {
 }
 
 void GaugeDisplay::render(const gauge::Reading& r, float max_temp_c, bool max_above_range, bool demo) {
-  if (!temp_ || bsp_display_lock(100) != ESP_OK) return;
-  char buffer[80];
+  if (!cells_[0] || bsp_display_lock(100) != ESP_OK) return;
   // Built-in Montserrat fonts have the degree sign but no Greek letters, so write "ohm".
   uint32_t c = kGreen;
   if (gauge::isFault(r.status) || r.status == gauge::Status::AboveRange) c = kAmber;
   else if (r.status == gauge::Status::BelowRange) c = kMute;
   if (r.alarm == gauge::Status::Amber) c = kAmber;
   if (r.alarm == gauge::Status::Red) c = kRed;
-  const bool beyond_table = r.status == gauge::Status::AboveRange || r.status == gauge::Status::BelowRange;
   if (r.has_temperature) {
-    snprintf(buffer,sizeof(buffer),"%.1f °C",r.temperature_c);
-    lv_label_set_text(temp_,buffer);
-    const int gauge_value = static_cast<int>(fmaxf(0.0f,fminf(160.0f,r.temperature_c)));
-    lv_arc_set_value(arc_,gauge_value);
+    lv_arc_set_value(arc_,static_cast<int>(fmaxf(0.0f,fminf(160.0f,r.temperature_c))));
   } else if (r.status == gauge::Status::AboveRange) {
-    snprintf(buffer,sizeof(buffer),"> %.0f °C",gauge::calibrationMaxC());
-    lv_label_set_text(temp_,buffer);
     lv_arc_set_value(arc_,160);
-  } else if (r.status == gauge::Status::BelowRange) {
-    snprintf(buffer,sizeof(buffer),"< %.0f °C",gauge::calibrationMinC());
-    lv_label_set_text(temp_,buffer);
-    lv_arc_set_value(arc_,0);
-  } else if (r.status == gauge::Status::NeedsCalibration && std::isfinite(r.resistance_ohms) &&
-             r.resistance_ohms > 0.0f) {
-    snprintf(buffer,sizeof(buffer),"%.0f ohm",r.resistance_ohms);
-    lv_label_set_text(temp_,buffer);
-    lv_arc_set_value(arc_,0);
   } else {
-    lv_label_set_text(temp_,"--");
     lv_arc_set_value(arc_,0);
   }
-  if (r.has_temperature || beyond_table) {
-    if (max_above_range)
-      snprintf(buffer,sizeof(buffer),"MAX > %.0f °C  |  %.0f ohm",gauge::calibrationMaxC(),r.resistance_ohms);
-    else if (max_temp_c > -200.f)
-      snprintf(buffer,sizeof(buffer),"MAX %.1f °C  |  %.0f ohm",max_temp_c,r.resistance_ohms);
-    else
-      snprintf(buffer,sizeof(buffer),"%.0f ohm",r.resistance_ohms);
-    lv_label_set_text(footer_,buffer);
-  } else if (r.status == gauge::Status::NeedsCalibration) {
-    lv_label_set_text(footer_,"TEMPERATURE NOT VERIFIED");
-  } else {
-    lv_label_set_text(footer_,"CHECK SENSOR AND WIRING");
+  char text[gauge::kReadingTextSize];
+  char cells[gauge::kReadingCells + 1];
+  gauge::readingText(r,unit_,text,sizeof(text));
+  gauge::readingCells(text,cells,sizeof(cells));
+  for (size_t i = 0; i < gauge::kReadingCells; ++i) {
+    lv_label_set_text_static(cells_[i],cellText(cells[i]));
+    lv_obj_set_style_text_color(cells_[i],lv_color_hex(c),0);
   }
+  gauge::footerText(r,max_temp_c,max_above_range,unit_,footer_text_,sizeof(footer_text_));
+  lv_label_set_text_static(footer_,footer_text_);
   lv_obj_set_style_arc_color(arc_,lv_color_hex(c),LV_PART_INDICATOR);
-  lv_obj_set_style_text_color(temp_,lv_color_hex(c),0);
   lv_label_set_text(subtitle_,gauge::statusText(r.status));
   lv_obj_set_style_text_color(subtitle_,lv_color_hex(c),0);
   if (demo) lv_obj_remove_flag(demo_,LV_OBJ_FLAG_HIDDEN);
