@@ -1364,6 +1364,7 @@ One row per review round, kept by the caller with cr.py start-round and record-r
 | Task | Round | Base | Review commit | Verdict |
 |------|-------|------|---------------|---------|
 | T1 | 1 | cd28248e19b2d08ad78fd64d2511ecb7e315bf37 | 75f20fb9be50389fd829d2724f545ca9dfba21c4 | fix |
+| T1 | 2 | cd28248e19b2d08ad78fd64d2511ecb7e315bf37 |  |  |
 
 ---
 
