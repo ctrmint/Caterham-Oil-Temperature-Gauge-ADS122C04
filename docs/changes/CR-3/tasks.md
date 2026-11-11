@@ -1440,7 +1440,7 @@ Review findings, kept by the caller. Columns and statuses: see "Review rounds" i
 | T16-F2 | T16 | 1 | nit | boxInside computes max(\|top\|,\|top+h\|) in one unreadable nested ternary | accepted | 1 | Readability only; reviewer verified it by hand and by mutation |
 | T17-F1 | T17 | 1 | minor | REQ-D1 says the MAX value is always shown; it is shown only while calibrated with a reading in or beyond the table (request.md amended) | follow-up | 2026-11-11 | Carried into the CR-level review: the reviewer is told to check docs/spec.md REQ-D1 against the amended request.md wording, so a finding there reopens T17 |
 | T17-F2 | T17 | 1 | blocker | docs/spec.md REQ-D1 still has the superseded 'Always shown' MAX bullet, not the amended 'Shown in both layouts' wording | open |  | CR-3 review round 1 |
-| T14-F5 | T14 | 3 | minor | VALIDATION.md expects a ghost 888 but the 4-cell Sweep layout shows 8888 | open |  | CR-3 review round 1 |
+| T14-F5 | T14 | 3 | minor | VALIDATION.md expects a ghost 888 but the 4-cell Sweep layout shows 8888 | escalated | 1 | CR-3 review round 1 |
 
 ---
 
@@ -1517,3 +1517,5 @@ Newest last. One row per implementer run, review round, approval, escalation or 
 | 2026-11-11 | T17 | Decision | must-fix | Caller under maintainer delegation: T17-F1 must be fixed (carry the amended REQ-D1 wording into docs/spec.md); it stays escalated until fixed |
 | 2026-11-11 | T17 | Decision | to-cr-review | cr.py does not start a fix round after a pass; T17-F1 is routed through the CR-level review instead |
 | 2026-11-11 | CR-3 | Review round 1 | fix | raised: T17-F2, T14-F5 |
+| 2026-11-11 | T14 | Escalated | T14-F5 |  |
+| 2026-11-11 | T14 | Decision | must-fix | Caller under maintainer delegation: T14-F5 must be fixed (the hardware checklist must describe the 8888 ghost the firmware draws) |
