@@ -1521,3 +1521,4 @@ Newest last. One row per implementer run, review round, approval, escalation or 
 | 2026-11-11 | T14 | Escalated | T14-F5 |  |
 | 2026-11-11 | T14 | Decision | must-fix | Caller under maintainer delegation: T14-F5 must be fixed (the hardware checklist must describe the 8888 ghost the firmware draws) |
 | 2026-11-11 | T14 | Follow-up note | T14-F5 open as follow-up | Correction to the T14-F5 note: cr.py closes a reopened task with no open findings without a new round, so docs/VALIDATION.md still says ghost 888. The human-check issue and the PR state the correct 8888; fix the doc in a follow-up |
+| 2026-11-11 | T17 | Implementer round 2 | done | files: docs/spec.md; gates: tests=pass; responses: T17-F2 fixed |
