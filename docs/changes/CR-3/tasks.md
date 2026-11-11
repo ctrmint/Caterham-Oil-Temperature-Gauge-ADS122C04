@@ -1385,3 +1385,4 @@ Newest last. One row per implementer run, review round, approval, escalation or 
 | 2026-11-11 | CR-3 | Maintainer decisions | active | All defaults accepted; four approvals recorded; plan review delegated to the caller; stop at a green PR |
 | 2026-11-11 | CR-3 | Plan saved | 17 tasks | Planner output saved; reviewed by the caller under the maintainer's delegation |
 | 2026-11-11 | CR-3 | Plan approved | go | Plan review delegated to the caller by the maintainer (2026-11-11) |
+| 2026-11-11 | T1 | Implementer round 1 | done | files: scripts/test_host.sh, tests/display_text_test.cpp; gates: tests=fail |
