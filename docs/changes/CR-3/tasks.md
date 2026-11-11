@@ -1490,3 +1490,4 @@ Newest last. One row per implementer run, review round, approval, escalation or 
 | 2026-11-11 | T13 | Verification note | nvs grep wording | The plan's grep for nvs_ outside main.cpp matches the approved nvs_flash REQUIRES entry; limited to source files it prints nothing (reviewer and caller agree) |
 | 2026-11-11 | T14 | Implementer round 1 | done | files: README.md, docs/ARCHITECTURE.md, docs/CALIBRATION.md, docs/SAFETY.md, docs/VALIDATION.md; gates: tests=pass |
 | 2026-11-11 | T14 | Review round 1 | fix | raised: T14-F1, T14-F2, T14-F3, T14-F4 |
+| 2026-11-11 | T14 | Implementer round 2 | done | files: README.md, docs/ARCHITECTURE.md, docs/SAFETY.md, docs/VALIDATION.md; gates: tests=pass; responses: T14-F1 fixed, T14-F2 fixed, T14-F3 fixed, T14-F4 fixed |
