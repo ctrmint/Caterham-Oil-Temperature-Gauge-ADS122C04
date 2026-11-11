@@ -5,6 +5,8 @@
 #include "freertos/task.h"
 #include "esp_log.h"
 #include "esp_timer.h"
+#include "nvs.h"
+#include "nvs_flash.h"
 #include "Config.h"
 #include "core/Calibration.h"
 #include "core/Temperature.h"
@@ -14,13 +16,49 @@
 namespace {
 constexpr const char* TAG = "oil_gauge";
 uint32_t ticks_ms() { return static_cast<uint32_t>(esp_timer_get_time() / 1000ULL); }
+
+#ifdef CONFIG_OIL_GAUGE_UNIT_FAHRENHEIT
+constexpr gauge::Unit kUnit = gauge::Unit::Fahrenheit;
+#else
+constexpr gauge::Unit kUnit = gauge::Unit::Celsius;
+#endif
+
+// Layout persistence. Returns false (after one warning) if NVS is unusable; the layout is then Classic and NVS is not used again.
+bool nvsLoadLayout(nvs_handle_t& h, gauge::Layout& layout) {
+  layout = gauge::Layout::Classic;
+  esp_err_t err = nvs_flash_init();
+  if (err == ESP_ERR_NVS_NO_FREE_PAGES || err == ESP_ERR_NVS_NEW_VERSION_FOUND) {
+    err = nvs_flash_erase();
+    if (err == ESP_OK) err = nvs_flash_init();
+  }
+  if (err == ESP_OK) err = nvs_open("oil_gauge", NVS_READWRITE, &h);
+  if (err != ESP_OK) {
+    ESP_LOGW(TAG,"NVS unavailable (%s): layout will not be saved", esp_err_to_name(err));
+    return false;
+  }
+  uint8_t v = 0;
+  err = nvs_get_u8(h, "layout", &v);
+  layout = gauge::decodeLayout(err == ESP_OK, v);
+  return true;
+}
+
+bool nvsStoreLayout(nvs_handle_t h, gauge::Layout layout) {
+  esp_err_t err = nvs_set_u8(h, "layout", gauge::encodeLayout(layout));
+  if (err == ESP_OK) err = nvs_commit(h);
+  if (err != ESP_OK) ESP_LOGW(TAG,"Saving layout failed (%s)", esp_err_to_name(err));
+  return err == ESP_OK;
+}
 }
 
 extern "C" void app_main(void) {
   ESP_LOGI(TAG,"Caterham dry-sump oil gauge | Waveshare ESP32-S3 AMOLED 1.75 + ADS1115");
   ESP_LOGW(TAG,"Experimental gauge; not a replacement for factory vehicle warnings");
-  GaugeDisplay display;
-  const bool display_ok = display.begin();
+  nvs_handle_t nvs = 0;
+  gauge::Layout layout = gauge::Layout::Classic;
+  const bool nvs_ok = nvsLoadLayout(nvs, layout);
+  uint8_t stored_layout = gauge::encodeLayout(layout);
+  GaugeDisplay display;  // stays in internal RAM (main-task stack): its std::atomic hand-off must not live in PSRAM
+  const bool display_ok = display.begin(kUnit, layout);
   if (!display_ok) ESP_LOGE(TAG,"Display initialization failed");
   gauge::TemperatureState state;
   gauge::Reading reading;
@@ -63,6 +101,10 @@ extern "C" void app_main(void) {
         false
 #endif
       );
+    }
+    gauge::Layout next;
+    if (display_ok && display.takeLayoutChange(next) && nvs_ok && gauge::encodeLayout(next) != stored_layout) {
+      if (nvsStoreLayout(nvs, next)) stored_layout = gauge::encodeLayout(next);
     }
     if (uint32_t(now-last_log)>=config::kLogIntervalMs) {
       last_log=now;

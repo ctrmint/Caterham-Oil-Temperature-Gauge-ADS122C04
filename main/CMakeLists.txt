@@ -11,5 +11,5 @@ idf_component_register(
         "display/GaugeDisplay.cpp"
         "display/SweepLayout.cpp"
     INCLUDE_DIRS "."
-    REQUIRES esp_driver_i2c esp_timer freertos lvgl__lvgl waveshare__esp32_s3_touch_amoled_1_75
+    REQUIRES esp_driver_i2c esp_timer freertos nvs_flash lvgl__lvgl waveshare__esp32_s3_touch_amoled_1_75
 )
