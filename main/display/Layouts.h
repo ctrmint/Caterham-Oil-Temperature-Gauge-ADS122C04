@@ -69,11 +69,6 @@ class SweepLayout : public LayoutView {
   void build(lv_obj_t* screen, gauge::Unit unit) override;
   void render(const DisplayFrame& f) override;
  private:
-  lv_point_precise_t pts_[gauge::kSweepSegments][2] = {};
-  lv_obj_t* seg_[gauge::kSweepSegments] = {};
-  uint32_t seg_colour_[gauge::kSweepSegments] = {};
-  lv_obj_t* label_[sweep::kMaxLabels] = {};
-  char label_text_[sweep::kMaxLabels][8] = {};
   int label_count_ = 0;
   bool labels_shown_ = false;
   lv_obj_t* unit_ = nullptr;
@@ -82,9 +77,7 @@ class SweepLayout : public LayoutView {
   lv_obj_t* footer_ = nullptr;
   lv_obj_t* demo_ = nullptr;
   const char* unit_text_ = nullptr;
-  const char* title_text_ = nullptr;
   const char* status_text_ = nullptr;
   uint32_t status_colour_ = 0;
   bool demo_shown_ = false;
-  char footer_text_[gauge::kFooterTextSize] = {};
 };
