@@ -9,6 +9,7 @@ idf_component_register(
         "hal/Ads1115Source.cpp"
         "display/ClassicLayout.cpp"
         "display/GaugeDisplay.cpp"
+        "display/SweepLayout.cpp"
     INCLUDE_DIRS "."
     REQUIRES esp_driver_i2c esp_timer freertos lvgl__lvgl waveshare__esp32_s3_touch_amoled_1_75
 )

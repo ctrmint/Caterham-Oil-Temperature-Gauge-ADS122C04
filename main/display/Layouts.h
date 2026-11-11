@@ -1,5 +1,6 @@
 #pragma once
 #include "core/DisplayText.h"
+#include "core/SweepModel.h"
 #include "lvgl.h"
 #include <stdint.h>
 
@@ -21,10 +22,13 @@ struct DisplayFrame {
   const char* status = "";
   const char* footer = "";
   int classic_arc = 0;
+  int lit_segments = 0;
+  bool scale_visible = false;
   bool demo = false;
 };
 
-// build() and render() must be called with the display lock (bsp_display_lock) held.
+// Every LayoutView method (build(), render() and setVisible() included) must be called with the display lock
+// (bsp_display_lock) held, or from the LVGL task's own event callback.
 class LayoutView {
  public:
   virtual ~LayoutView() = default;
@@ -50,4 +54,37 @@ class ClassicLayout : public LayoutView {
   lv_obj_t* subtitle_ = nullptr;
   lv_obj_t* footer_ = nullptr;
   lv_obj_t* demo_ = nullptr;
+};
+
+// Sweep geometry on the 466 px screen, shared with the digit renderer. The digit area is reserved and empty here.
+namespace sweep {
+constexpr int kCentre = 233;
+constexpr int kDigitW = 224, kDigitH = 80;
+constexpr int kDigitCx = 233, kDigitCy = 215;
+constexpr int kMaxLabels = 11;  // 100..300 step 20 in Fahrenheit
+} // namespace sweep
+
+class SweepLayout : public LayoutView {
+ public:
+  void build(lv_obj_t* screen, gauge::Unit unit) override;
+  void render(const DisplayFrame& f) override;
+ private:
+  lv_point_precise_t pts_[gauge::kSweepSegments][2] = {};
+  lv_obj_t* seg_[gauge::kSweepSegments] = {};
+  uint32_t seg_colour_[gauge::kSweepSegments] = {};
+  lv_obj_t* label_[sweep::kMaxLabels] = {};
+  char label_text_[sweep::kMaxLabels][8] = {};
+  int label_count_ = 0;
+  bool labels_shown_ = false;
+  lv_obj_t* unit_ = nullptr;
+  lv_obj_t* title_ = nullptr;
+  lv_obj_t* status_ = nullptr;
+  lv_obj_t* footer_ = nullptr;
+  lv_obj_t* demo_ = nullptr;
+  const char* unit_text_ = nullptr;
+  const char* title_text_ = nullptr;
+  const char* status_text_ = nullptr;
+  uint32_t status_colour_ = 0;
+  bool demo_shown_ = false;
+  char footer_text_[gauge::kFooterTextSize] = {};
 };

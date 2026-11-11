@@ -6,7 +6,7 @@
 
 using namespace layout;
 
-bool GaugeDisplay::begin(gauge::Unit unit) {
+bool GaugeDisplay::begin(gauge::Unit unit, gauge::Layout layout) {
   unit_ = unit;
   // Vendor BSP initializes QSPI CO5300 display, CST9217 touch and LVGL task.
   // BSP display_start is the exact API used by Waveshare's IDF v9 demo.
@@ -18,6 +18,9 @@ bool GaugeDisplay::begin(gauge::Unit unit) {
   lv_obj_set_style_bg_opa(root, LV_OPA_COVER, 0);
   lv_obj_clear_flag(root, LV_OBJ_FLAG_SCROLLABLE);
   classic_.build(root, unit_);
+  sweep_.build(root, unit_);
+  classic_.setVisible(layout == gauge::Layout::Classic);
+  sweep_.setVisible(layout == gauge::Layout::Sweep);
   built_ = true;
   bsp_display_unlock();
   return true;
@@ -38,6 +41,8 @@ void GaugeDisplay::render(const gauge::Reading& r, float max_temp_c, bool max_ab
   } else {
     f.classic_arc = 0;
   }
+  f.lit_segments = gauge::litSegments(r,unit_);
+  f.scale_visible = gauge::scaleLabelsVisible();
   char text[gauge::kReadingTextSize];
   gauge::readingText(r,unit_,text,sizeof(text));
   gauge::readingCells(text,f.cells,sizeof(f.cells));
@@ -48,5 +53,6 @@ void GaugeDisplay::render(const gauge::Reading& r, float max_temp_c, bool max_ab
   f.footer = footer_text_;
   f.demo = demo;
   classic_.render(f);
+  sweep_.render(f);
   bsp_display_unlock();
 }
