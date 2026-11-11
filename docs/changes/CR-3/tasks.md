@@ -1047,6 +1047,7 @@ None blocking. The maintainer delegated these choices. Two judgement calls are w
 - status: ready
 - depends_on: [T14]
 - needs_human_approval: true
+- approved: PurpleSentinel, 2026-11-11, npm install --prefix /tmp/cr3-lvfc --ignore-scripts lv_font_conv@1.5.3 (the maintainer ran this exact command themselves on 2026-11-11, after the approval request)
 - install:
   - npm install --prefix /tmp/cr3-lvfc --ignore-scripts lv_font_conv@1.5.3
 - goal: Produce one uncompressed 4 bpp LVGL font source holding only the glyphs the Classic reading needs, at 148 px, from LVGL's bundled Montserrat Medium. Record the tool, version, exact command and licence next to it, and register it in the build. It needs no LVGL config change (AC-5).
@@ -1495,3 +1496,4 @@ Newest last. One row per implementer run, review round, approval, escalation or 
 | 2026-11-11 | T14 | Review round 2 | fix | closed: T14-F2 fixed, T14-F3 fixed, T14-F4 fixed |
 | 2026-11-11 | T14 | Implementer round 3 | done | files: docs/VALIDATION.md; gates: tests=pass; responses: T14-F1 fixed |
 | 2026-11-11 | T14 | Review round 3 | pass | closed: T14-F1 fixed |
+| 2026-11-11 | T15 | Approval | approved | PurpleSentinel, 2026-11-11, npm install --prefix /tmp/cr3-lvfc --ignore-scripts lv_font_conv@1.5.3 (the maintainer ran this exact command themselves on 2026-11-11, after the approval request) |
