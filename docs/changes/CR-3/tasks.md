@@ -1364,7 +1364,7 @@ One row per review round, kept by the caller with cr.py start-round and record-r
 | Task | Round | Base | Review commit | Verdict |
 |------|-------|------|---------------|---------|
 | T1 | 1 | cd28248e19b2d08ad78fd64d2511ecb7e315bf37 | 75f20fb9be50389fd829d2724f545ca9dfba21c4 | fix |
-| T1 | 2 | cd28248e19b2d08ad78fd64d2511ecb7e315bf37 |  |  |
+| T1 | 2 | cd28248e19b2d08ad78fd64d2511ecb7e315bf37 | 316a9acb4210111b0bd26e192a4d9e18ad505e37 | fix |
 
 ---
 
@@ -1374,11 +1374,12 @@ Review findings, kept by the caller. Columns and statuses: see "Review rounds" i
 
 | ID | Task | Raised | Severity | Title | Status | Closed | Notes |
 |----|------|--------|----------|-------|--------|--------|-------|
-| T1-F1 | T1 | 1 | major | Half-to-even rounding on the ohms reading and footer ohms survives (no exact-half ohms input) | open |  |  |
-| T1-F2 | T1 | 1 | major | Converting MAX to F after rounding survives (112.5 C gives 235 either way) | open |  |  |
-| T1-F3 | T1 | 1 | major | Above-range MAX tests pass max_c equal to the table max, so printing max_c instead of calibrationMaxC() survives | open |  |  |
-| T1-F4 | T1 | 1 | minor | roundHalfAway \|value\| >= 1e6 contract clause untested | open |  |  |
-| T1-F5 | T1 | 1 | nit | Non-finite and non-positive ohms checks run only in the demo build | open |  |  |
+| T1-F1 | T1 | 1 | major | Half-to-even rounding on the ohms reading and footer ohms survives (no exact-half ohms input) | fixed | 2 |  |
+| T1-F2 | T1 | 1 | major | Converting MAX to F after rounding survives (112.5 C gives 235 either way) | fixed | 2 |  |
+| T1-F3 | T1 | 1 | major | Above-range MAX tests pass max_c equal to the table max, so printing max_c instead of calibrationMaxC() survives | fixed | 2 |  |
+| T1-F4 | T1 | 1 | minor | roundHalfAway \|value\| >= 1e6 contract clause untested | fixed | 2 |  |
+| T1-F5 | T1 | 1 | nit | Non-finite and non-positive ohms checks run only in the demo build | fixed | 2 |  |
+| T1-F6 | T1 | 2 | blocker | Footer assertion at line 138 expects '123 ohm' from a Normal reading without has_temperature, contradicting the T2 footer contract | open |  |  |
 
 ---
 
@@ -1394,3 +1395,4 @@ Newest last. One row per implementer run, review round, approval, escalation or 
 | 2026-11-11 | T1 | Implementer round 1 | done | files: scripts/test_host.sh, tests/display_text_test.cpp; gates: tests=fail |
 | 2026-11-11 | T1 | Review round 1 | fix | raised: T1-F1, T1-F2, T1-F3, T1-F4, T1-F5 |
 | 2026-11-11 | T1 | Implementer round 2 | done | files: tests/display_text_test.cpp; gates: tests=fail; responses: T1-F1 fixed, T1-F2 fixed, T1-F3 fixed, T1-F4 fixed, T1-F5 fixed |
+| 2026-11-11 | T1 | Review round 2 | fix | raised: T1-F6; closed: T1-F1 fixed, T1-F2 fixed, T1-F3 fixed, T1-F4 fixed, T1-F5 fixed |
