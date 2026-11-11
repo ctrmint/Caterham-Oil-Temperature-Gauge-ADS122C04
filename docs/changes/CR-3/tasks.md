@@ -903,7 +903,7 @@ None blocking. The maintainer delegated these choices. Two judgement calls are w
 
 ### T13: Initialise NVS, restore and store the layout, and pass the unit to the display
 - kind: impl
-- status: ready
+- status: done
 - depends_on: [T12, T7]
 - needs_human_approval: false
 - install: none
@@ -1383,7 +1383,7 @@ One row per review round, kept by the caller with cr.py start-round and record-r
 | T10 | 2 | 86fee404af0975310d6efc64b58128d46231b532 | 026de85352b363a4566935bf8c5b0ca9bab26ee4 | pass |
 | T11 | 1 | a151af6370d905bff6621bf6a39710d17b17ccb9 | 5344c23e7d865c600756f7695c22a6a232bb3ef8 | pass |
 | T12 | 1 | e037d667b71b4831c9d3dc52b2a03d85955c0118 | 56c4210bdf38330db53b1d5747ac7719758221f7 | pass |
-| T13 | 1 | c21e48b28265a484eb915b40eed20ae6fe5f896f |  |  |
+| T13 | 1 | c21e48b28265a484eb915b40eed20ae6fe5f896f | 311d21ecc879213b9e635c06b953a4f1551a9b62 | pass |
 
 ---
 
@@ -1480,3 +1480,5 @@ Newest last. One row per implementer run, review round, approval, escalation or 
 | 2026-11-11 | T12 | Implementer round 1 | done | files: main/display/GaugeDisplay.cpp, main/display/GaugeDisplay.h; gates: tests=pass build=pass demo-build=pass |
 | 2026-11-11 | T12 | Review round 1 | pass | raised: T12-F1 |
 | 2026-11-11 | T13 | Implementer round 1 | done | files: main/CMakeLists.txt, main/main.cpp; gates: tests=pass build=pass demo-build=pass f-build=pass |
+| 2026-11-11 | T13 | Review round 1 | pass |  |
+| 2026-11-11 | T13 | Verification note | nvs grep wording | The plan's grep for nvs_ outside main.cpp matches the approved nvs_flash REQUIRES entry; limited to source files it prints nothing (reviewer and caller agree) |
