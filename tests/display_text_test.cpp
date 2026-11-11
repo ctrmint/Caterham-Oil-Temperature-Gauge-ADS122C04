@@ -51,6 +51,8 @@ int main() {
   assert(!gauge::roundHalfAway(NAN,n));
   assert(!gauge::roundHalfAway(INFINITY,n));
   assert(!gauge::roundHalfAway(-INFINITY,n));
+  assert(!gauge::roundHalfAway(1e6f,n) && !gauge::roundHalfAway(-1e6f,n));
+  assert(gauge::roundHalfAway(999999.f,n) && n==999999);
 
   // Conversion.
   assert(gauge::toUnit(100.f,Unit::Celsius)==100.f);
@@ -80,10 +82,6 @@ int main() {
   assert(reads(make(Status::BelowRange),Unit::Fahrenheit,"<68"));
   for(Unit u:units) {
     assert(reads(make(Status::NeedsCalibration,4999.6f),u,"5000"));
-    assert(reads(make(Status::NeedsCalibration,NAN),u,"--"));
-    assert(reads(make(Status::NeedsCalibration,INFINITY),u,"--"));
-    assert(reads(make(Status::NeedsCalibration,0.f),u,"--"));
-    assert(reads(make(Status::NeedsCalibration,-5.f),u,"--"));
     assert(reads(make(Status::Normal,123.4f,true,NAN),u,"--"));
     for(Status s:{Status::NoAdc,Status::BadSupply,Status::GroundFault,Status::ShortCircuit,Status::OpenCircuit})
       assert(reads(make(s),u,"--"));
@@ -97,6 +95,15 @@ int main() {
     assert(reads(make(Status::BelowRange),u,"--"));
   }
 #endif
+
+  // Ohms: an exact half rounds away from zero; bad resistances show nothing (both builds).
+  for(Unit u:units) {
+    assert(reads(make(Status::NeedsCalibration,122.5f),u,"123"));
+    assert(reads(make(Status::NeedsCalibration,NAN),u,"--"));
+    assert(reads(make(Status::NeedsCalibration,INFINITY),u,"--"));
+    assert(reads(make(Status::NeedsCalibration,0.f),u,"--"));
+    assert(reads(make(Status::NeedsCalibration,-5.f),u,"--"));
+  }
 
   // No unit in the reading, for every Status; no degree sign anywhere when uncalibrated.
   for(int i=0;i<=static_cast<int>(Status::Red);i++) {
@@ -126,8 +133,13 @@ int main() {
   const gauge::Reading norm=make(Status::Normal,123.4f,true,112.4f);
   assert(foots(norm,112.4f,false,Unit::Celsius,"MAX 112  |  123 ohm"));
   assert(foots(norm,112.5f,false,Unit::Fahrenheit,"MAX 235  |  123 ohm"));
-  assert(foots(norm,140.f,true,Unit::Celsius,"MAX >140  |  123 ohm"));
-  assert(foots(norm,140.f,true,Unit::Fahrenheit,"MAX >284  |  123 ohm"));
+  assert(foots(norm,114.7f,false,Unit::Fahrenheit,"MAX 238  |  123 ohm"));
+  assert(foots(make(Status::Normal,122.5f,true,112.4f),112.4f,false,Unit::Celsius,"MAX 112  |  123 ohm"));
+  assert(foots(make(Status::Normal,122.5f),-999.f,false,Unit::Celsius,"123 ohm"));
+  for(float m:{112.4f,-999.f}) {
+    assert(foots(norm,m,true,Unit::Celsius,"MAX >140  |  123 ohm"));
+    assert(foots(norm,m,true,Unit::Fahrenheit,"MAX >284  |  123 ohm"));
+  }
   assert(foots(norm,-999.f,false,Unit::Celsius,"123 ohm"));
   assert(foots(make(Status::BelowRange,123.4f),112.4f,false,Unit::Celsius,"MAX 112  |  123 ohm"));
   for(Unit u:units) {
