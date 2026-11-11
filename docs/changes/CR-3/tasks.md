@@ -1373,7 +1373,7 @@ One row per review round, kept by the caller with cr.py start-round and record-r
 | T4 | 1 | f24185f8a250f77f424d61cb890ce2c6eb3e53ad | 8f198be1744961233152cb9c68b2164983ca6fd2 | pass |
 | T5 | 1 | 4883a907f4274571a1079ab5ed8d8d99e6941489 | ab317f2b0aa1ea62c58b705686317e2c5848f9e5 | fix |
 | T5 | 2 | 4883a907f4274571a1079ab5ed8d8d99e6941489 | d5a16c2a0d0cf7ba06ce9560fb50645dc9d81d38 | pass |
-| T6 | 1 | e78d12f63e6b382865d17141dc3c57859968f5b1 |  |  |
+| T6 | 1 | e78d12f63e6b382865d17141dc3c57859968f5b1 | 6c9fb7ae93dd23db3bb2c5b8265f2274d36e6a8b | escalate |
 
 ---
 
@@ -1399,6 +1399,8 @@ Review findings, kept by the caller. Columns and statuses: see "Review rounds" i
 | T5-F2 | T5 | 1 | major | Slop checked only as one jump before the threshold (slow-swipe and time-before-slop mutants survive) | fixed | 2 |  |
 | T5-F3 | T5 | 1 | major | Hold-before-press assertion passes only because of its coordinates (armed-from-construction mutant with zero origin survives) | fixed | 2 |  |
 | T5-F4 | T5 | 1 | nit | Literal 1000 stands in for kLongPressMs at line 42 | fixed | 2 |  |
+| T6-F1 | T6 | 1 | major | Press-point x/y confusion survives the layout tests (every test press is on the diagonal x == y) | escalated | 1 |  |
+| T6-F2 | T6 | 1 | major | Restarting a press with a second press() before release() is not tested | escalated | 1 |  |
 
 ---
 
@@ -1432,3 +1434,6 @@ Newest last. One row per implementer run, review round, approval, escalation or 
 | 2026-11-11 | T5 | Implementer round 2 | done | files: tests/layout_choice_test.cpp; gates: tests=fail; responses: T5-F1 fixed, T5-F2 fixed, T5-F3 fixed, T5-F4 fixed |
 | 2026-11-11 | T5 | Review round 2 | pass | closed: T5-F1 fixed, T5-F2 fixed, T5-F3 fixed, T5-F4 fixed |
 | 2026-11-11 | T6 | Implementer round 1 | done | files: main/CMakeLists.txt, main/core/LayoutChoice.cpp, main/core/LayoutChoice.h; gates: tests=pass build=pass demo-build=pass |
+| 2026-11-11 | T6 | Escalated | T6-F1 |  |
+| 2026-11-11 | T6 | Escalated | T6-F2 |  |
+| 2026-11-11 | T6 | Review round 1 | escalate | raised: T6-F1, T6-F2; escalated: T6-F1, T6-F2 |
