@@ -78,7 +78,10 @@ Evidence key: **H** = host test in `tests/`, **B** = firmware build, **HW** = be
     - `--` on a fault.
   - Digit layout: fixed-width characters, right-aligned, so the ones digit never moves.
   - Sweep segments: they light only for a temperature inside the table. Beyond the top of the table they light up to the table's maximum. Below range, on a fault or when uncalibrated, none are lit. Scale numbers are hidden when uncalibrated.
-  - Always shown: the status text, the `MAX` value (whole degrees of the selected unit, no unit symbol) and, in a demo build, `DEMO ONLY - NOT REAL`.
+  - Shown in both layouts:
+    - the status text;
+    - the bottom line: the `MAX` value (whole degrees of the selected unit, no unit symbol) while calibrated with a reading in or beyond the table; otherwise `TEMPERATURE NOT VERIFIED` (uncalibrated) or `CHECK SENSOR AND WIRING` (fault);
+    - in a demo build, `DEMO ONLY - NOT REAL`.
   - Colour precedence (unchanged; it applies to the digits and the lit segments): Red alarm, then Amber alarm, then fault or AboveRange in amber, then BelowRange muted, otherwise green. It is checked on hardware only, not by a host test.
   - Choosing a layout: a long-press changes the layout. The choice is stored and restored at power-up.
 
