@@ -21,8 +21,37 @@ bool GaugeDisplay::begin(gauge::Unit unit, gauge::Layout layout) {
   sweep_.build(root, unit_);
   classic_.setVisible(layout == gauge::Layout::Classic);
   sweep_.setVisible(layout == gauge::Layout::Sweep);
+  active_ = layout;
+  lv_obj_add_event_cb(root, &GaugeDisplay::onScreenEvent, LV_EVENT_ALL, this);
   built_ = true;
   bsp_display_unlock();
+  return true;
+}
+
+// Runs in the LVGL task, which already holds the LVGL mutex: no bsp_display_lock, no NVS, no blocking, no allocation.
+void GaugeDisplay::onScreenEvent(lv_event_t* e) {
+  GaugeDisplay* self = static_cast<GaugeDisplay*>(lv_event_get_user_data(e));
+  if (self) self->handleEvent(lv_event_get_code(e));
+}
+
+void GaugeDisplay::handleEvent(lv_event_code_t code) {
+  if (code == LV_EVENT_RELEASED || code == LV_EVENT_PRESS_LOST) { press_.release(); return; }
+  if (code != LV_EVENT_PRESSED && code != LV_EVENT_PRESSING) return;
+  lv_point_t p = {0, 0};
+  lv_indev_get_point(lv_indev_active(), &p);
+  const uint32_t now = lv_tick_get();
+  if (code == LV_EVENT_PRESSED) { press_.press(p.x, p.y, now); return; }
+  if (!press_.hold(p.x, p.y, now)) return;
+  active_ = gauge::nextLayout(active_);
+  classic_.setVisible(active_ == gauge::Layout::Classic);
+  sweep_.setVisible(active_ == gauge::Layout::Sweep);
+  pending_.store(gauge::encodeLayout(active_));
+}
+
+bool GaugeDisplay::takeLayoutChange(gauge::Layout& out) {
+  const uint8_t v = pending_.exchange(0xFF);
+  if (v == 0xFF) return false;
+  out = gauge::decodeLayout(true, v);
   return true;
 }
 

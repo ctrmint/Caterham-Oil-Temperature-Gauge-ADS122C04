@@ -4,15 +4,24 @@
 #include "core/Temperature.h"
 #include "display/Layouts.h"
 #include "lvgl.h"
+#include <atomic>
+#include <stdint.h>
 
 class GaugeDisplay {
  public:
   bool begin(gauge::Unit unit = gauge::Unit::Celsius, gauge::Layout layout = gauge::Layout::Classic);
   void render(const gauge::Reading& r, float max_temp_c, bool max_above_range, bool demo);
+  // True once per long-press switch, with the new layout. No LVGL call, no lock: safe from the main loop.
+  bool takeLayoutChange(gauge::Layout& out);
  private:
+  static void onScreenEvent(lv_event_t* e);
+  void handleEvent(lv_event_code_t code);
   ClassicLayout classic_;
   SweepLayout sweep_;
   bool built_ = false;
+  gauge::Layout active_ = gauge::Layout::Classic;  // guarded by the LVGL mutex (render and the event callback)
+  gauge::LongPress press_;
+  std::atomic<uint8_t> pending_{0xFF};  // 0xFF = no switch; else the encoded new layout
   gauge::Unit unit_ = gauge::Unit::Celsius;
   char footer_text_[gauge::kFooterTextSize] = {};
 };
