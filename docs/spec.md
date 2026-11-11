@@ -27,7 +27,7 @@ An experimental, supplementary dry-sump oil-temperature display for a Caterham. 
   - `./scripts/test_host.sh`;
   - `idf.py build` and the demo build, both with no `main/` warnings;
   - `/cr-workflow:build` runs all three locally; CI runs them on every PR.
-- **Out of scope:** ECU or CAN integration, engine protection or intervention, logging to storage, wireless, touch interaction.
+- **Out of scope:** ECU or CAN integration, engine protection or intervention, logging to storage, wireless, touch interaction, except a long-press on the screen to change the display layout.
 
 ## 2. System requirements (baseline, implemented)
 
@@ -69,11 +69,20 @@ Evidence key: **H** = host test in `tests/`, **B** = firmware build, **HW** = be
 - **REQ-T5:** Millisecond timing uses `uint32_t` unsigned subtraction and must behave the same across counter wraparound. *Evidence:* none yet (see CR-1).
 
 ### Display and logging
-- **REQ-D1:** The display shows the temperature, `> max °C` / `< min °C`, ohms when uncalibrated, or `--` on a fault, together with the status text.
-  - Colour precedence: Red alarm, then Amber alarm, then fault or AboveRange in amber, then BelowRange muted, otherwise green.
-  - A demo build shows `DEMO ONLY - NOT REAL`.
+- **REQ-D1:** The display offers two layouts, Classic and Sweep, and every rule below applies to both.
+  - Unit label: with a verified calibration it shows `°C`, or `°F` when Fahrenheit is selected in menuconfig. Without one it shows `ohm` in every state. In Classic this is the title, `OIL °C`; in Sweep it is a small `°C` above `OIL TEMP`.
+  - Main reading: it has no unit. It shows one of these:
+    - the temperature in whole degrees of the selected unit, rounded half away from zero;
+    - `>max` or `<min` beyond the table, with the limits converted to the selected unit;
+    - the resistance in whole ohms when uncalibrated;
+    - `--` on a fault.
+  - Digit layout: fixed-width characters, right-aligned, so the ones digit never moves.
+  - Sweep segments: they light only for a temperature inside the table. Beyond the top of the table they light up to the table's maximum. Below range, on a fault or when uncalibrated, none are lit. Scale numbers are hidden when uncalibrated.
+  - Always shown: the status text, the `MAX` value (whole degrees of the selected unit, no unit symbol) and, in a demo build, `DEMO ONLY - NOT REAL`.
+  - Colour precedence (unchanged; it applies to the digits and the lit segments): Red alarm, then Amber alarm, then fault or AboveRange in amber, then BelowRange muted, otherwise green. It is checked on hardware only, not by a host test.
+  - Choosing a layout: a long-press changes the layout. The choice is stored and restored at power-up.
 
-  *Evidence:* B; HW.
+  *Evidence:* H (`display_text_test.cpp`, `sweep_model_test.cpp`, `layout_choice_test.cpp`); B; HW.
 - **REQ-D2:** Once per second, a CSV line is logged with these columns: `uptime_ms,status,alarm,temp_c,resistance_ohms,pullup_v,sender_v,supply_v,ground_offset_v`. *Evidence:* B; HW.
 
 ### Build and demo isolation

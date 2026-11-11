@@ -47,7 +47,8 @@ Beyond the calibration table the reading shows `<min` or `>max` (for example `<2
 │   ├── display/GaugeDisplay.*      # Waveshare BSP + LVGL 9 gauge; layout switching
 │   │   ├── ClassicLayout.cpp       # Classic layout
 │   │   ├── SweepLayout.cpp         # Sweep layout
-│   │   └── Layouts.h               # shared layout interface
+│   │   ├── Layouts.h               # shared layout interface
+│   │   └── fonts/                  # generated Classic digit font + its licence
 │   ├── Kconfig.projbuild           # explicitly opt-in simulation
 │   └── idf_component.yml          # Waveshare BSP / LVGL dependencies
 ├── hardware/                       # wiring, schematic (wiring.svg) and BOM
@@ -93,4 +94,4 @@ Beyond the calibration table the reading shows `<min` or `>max` (for example `<2
 
 ## License
 
-MIT, see [LICENSE](LICENSE). Third-party libraries are **not vendored** and keep their own licenses when installed by the Espressif component manager.
+MIT, see [LICENSE](LICENSE). Classic's digits are a bitmap font generated from Montserrat Medium (SIL Open Font License 1.1); the licence and the generation record (in the header of the generated file) are in [main/display/fonts/](main/display/fonts/). Third-party libraries are **not vendored** and keep their own licenses when installed by the Espressif component manager.
