@@ -1130,7 +1130,7 @@ None blocking. The maintainer delegated these choices. Two judgement calls are w
 
 ### T16: Use the generated 148 px font for Classic's digits and fit the reading inside the ring
 - kind: impl
-- status: ready
+- status: done
 - depends_on: [T15]
 - needs_human_approval: false
 - install: none
@@ -1389,7 +1389,7 @@ One row per review round, kept by the caller with cr.py start-round and record-r
 | T14 | 2 | 1ca045595d4de90244b87d87c6ab2b2ff7d57a76 | a7d8227fa8717cde546e61e60294b14ccd4bd101 | fix |
 | T14 | 3 | 1ca045595d4de90244b87d87c6ab2b2ff7d57a76 | 54a344d69f977870b8d06615fa39100daa781c47 | pass |
 | T15 | 1 | 713799c3f0f6581556bd0f2040319c0c9b81a4e6 | 0c90f576ea8b1954a5342e4de7aa3f920f442582 | pass |
-| T16 | 1 | df3b9203834192086b6b91bb9d16857d1cc51779 |  |  |
+| T16 | 1 | df3b9203834192086b6b91bb9d16857d1cc51779 | 6e9e555cfb3ce2642b8e193ad51a8aac1e850d0a | pass |
 
 ---
 
@@ -1434,6 +1434,8 @@ Review findings, kept by the caller. Columns and statuses: see "Review rounds" i
 | T14-F2 | T14 | 1 | minor | SAFETY calibration bullet still names only °C | fixed | 2 |  |
 | T14-F3 | T14 | 1 | minor | Demo °C validation row omits the digit-size check | fixed | 2 |  |
 | T14-F4 | T14 | 1 | nit | Ambiguous wording in README Display text | fixed | 2 |  |
+| T16-F1 | T16 | 1 | minor | Compile-time fit check uses font metrics copied by hand (kCellMax, kGlyphH), not tied to the runtime cell width and line height | follow-up | 1 | Correct today (runtime width 99 and line height 106 match the constants); tie them to the font at runtime in a later CR, before the font is ever regenerated (caller, under maintainer delegation) |
+| T16-F2 | T16 | 1 | nit | boxInside computes max(\|top\|,\|top+h\|) in one unreadable nested ternary | accepted | 1 | Readability only; reviewer verified it by hand and by mutation |
 
 ---
 
@@ -1502,3 +1504,4 @@ Newest last. One row per implementer run, review round, approval, escalation or 
 | 2026-11-11 | T15 | Implementer round 1 | done | files: main/CMakeLists.txt, main/display/fonts/Montserrat-OFL.txt, main/display/fonts/gauge_digits_148.c; gates: tests=pass build=pass demo-build=pass |
 | 2026-11-11 | T15 | Review round 1 | pass |  |
 | 2026-11-11 | T16 | Implementer round 1 | done | files: main/display/ClassicLayout.cpp; gates: tests=pass build=pass demo-build=pass f-build=pass |
+| 2026-11-11 | T16 | Review round 1 | pass | raised: T16-F1, T16-F2 |
