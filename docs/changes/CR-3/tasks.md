@@ -1366,7 +1366,7 @@ One row per review round, kept by the caller with cr.py start-round and record-r
 | T1 | 1 | cd28248e19b2d08ad78fd64d2511ecb7e315bf37 | 75f20fb9be50389fd829d2724f545ca9dfba21c4 | fix |
 | T1 | 2 | cd28248e19b2d08ad78fd64d2511ecb7e315bf37 | 316a9acb4210111b0bd26e192a4d9e18ad505e37 | fix |
 | T1 | 3 | cd28248e19b2d08ad78fd64d2511ecb7e315bf37 | df72d02fb8b002348b045d5524a85d212ce39900 | pass |
-| T2 | 1 | 35b8fe024748f4ed89aea8b609f454ad33c51c2d |  |  |
+| T2 | 1 | 35b8fe024748f4ed89aea8b609f454ad33c51c2d | 9f5ed3d67fab921ce84c1e4e00d9eb053d9b0475 | fix |
 
 ---
 
@@ -1382,6 +1382,8 @@ Review findings, kept by the caller. Columns and statuses: see "Review rounds" i
 | T1-F4 | T1 | 1 | minor | roundHalfAway \|value\| >= 1e6 contract clause untested | fixed | 2 |  |
 | T1-F5 | T1 | 1 | nit | Non-finite and non-positive ohms checks run only in the demo build | fixed | 2 |  |
 | T1-F6 | T1 | 2 | blocker | Footer assertion at line 138 expects '123 ohm' from a Normal reading without has_temperature, contradicting the T2 footer contract | fixed | 3 |  |
+| T2-F1 | T2 | 1 | blocker | No-maximum threshold -200 is a literal, not the named constant the AC requires | open |  |  |
+| T2-F2 | T2 | 1 | nit | Header and namespace style differs from neighbouring core .cpp files | open |  |  |
 
 ---
 
@@ -1401,3 +1403,4 @@ Newest last. One row per implementer run, review round, approval, escalation or 
 | 2026-11-11 | T1 | Implementer round 3 | done | files: tests/display_text_test.cpp; gates: tests=fail; responses: T1-F6 fixed |
 | 2026-11-11 | T1 | Review round 3 | pass | closed: T1-F6 fixed |
 | 2026-11-11 | T2 | Implementer round 1 | done | files: main/CMakeLists.txt, main/core/DisplayText.cpp, main/core/DisplayText.h; gates: tests=pass build-normal=pass build-demo=pass |
+| 2026-11-11 | T2 | Review round 1 | fix | raised: T2-F1, T2-F2 |
