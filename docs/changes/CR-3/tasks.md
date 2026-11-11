@@ -1525,3 +1525,4 @@ Newest last. One row per implementer run, review round, approval, escalation or 
 | 2026-11-11 | T17 | Implementer round 2 | done | files: docs/spec.md; gates: tests=pass; responses: T17-F2 fixed |
 | 2026-11-11 | T17 | Review round 2 | pass | closed: T17-F2 fixed |
 | 2026-11-11 | CR-3 | Review round 2 | pass |  |
+| 2026-11-11 | CR-3 | Ready for PR | all tasks done | Gates pass (host, normal, demo); hardware checks owed in #21; follow-ups: T6-F1/F2 (moved to T5, fixed), T8/T9 (fixed in later tasks), T14-F5 (VALIDATION 888 -> 8888), T16-F1 (tie font metrics to runtime), plus the plan's section 8 |
