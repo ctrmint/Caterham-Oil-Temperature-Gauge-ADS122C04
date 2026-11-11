@@ -390,7 +390,7 @@ None blocking. The maintainer delegated these choices. Two judgement calls are w
 
 ### T5: Add failing host tests for the layout choice and the long-press detector
 - kind: test
-- status: ready
+- status: done
 - depends_on: []
 - needs_human_approval: false
 - install: none
