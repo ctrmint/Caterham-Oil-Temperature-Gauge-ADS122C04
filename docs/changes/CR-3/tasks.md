@@ -630,7 +630,7 @@ None blocking. The maintainer delegated these choices. Two judgement calls are w
 
 ### T9: Put the Classic layout behind a common layout interface
 - kind: impl
-- status: ready
+- status: done
 - depends_on: [T8]
 - needs_human_approval: false
 - install: none
@@ -1378,7 +1378,7 @@ One row per review round, kept by the caller with cr.py start-round and record-r
 | T6 | 2 | e78d12f63e6b382865d17141dc3c57859968f5b1 | 32884e1fd6bb71a72f6f974e2566707f36fb4231 | pass |
 | T7 | 1 | a441d22fdb9257c0ed9a45966da09a083b49b26e | 2208fcf8b2c0149d357287235316fff849495d5f | pass |
 | T8 | 1 | 35c58619b6b4905a9096b002fba1a873e2977976 | bb408de25dd20e4fb5832fd44f4e91f08c07951c | pass |
-| T9 | 1 | 04367decf1cb1784de1616f51c8458a93a6a47ac |  |  |
+| T9 | 1 | 04367decf1cb1784de1616f51c8458a93a6a47ac | 0e25301a32b8395f64f7df72c65d10360c11fda1 | pass |
 
 ---
 
@@ -1412,6 +1412,8 @@ Review findings, kept by the caller. Columns and statuses: see "Review rounds" i
 | T8-F2 | T8 | 1 | nit | Cells start blank before the first render instead of the previous -- placeholder | follow-up | 1 | Carried into T9, which moves this code into ClassicLayout (same files); the T9 implementer is told to fix it and the T9 reviewer to check it |
 | T8-F3 | T8 | 1 | nit | Per-cell truncating offset gives uneven pitch for odd cell widths (latent until T16) | follow-up | 1 | Carried into T9, which moves this code into ClassicLayout (same files); the T9 implementer is told to fix it and the T9 reviewer to check it |
 | T8-F4 | T8 | 1 | nit | Stale ohm comment in render and now-unused Calibration.h and cstdio includes | follow-up | 1 | Carried into T9, which moves this code into ClassicLayout (same files); the T9 implementer is told to fix it and the T9 reviewer to check it |
+| T9-F1 | T9 | 1 | nit | Dash cell string picked by bare index kCellText[11]; no compile-time check tying kCellChars to kCellText | follow-up | 1 | Carried into T16 (ClassicLayout.cpp is in its allowlist): pick the dash via cellText('-') and static_assert the table lengths |
+| T9-F2 | T9 | 1 | nit | Header lock note covers build() and render() but not setVisible(), which also calls LVGL | follow-up | 1 | Carried into T10 (Layouts.h is in its allowlist): extend the lock note to every LayoutView method |
 
 ---
 
@@ -1458,3 +1460,4 @@ Newest last. One row per implementer run, review round, approval, escalation or 
 | 2026-11-11 | T8 | Review round 1 | pass | raised: T8-F1, T8-F2, T8-F3, T8-F4 |
 | 2026-11-11 | T9 | Scope note | T8 follow-ups | T9 also fixes T8-F1..F4 and the subtitle allocation (lv_label_set_text_static), inside its own allowlist |
 | 2026-11-11 | T9 | Implementer round 1 | done | files: main/CMakeLists.txt, main/display/ClassicLayout.cpp, main/display/GaugeDisplay.cpp, main/display/GaugeDisplay.h, main/display/Layouts.h; gates: tests=pass build=pass demo-build=pass |
+| 2026-11-11 | T9 | Review round 1 | pass | raised: T9-F1, T9-F2 |
