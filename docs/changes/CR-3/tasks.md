@@ -1446,3 +1446,4 @@ Newest last. One row per implementer run, review round, approval, escalation or 
 | 2026-11-11 | T5 | Implementer round 3 | done | files: tests/layout_choice_test.cpp; gates: tests=pass; responses: T5-F5 fixed, T5-F6 fixed |
 | 2026-11-11 | T5 | Review round 3 | pass | closed: T5-F5 fixed, T5-F6 fixed |
 | 2026-11-11 | T6 | Review round 2 | pass |  |
+| 2026-11-11 | T7 | Implementer round 1 | done | files: main/Kconfig.projbuild; gates: tests=pass build-normal=pass build-demo=pass build-f=pass |
