@@ -3,6 +3,7 @@ idf_component_register(
         "main.cpp"
         "core/Calibration.cpp"
         "core/DisplayText.cpp"
+        "core/LayoutChoice.cpp"
         "core/SweepModel.cpp"
         "core/Temperature.cpp"
         "hal/Ads1115Source.cpp"
