@@ -8,6 +8,7 @@ idf_component_register(
         "core/Temperature.cpp"
         "hal/Ads1115Source.cpp"
         "display/ClassicLayout.cpp"
+        "display/fonts/gauge_digits_148.c"
         "display/GaugeDisplay.cpp"
         "display/SweepLayout.cpp"
     INCLUDE_DIRS "."
