@@ -768,7 +768,7 @@ None blocking. The maintainer delegated these choices. Two judgement calls are w
 
 ### T11: Draw Sweep's seven-segment digits with ghost segments
 - kind: impl
-- status: ready
+- status: done
 - depends_on: [T10]
 - needs_human_approval: false
 - install: none
@@ -1381,7 +1381,7 @@ One row per review round, kept by the caller with cr.py start-round and record-r
 | T9 | 1 | 04367decf1cb1784de1616f51c8458a93a6a47ac | 0e25301a32b8395f64f7df72c65d10360c11fda1 | pass |
 | T10 | 1 | 86fee404af0975310d6efc64b58128d46231b532 | a2908bb020b56a9ddbc3ce9e26e9246883c47c50 | fix |
 | T10 | 2 | 86fee404af0975310d6efc64b58128d46231b532 | 026de85352b363a4566935bf8c5b0ca9bab26ee4 | pass |
-| T11 | 1 | a151af6370d905bff6621bf6a39710d17b17ccb9 |  |  |
+| T11 | 1 | a151af6370d905bff6621bf6a39710d17b17ccb9 | 5344c23e7d865c600756f7695c22a6a232bb3ef8 | pass |
 
 ---
 
@@ -1420,6 +1420,7 @@ Review findings, kept by the caller. Columns and statuses: see "Review rounds" i
 | T10-F1 | T10 | 1 | blocker | Sweep shows OIL degC / OIL ohm (Classic title) where the criterion requires OIL TEMP below the unit | fixed | 2 |  |
 | T10-F2 | T10 | 1 | minor | SweepLayout adds about 1.2 KB to the 8 KB main-task stack (app_main frame now 0x610) | fixed | 2 |  |
 | T10-F3 | T10 | 1 | nit | Sweep unit, title and status labels show LVGL default Text until the first render | fixed | 2 |  |
+| T11-F1 | T11 | 1 | nit | Sweep digits start blank, while Classic starts as -- | accepted | 1 | Cosmetic, one loop pass before the first render; a dim 8888 is not a plausible value (caller, under maintainer delegation) |
 
 ---
 
@@ -1472,3 +1473,4 @@ Newest last. One row per implementer run, review round, approval, escalation or 
 | 2026-11-11 | T10 | Implementer round 2 | done | files: main/display/Layouts.h, main/display/SweepLayout.cpp; gates: tests=pass build=pass demo-build=pass; responses: T10-F1 fixed, T10-F2 fixed, T10-F3 fixed |
 | 2026-11-11 | T10 | Review round 2 | pass | closed: T10-F1 fixed, T10-F2 fixed, T10-F3 fixed |
 | 2026-11-11 | T11 | Implementer round 1 | done | files: main/display/Layouts.h, main/display/SweepLayout.cpp; gates: tests=pass build=pass demo-build=pass |
+| 2026-11-11 | T11 | Review round 1 | pass | raised: T11-F1 |
