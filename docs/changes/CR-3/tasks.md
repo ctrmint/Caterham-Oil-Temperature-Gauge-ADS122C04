@@ -1441,3 +1441,4 @@ Newest last. One row per implementer run, review round, approval, escalation or 
 | 2026-11-11 | T6 | Escalated | T6-F2 |  |
 | 2026-11-11 | T6 | Review round 1 | escalate | raised: T6-F1, T6-F2; escalated: T6-F1, T6-F2 |
 | 2026-11-11 | T6 | Decision | reopen-T5 | Caller under maintainer delegation: reopen T5 to add an off-diagonal press point and a re-press-without-release case; then re-review T6 against them |
+| 2026-11-11 | T5 | Implementer round 3 | done | files: tests/layout_choice_test.cpp; gates: tests=pass; responses: T5-F5 fixed, T5-F6 fixed |
