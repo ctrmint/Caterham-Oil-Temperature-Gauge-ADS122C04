@@ -125,6 +125,26 @@ int main() {
     assert(!lp.hold(100,100,t0+kLongPressMs+1));
     assert(!lp.hold(100,100,t0+3000)); }
 
+  // Press point off the diagonal (x != y): catches x/y swaps.
+  { LongPress lp; lp.press(100,300,t0);
+    assert(!lp.hold(100+kLongPressSlopPx,300-kLongPressSlopPx,t0+kLongPressMs-1));
+    assert(lp.hold(100+kLongPressSlopPx,300-kLongPressSlopPx,t0+kLongPressMs)); }
+  { LongPress lp; lp.press(100,300,t0);
+    assert(!lp.hold(100+kLongPressSlopPx+1,300,t0+200));
+    assert(!lp.hold(100,300,t0+kLongPressMs)); }
+  { LongPress lp; lp.press(100,300,t0);
+    assert(!lp.hold(100,300+kLongPressSlopPx+1,t0+200));
+    assert(!lp.hold(100,300,t0+kLongPressMs)); }
+
+  // press() again without release(): timer and point restart from the second press.
+  { LongPress lp; lp.press(100,100,t0);
+    assert(!lp.hold(100,100,t0+500));
+    const uint32_t t1=t0+800;
+    lp.press(300,200,t1);
+    assert(!lp.hold(300,200,t1+kLongPressMs-1));
+    assert(lp.hold(300,200,t1+kLongPressMs));
+    assert(!lp.hold(300,200,t1+kLongPressMs+1)); }
+
   std::printf("layout choice tests passed\n");
   return 0;
 }
