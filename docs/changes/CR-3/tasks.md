@@ -187,7 +187,7 @@ None blocking. The maintainer delegated these choices. Two judgement calls are w
 
 ### T2: Implement the display text helpers in main/core
 - kind: impl
-- status: ready
+- status: done
 - depends_on: [T1]
 - needs_human_approval: false
 - install: none
