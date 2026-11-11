@@ -1368,7 +1368,7 @@ One row per review round, kept by the caller with cr.py start-round and record-r
 | T1 | 3 | cd28248e19b2d08ad78fd64d2511ecb7e315bf37 | df72d02fb8b002348b045d5524a85d212ce39900 | pass |
 | T2 | 1 | 35b8fe024748f4ed89aea8b609f454ad33c51c2d | 9f5ed3d67fab921ce84c1e4e00d9eb053d9b0475 | fix |
 | T2 | 2 | 35b8fe024748f4ed89aea8b609f454ad33c51c2d | c35daee05b769bf08fa8819cbba662b21395a9ab | pass |
-| T3 | 1 | d691858128e9c0bf701167375df67843b325cc3c |  |  |
+| T3 | 1 | d691858128e9c0bf701167375df67843b325cc3c | a237b381b8c18d77dfa9f1b109b95b1036ffbc57 | fix |
 
 ---
 
@@ -1386,6 +1386,9 @@ Review findings, kept by the caller. Columns and statuses: see "Review rounds" i
 | T1-F6 | T1 | 2 | blocker | Footer assertion at line 138 expects '123 ohm' from a Normal reading without has_temperature, contradicting the T2 footer contract | fixed | 3 |  |
 | T2-F1 | T2 | 1 | blocker | No-maximum threshold -200 is a literal, not the named constant the AC requires | fixed | 2 |  |
 | T2-F2 | T2 | 1 | nit | Header and namespace style differs from neighbouring core .cpp files | fixed | 2 |  |
+| T3-F1 | T3 | 1 | major | Lit count only tested with Status::Normal; Cold/Amber/Red readings unpinned (dark ring in alarm and Red full-ring mutants survive) | open |  |  |
+| T3-F2 | T3 | 1 | major | Fault and BelowRange guards never exercised in the calibrated build (guard removal and latched-Red fault mutants survive) | open |  |  |
+| T3-F3 | T3 | 1 | minor | Only NaN tested as non-finite temperature; +inf/-inf untested | open |  |  |
 
 ---
 
@@ -1409,3 +1412,4 @@ Newest last. One row per implementer run, review round, approval, escalation or 
 | 2026-11-11 | T2 | Implementer round 2 | done | files: main/core/DisplayText.cpp; gates: tests=pass build-normal=pass build-demo=pass; responses: T2-F1 fixed, T2-F2 fixed |
 | 2026-11-11 | T2 | Review round 2 | pass | closed: T2-F1 fixed, T2-F2 fixed |
 | 2026-11-11 | T3 | Implementer round 1 | done | files: scripts/test_host.sh, tests/sweep_model_test.cpp; gates: tests=fail |
+| 2026-11-11 | T3 | Review round 1 | fix | raised: T3-F1, T3-F2, T3-F3 |
