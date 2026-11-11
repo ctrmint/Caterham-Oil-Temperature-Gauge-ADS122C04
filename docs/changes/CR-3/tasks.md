@@ -253,7 +253,7 @@ None blocking. The maintainer delegated these choices. Two judgement calls are w
 
 ### T3: Add failing host tests for the Sweep model (segments, scale labels, seven-segment table)
 - kind: test
-- status: ready
+- status: done
 - depends_on: [T2]
 - needs_human_approval: false
 - install: none
