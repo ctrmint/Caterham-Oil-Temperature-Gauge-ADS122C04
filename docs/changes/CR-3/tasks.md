@@ -1384,7 +1384,7 @@ One row per review round, kept by the caller with cr.py start-round and record-r
 | T11 | 1 | a151af6370d905bff6621bf6a39710d17b17ccb9 | 5344c23e7d865c600756f7695c22a6a232bb3ef8 | pass |
 | T12 | 1 | e037d667b71b4831c9d3dc52b2a03d85955c0118 | 56c4210bdf38330db53b1d5747ac7719758221f7 | pass |
 | T13 | 1 | c21e48b28265a484eb915b40eed20ae6fe5f896f | 311d21ecc879213b9e635c06b953a4f1551a9b62 | pass |
-| T14 | 1 | 1ca045595d4de90244b87d87c6ab2b2ff7d57a76 |  |  |
+| T14 | 1 | 1ca045595d4de90244b87d87c6ab2b2ff7d57a76 | 1aeb316fe73731226b667a494f42f774cc78d1a5 | fix |
 
 ---
 
@@ -1425,6 +1425,10 @@ Review findings, kept by the caller. Columns and statuses: see "Review rounds" i
 | T10-F3 | T10 | 1 | nit | Sweep unit, title and status labels show LVGL default Text until the first render | fixed | 2 |  |
 | T11-F1 | T11 | 1 | nit | Sweep digits start blank, while Classic starts as -- | accepted | 1 | Cosmetic, one loop pass before the first render; a dim 8888 is not a plausible value (caller, under maintainer delegation) |
 | T12-F1 | T12 | 1 | nit | The no-switch sentinel 0xFF is a bare literal in three places | accepted | 1 | Style nit in one small file; no later task may touch GaugeDisplay, and the three uses sit within six lines (caller, under maintainer delegation) |
+| T14-F1 | T14 | 1 | major | VALIDATION claims a host test covers Sweep ring colour | open |  |  |
+| T14-F2 | T14 | 1 | minor | SAFETY calibration bullet still names only °C | open |  |  |
+| T14-F3 | T14 | 1 | minor | Demo °C validation row omits the digit-size check | open |  |  |
+| T14-F4 | T14 | 1 | nit | Ambiguous wording in README Display text | open |  |  |
 
 ---
 
@@ -1484,3 +1488,4 @@ Newest last. One row per implementer run, review round, approval, escalation or 
 | 2026-11-11 | T13 | Review round 1 | pass |  |
 | 2026-11-11 | T13 | Verification note | nvs grep wording | The plan's grep for nvs_ outside main.cpp matches the approved nvs_flash REQUIRES entry; limited to source files it prints nothing (reviewer and caller agree) |
 | 2026-11-11 | T14 | Implementer round 1 | done | files: README.md, docs/ARCHITECTURE.md, docs/CALIBRATION.md, docs/SAFETY.md, docs/VALIDATION.md; gates: tests=pass |
+| 2026-11-11 | T14 | Review round 1 | fix | raised: T14-F1, T14-F2, T14-F3, T14-F4 |
