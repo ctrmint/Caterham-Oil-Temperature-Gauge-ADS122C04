@@ -1417,3 +1417,4 @@ Newest last. One row per implementer run, review round, approval, escalation or 
 | 2026-11-11 | T3 | Review round 1 | fix | raised: T3-F1, T3-F2, T3-F3 |
 | 2026-11-11 | T3 | Implementer round 2 | done | files: tests/sweep_model_test.cpp; gates: tests=fail; responses: T3-F1 fixed, T3-F2 fixed, T3-F3 fixed |
 | 2026-11-11 | T3 | Review round 2 | pass | closed: T3-F1 fixed, T3-F2 fixed, T3-F3 fixed |
+| 2026-11-11 | T4 | Implementer round 1 | done | files: main/CMakeLists.txt, main/core/SweepModel.cpp, main/core/SweepModel.h; gates: tests=pass build=pass build-demo=pass |
