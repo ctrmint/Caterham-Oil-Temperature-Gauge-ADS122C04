@@ -1506,3 +1506,4 @@ Newest last. One row per implementer run, review round, approval, escalation or 
 | 2026-11-11 | T15 | Review round 1 | pass |  |
 | 2026-11-11 | T16 | Implementer round 1 | done | files: main/display/ClassicLayout.cpp; gates: tests=pass build=pass demo-build=pass f-build=pass |
 | 2026-11-11 | T16 | Review round 1 | pass | raised: T16-F1, T16-F2 |
+| 2026-11-11 | T17 | Implementer round 1 | done | files: README.md, docs/spec.md; gates: tests=pass |
