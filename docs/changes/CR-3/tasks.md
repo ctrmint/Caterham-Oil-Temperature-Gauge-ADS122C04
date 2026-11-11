@@ -1501,3 +1501,4 @@ Newest last. One row per implementer run, review round, approval, escalation or 
 | 2026-11-11 | T15 | Approval | approved | PurpleSentinel, 2026-11-11, npm install --prefix /tmp/cr3-lvfc --ignore-scripts lv_font_conv@1.5.3 (the maintainer ran this exact command themselves on 2026-11-11, after the approval request) |
 | 2026-11-11 | T15 | Implementer round 1 | done | files: main/CMakeLists.txt, main/display/fonts/Montserrat-OFL.txt, main/display/fonts/gauge_digits_148.c; gates: tests=pass build=pass demo-build=pass |
 | 2026-11-11 | T15 | Review round 1 | pass |  |
+| 2026-11-11 | T16 | Implementer round 1 | done | files: main/display/ClassicLayout.cpp; gates: tests=pass build=pass demo-build=pass f-build=pass |
