@@ -454,7 +454,7 @@ None blocking. The maintainer delegated these choices. Two judgement calls are w
 
 ### T6: Implement the layout choice and long-press detector in main/core
 - kind: impl
-- status: ready
+- status: done
 - depends_on: [T5]
 - needs_human_approval: false
 - install: none
