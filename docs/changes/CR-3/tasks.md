@@ -691,7 +691,7 @@ None blocking. The maintainer delegated these choices. Two judgement calls are w
 
 ### T10: Add the Sweep layout: segment ring, scale labels and small texts
 - kind: impl
-- status: ready
+- status: done
 - depends_on: [T9, T4, T6]
 - needs_human_approval: false
 - install: none
@@ -1380,7 +1380,7 @@ One row per review round, kept by the caller with cr.py start-round and record-r
 | T8 | 1 | 35c58619b6b4905a9096b002fba1a873e2977976 | bb408de25dd20e4fb5832fd44f4e91f08c07951c | pass |
 | T9 | 1 | 04367decf1cb1784de1616f51c8458a93a6a47ac | 0e25301a32b8395f64f7df72c65d10360c11fda1 | pass |
 | T10 | 1 | 86fee404af0975310d6efc64b58128d46231b532 | a2908bb020b56a9ddbc3ce9e26e9246883c47c50 | fix |
-| T10 | 2 | 86fee404af0975310d6efc64b58128d46231b532 |  |  |
+| T10 | 2 | 86fee404af0975310d6efc64b58128d46231b532 | 026de85352b363a4566935bf8c5b0ca9bab26ee4 | pass |
 
 ---
 
@@ -1416,9 +1416,9 @@ Review findings, kept by the caller. Columns and statuses: see "Review rounds" i
 | T8-F4 | T8 | 1 | nit | Stale ohm comment in render and now-unused Calibration.h and cstdio includes | follow-up | 1 | Carried into T9, which moves this code into ClassicLayout (same files); the T9 implementer is told to fix it and the T9 reviewer to check it |
 | T9-F1 | T9 | 1 | nit | Dash cell string picked by bare index kCellText[11]; no compile-time check tying kCellChars to kCellText | follow-up | 1 | Carried into T16 (ClassicLayout.cpp is in its allowlist): pick the dash via cellText('-') and static_assert the table lengths |
 | T9-F2 | T9 | 1 | nit | Header lock note covers build() and render() but not setVisible(), which also calls LVGL | follow-up | 1 | Carried into T10 (Layouts.h is in its allowlist): extend the lock note to every LayoutView method |
-| T10-F1 | T10 | 1 | blocker | Sweep shows OIL degC / OIL ohm (Classic title) where the criterion requires OIL TEMP below the unit | open |  |  |
-| T10-F2 | T10 | 1 | minor | SweepLayout adds about 1.2 KB to the 8 KB main-task stack (app_main frame now 0x610) | open |  |  |
-| T10-F3 | T10 | 1 | nit | Sweep unit, title and status labels show LVGL default Text until the first render | open |  |  |
+| T10-F1 | T10 | 1 | blocker | Sweep shows OIL degC / OIL ohm (Classic title) where the criterion requires OIL TEMP below the unit | fixed | 2 |  |
+| T10-F2 | T10 | 1 | minor | SweepLayout adds about 1.2 KB to the 8 KB main-task stack (app_main frame now 0x610) | fixed | 2 |  |
+| T10-F3 | T10 | 1 | nit | Sweep unit, title and status labels show LVGL default Text until the first render | fixed | 2 |  |
 
 ---
 
@@ -1469,3 +1469,4 @@ Newest last. One row per implementer run, review round, approval, escalation or 
 | 2026-11-11 | T10 | Implementer round 1 | done | files: main/CMakeLists.txt, main/display/GaugeDisplay.cpp, main/display/GaugeDisplay.h, main/display/Layouts.h, main/display/SweepLayout.cpp; gates: tests=pass build=pass demo-build=pass |
 | 2026-11-11 | T10 | Review round 1 | fix | raised: T10-F1, T10-F2, T10-F3 |
 | 2026-11-11 | T10 | Implementer round 2 | done | files: main/display/Layouts.h, main/display/SweepLayout.cpp; gates: tests=pass build=pass demo-build=pass; responses: T10-F1 fixed, T10-F2 fixed, T10-F3 fixed |
+| 2026-11-11 | T10 | Review round 2 | pass | closed: T10-F1 fixed, T10-F2 fixed, T10-F3 fixed |
