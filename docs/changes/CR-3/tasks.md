@@ -1044,7 +1044,7 @@ None blocking. The maintainer delegated these choices. Two judgement calls are w
 
 ### T15: Generate the Classic digit font from LVGL's Montserrat Medium (lv_font_conv 1.5.3)
 - kind: config
-- status: ready
+- status: done
 - depends_on: [T14]
 - needs_human_approval: true
 - approved: PurpleSentinel, 2026-11-11, npm install --prefix /tmp/cr3-lvfc --ignore-scripts lv_font_conv@1.5.3 (the maintainer ran this exact command themselves on 2026-11-11, after the approval request)
@@ -1388,7 +1388,7 @@ One row per review round, kept by the caller with cr.py start-round and record-r
 | T14 | 1 | 1ca045595d4de90244b87d87c6ab2b2ff7d57a76 | 1aeb316fe73731226b667a494f42f774cc78d1a5 | fix |
 | T14 | 2 | 1ca045595d4de90244b87d87c6ab2b2ff7d57a76 | a7d8227fa8717cde546e61e60294b14ccd4bd101 | fix |
 | T14 | 3 | 1ca045595d4de90244b87d87c6ab2b2ff7d57a76 | 54a344d69f977870b8d06615fa39100daa781c47 | pass |
-| T15 | 1 | 713799c3f0f6581556bd0f2040319c0c9b81a4e6 |  |  |
+| T15 | 1 | 713799c3f0f6581556bd0f2040319c0c9b81a4e6 | 0c90f576ea8b1954a5342e4de7aa3f920f442582 | pass |
 
 ---
 
@@ -1499,3 +1499,4 @@ Newest last. One row per implementer run, review round, approval, escalation or 
 | 2026-11-11 | T14 | Review round 3 | pass | closed: T14-F1 fixed |
 | 2026-11-11 | T15 | Approval | approved | PurpleSentinel, 2026-11-11, npm install --prefix /tmp/cr3-lvfc --ignore-scripts lv_font_conv@1.5.3 (the maintainer ran this exact command themselves on 2026-11-11, after the approval request) |
 | 2026-11-11 | T15 | Implementer round 1 | done | files: main/CMakeLists.txt, main/display/fonts/Montserrat-OFL.txt, main/display/fonts/gauge_digits_148.c; gates: tests=pass build=pass demo-build=pass |
+| 2026-11-11 | T15 | Review round 1 | pass |  |
