@@ -1374,6 +1374,7 @@ One row per review round, kept by the caller with cr.py start-round and record-r
 | T5 | 1 | 4883a907f4274571a1079ab5ed8d8d99e6941489 | ab317f2b0aa1ea62c58b705686317e2c5848f9e5 | fix |
 | T5 | 2 | 4883a907f4274571a1079ab5ed8d8d99e6941489 | d5a16c2a0d0cf7ba06ce9560fb50645dc9d81d38 | pass |
 | T6 | 1 | e78d12f63e6b382865d17141dc3c57859968f5b1 | 6c9fb7ae93dd23db3bb2c5b8265f2274d36e6a8b | escalate |
+| T5 | 3 | d2d9bd23c1f66d9da8b698340f1014d0905375fd |  |  |
 
 ---
 
