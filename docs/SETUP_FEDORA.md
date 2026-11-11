@@ -30,15 +30,17 @@ Do not ignore compilation warnings/errors. Compare component-manager resolved ve
 ## Connect the board and flash
 
 1. Connect the ESP32-S3 to Fedora by a USB **data** cable (use a clean bench supply, **not car 12 V**).
-2. Discover the port with `ls -l /dev/ttyACM* /dev/ttyUSB* 2>/dev/null` and `sudo dmesg | tail`.
-3. Confirm USB serial permissions. Fedora `uucp` or `dialout` group may be needed depending on udev configuration; log out/in after adding a group.
-4. Run:
+2. Check that the board is the gauge: `lsusb | grep 303a:1001` should print `Espressif USB JTAG/serial debug unit`.
+3. Find its port with `ls -l /dev/serial/by-id/usb-Espressif_*`. Always flash and monitor through this `by-id` path, never a bare `/dev/ttyACM0`. ACM numbers are handed out in plug-in order, so `ttyACM0` can be a different USB device (on the development laptop it has been a Raspberry Pi Pico). If more than one Espressif device is listed, unplug the others.
+4. Confirm USB serial permissions. Fedora `uucp` or `dialout` group may be needed depending on udev configuration; log out/in after adding a group.
+5. Run:
 
 ```bash
-idf.py -p /dev/ttyACM0 flash monitor
+PORT=$(ls /dev/serial/by-id/usb-Espressif_*)
+idf.py -p "$PORT" flash monitor
 ```
 
-Press `Ctrl+]` to exit the IDF serial monitor. Firmware replaces the vendor demo; consult vendor recovery images for restoration.
+If the flash cannot connect, hold **BOOT**, tap **RESET**, release BOOT and run it again. Press `Ctrl+]` to exit the IDF serial monitor. Firmware replaces the vendor demo; consult vendor recovery images for restoration.
 
 ## Synthetic demo (bench only)
 
