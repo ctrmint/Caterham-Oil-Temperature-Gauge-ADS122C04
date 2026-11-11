@@ -1475,3 +1475,4 @@ Newest last. One row per implementer run, review round, approval, escalation or 
 | 2026-11-11 | T10 | Review round 2 | pass | closed: T10-F1 fixed, T10-F2 fixed, T10-F3 fixed |
 | 2026-11-11 | T11 | Implementer round 1 | done | files: main/display/Layouts.h, main/display/SweepLayout.cpp; gates: tests=pass build=pass demo-build=pass |
 | 2026-11-11 | T11 | Review round 1 | pass | raised: T11-F1 |
+| 2026-11-11 | T12 | Implementer round 1 | done | files: main/display/GaugeDisplay.cpp, main/display/GaugeDisplay.h; gates: tests=pass build=pass demo-build=pass |
