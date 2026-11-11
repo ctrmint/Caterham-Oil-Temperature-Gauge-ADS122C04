@@ -390,7 +390,7 @@ None blocking. The maintainer delegated these choices. Two judgement calls are w
 
 ### T5: Add failing host tests for the layout choice and the long-press detector
 - kind: test
-- status: done
+- status: ready
 - depends_on: []
 - needs_human_approval: false
 - install: none
@@ -1399,8 +1399,10 @@ Review findings, kept by the caller. Columns and statuses: see "Review rounds" i
 | T5-F2 | T5 | 1 | major | Slop checked only as one jump before the threshold (slow-swipe and time-before-slop mutants survive) | fixed | 2 |  |
 | T5-F3 | T5 | 1 | major | Hold-before-press assertion passes only because of its coordinates (armed-from-construction mutant with zero origin survives) | fixed | 2 |  |
 | T5-F4 | T5 | 1 | nit | Literal 1000 stands in for kLongPressMs at line 42 | fixed | 2 |  |
-| T6-F1 | T6 | 1 | major | Press-point x/y confusion survives the layout tests (every test press is on the diagonal x == y) | escalated | 1 |  |
-| T6-F2 | T6 | 1 | major | Restarting a press with a second press() before release() is not tested | escalated | 1 |  |
+| T6-F1 | T6 | 1 | major | Press-point x/y confusion survives the layout tests (every test press is on the diagonal x == y) | follow-up | 2026-11-11 | Decision: test gap, moved to T5-F5 (T5 reopened); T6 code unchanged and re-reviewed after |
+| T6-F2 | T6 | 1 | major | Restarting a press with a second press() before release() is not tested | follow-up | 2026-11-11 | Decision: test gap, moved to T5-F6 (T5 reopened); T6 code unchanged and re-reviewed after |
+| T5-F5 | T5 | 2 | major | No off-diagonal press point: an x/y swap in press or hold survives (from T6-F1) | open |  |  |
+| T5-F6 | T5 | 2 | major | No re-press without release: a press() that keeps the old time and point survives (from T6-F2) | open |  |  |
 
 ---
 
@@ -1437,3 +1439,4 @@ Newest last. One row per implementer run, review round, approval, escalation or 
 | 2026-11-11 | T6 | Escalated | T6-F1 |  |
 | 2026-11-11 | T6 | Escalated | T6-F2 |  |
 | 2026-11-11 | T6 | Review round 1 | escalate | raised: T6-F1, T6-F2; escalated: T6-F1, T6-F2 |
+| 2026-11-11 | T6 | Decision | reopen-T5 | Caller under maintainer delegation: reopen T5 to add an off-diagonal press point and a re-press-without-release case; then re-review T6 against them |
