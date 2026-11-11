@@ -1400,3 +1400,4 @@ Newest last. One row per implementer run, review round, approval, escalation or 
 | 2026-11-11 | T1 | Review round 2 | fix | raised: T1-F6; closed: T1-F1 fixed, T1-F2 fixed, T1-F3 fixed, T1-F4 fixed, T1-F5 fixed |
 | 2026-11-11 | T1 | Implementer round 3 | done | files: tests/display_text_test.cpp; gates: tests=fail; responses: T1-F6 fixed |
 | 2026-11-11 | T1 | Review round 3 | pass | closed: T1-F6 fixed |
+| 2026-11-11 | T2 | Implementer round 1 | done | files: main/CMakeLists.txt, main/core/DisplayText.cpp, main/core/DisplayText.h; gates: tests=pass build-normal=pass build-demo=pass |
