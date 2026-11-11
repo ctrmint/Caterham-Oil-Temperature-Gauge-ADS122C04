@@ -1437,6 +1437,7 @@ Review findings, kept by the caller. Columns and statuses: see "Review rounds" i
 | T14-F4 | T14 | 1 | nit | Ambiguous wording in README Display text | fixed | 2 |  |
 | T16-F1 | T16 | 1 | minor | Compile-time fit check uses font metrics copied by hand (kCellMax, kGlyphH), not tied to the runtime cell width and line height | follow-up | 1 | Correct today (runtime width 99 and line height 106 match the constants); tie them to the font at runtime in a later CR, before the font is ever regenerated (caller, under maintainer delegation) |
 | T16-F2 | T16 | 1 | nit | boxInside computes max(\|top\|,\|top+h\|) in one unreadable nested ternary | accepted | 1 | Readability only; reviewer verified it by hand and by mutation |
+| T17-F1 | T17 | 1 | minor | REQ-D1 says the MAX value is always shown; it is shown only while calibrated with a reading in or beyond the table (request.md amended) | open |  |  |
 
 ---
 
@@ -1508,3 +1509,4 @@ Newest last. One row per implementer run, review round, approval, escalation or 
 | 2026-11-11 | T16 | Review round 1 | pass | raised: T16-F1, T16-F2 |
 | 2026-11-11 | T17 | Implementer round 1 | done | files: README.md, docs/spec.md; gates: tests=pass |
 | 2026-11-11 | T17 | Review round 1 | pass |  |
+| 2026-11-11 | T17 | Decision | amend-req-d1 | Caller under maintainer delegation: REQ-D1 'Always shown' amended in request.md to match the fail-closed footer; T17 to carry the amended wording into docs/spec.md |

@@ -62,7 +62,12 @@
         - `--` on a fault.
       - **Digit layout:** fixed-width characters, right-aligned, so the ones digit never moves.
       - **Sweep segments:** they light only for a temperature inside the table. Beyond the top of the table, they light up to the table's maximum. Below range, on a fault or when uncalibrated, none are lit. Scale numbers are hidden when uncalibrated.
-      - **Always shown:** the status text, the `MAX` value (whole degrees of the selected unit, no unit symbol) and, in a demo build, `DEMO ONLY - NOT REAL`.
+      - **Shown in both layouts:**
+        - the status text;
+        - the bottom line: the `MAX` value (whole degrees of the selected unit, no unit symbol) while calibrated with a reading in or beyond the table; otherwise `TEMPERATURE NOT VERIFIED` (uncalibrated) or `CHECK SENSOR AND WIRING` (fault);
+        - in a demo build, `DEMO ONLY - NOT REAL`.
+
+        *Amended 2026-11-11 by the caller, under the maintainer's delegation, after T17's review. The approved text said "Always shown: … the `MAX` value", but a `MAX` in degrees can't be shown when uncalibrated without breaking REQ-C1. The firmware (unchanged from before CR-3) shows `MAX` only in the cases above. This wording records that behaviour; no code changes.*
       - **Colour precedence:** unchanged. It applies to the digits and the lit segments.
       - **Choosing a layout:** a long-press changes the layout. The choice is stored and restored at power-up.
   - REQ-C1 is unchanged: uncalibrated firmware never shows °C or °F, and never shows a temperature scale, in any layout.
