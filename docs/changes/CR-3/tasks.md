@@ -1431,3 +1431,4 @@ Newest last. One row per implementer run, review round, approval, escalation or 
 | 2026-11-11 | T5 | Review round 1 | fix | raised: T5-F1, T5-F2, T5-F3, T5-F4 |
 | 2026-11-11 | T5 | Implementer round 2 | done | files: tests/layout_choice_test.cpp; gates: tests=fail; responses: T5-F1 fixed, T5-F2 fixed, T5-F3 fixed, T5-F4 fixed |
 | 2026-11-11 | T5 | Review round 2 | pass | closed: T5-F1 fixed, T5-F2 fixed, T5-F3 fixed, T5-F4 fixed |
+| 2026-11-11 | T6 | Implementer round 1 | done | files: main/CMakeLists.txt, main/core/LayoutChoice.cpp, main/core/LayoutChoice.h; gates: tests=pass build=pass demo-build=pass |
