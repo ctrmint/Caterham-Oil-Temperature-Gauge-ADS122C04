@@ -1483,3 +1483,4 @@ Newest last. One row per implementer run, review round, approval, escalation or 
 | 2026-11-11 | T13 | Implementer round 1 | done | files: main/CMakeLists.txt, main/main.cpp; gates: tests=pass build=pass demo-build=pass f-build=pass |
 | 2026-11-11 | T13 | Review round 1 | pass |  |
 | 2026-11-11 | T13 | Verification note | nvs grep wording | The plan's grep for nvs_ outside main.cpp matches the approved nvs_flash REQUIRES entry; limited to source files it prints nothing (reviewer and caller agree) |
+| 2026-11-11 | T14 | Implementer round 1 | done | files: README.md, docs/ARCHITECTURE.md, docs/CALIBRATION.md, docs/SAFETY.md, docs/VALIDATION.md; gates: tests=pass |
