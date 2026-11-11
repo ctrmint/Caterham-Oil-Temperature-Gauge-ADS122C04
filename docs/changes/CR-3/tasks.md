@@ -1374,7 +1374,7 @@ One row per review round, kept by the caller with cr.py start-round and record-r
 | T5 | 1 | 4883a907f4274571a1079ab5ed8d8d99e6941489 | ab317f2b0aa1ea62c58b705686317e2c5848f9e5 | fix |
 | T5 | 2 | 4883a907f4274571a1079ab5ed8d8d99e6941489 | d5a16c2a0d0cf7ba06ce9560fb50645dc9d81d38 | pass |
 | T6 | 1 | e78d12f63e6b382865d17141dc3c57859968f5b1 | 6c9fb7ae93dd23db3bb2c5b8265f2274d36e6a8b | escalate |
-| T5 | 3 | d2d9bd23c1f66d9da8b698340f1014d0905375fd |  |  |
+| T5 | 3 | d2d9bd23c1f66d9da8b698340f1014d0905375fd | 6c490fdc1c2fdde1c0d69fa16c32995caf48914f | pass |
 
 ---
 
@@ -1402,8 +1402,8 @@ Review findings, kept by the caller. Columns and statuses: see "Review rounds" i
 | T5-F4 | T5 | 1 | nit | Literal 1000 stands in for kLongPressMs at line 42 | fixed | 2 |  |
 | T6-F1 | T6 | 1 | major | Press-point x/y confusion survives the layout tests (every test press is on the diagonal x == y) | follow-up | 2026-11-11 | Decision: test gap, moved to T5-F5 (T5 reopened); T6 code unchanged and re-reviewed after |
 | T6-F2 | T6 | 1 | major | Restarting a press with a second press() before release() is not tested | follow-up | 2026-11-11 | Decision: test gap, moved to T5-F6 (T5 reopened); T6 code unchanged and re-reviewed after |
-| T5-F5 | T5 | 2 | major | No off-diagonal press point: an x/y swap in press or hold survives (from T6-F1) | open |  |  |
-| T5-F6 | T5 | 2 | major | No re-press without release: a press() that keeps the old time and point survives (from T6-F2) | open |  |  |
+| T5-F5 | T5 | 2 | major | No off-diagonal press point: an x/y swap in press or hold survives (from T6-F1) | fixed | 3 |  |
+| T5-F6 | T5 | 2 | major | No re-press without release: a press() that keeps the old time and point survives (from T6-F2) | fixed | 3 |  |
 
 ---
 
@@ -1442,3 +1442,4 @@ Newest last. One row per implementer run, review round, approval, escalation or 
 | 2026-11-11 | T6 | Review round 1 | escalate | raised: T6-F1, T6-F2; escalated: T6-F1, T6-F2 |
 | 2026-11-11 | T6 | Decision | reopen-T5 | Caller under maintainer delegation: reopen T5 to add an off-diagonal press point and a re-press-without-release case; then re-review T6 against them |
 | 2026-11-11 | T5 | Implementer round 3 | done | files: tests/layout_choice_test.cpp; gates: tests=pass; responses: T5-F5 fixed, T5-F6 fixed |
+| 2026-11-11 | T5 | Review round 3 | pass | closed: T5-F5 fixed, T5-F6 fixed |
