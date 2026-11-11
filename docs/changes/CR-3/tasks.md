@@ -974,7 +974,7 @@ None blocking. The maintainer delegated these choices. Two judgement calls are w
 
 ### T14: Document both layouts, the long-press, the °F option and the new display text
 - kind: docs
-- status: done
+- status: ready
 - depends_on: [T13]
 - needs_human_approval: false
 - install: none
@@ -1195,7 +1195,7 @@ None blocking. The maintainer delegated these choices. Two judgement calls are w
 
 ### T17: Write the approved §1 and REQ-D1 wording into docs/spec.md and note the font licence in the README
 - kind: docs
-- status: done
+- status: ready
 - depends_on: [T16, T14]
 - needs_human_approval: false
 - install: none
@@ -1391,7 +1391,7 @@ One row per review round, kept by the caller with cr.py start-round and record-r
 | T15 | 1 | 713799c3f0f6581556bd0f2040319c0c9b81a4e6 | 0c90f576ea8b1954a5342e4de7aa3f920f442582 | pass |
 | T16 | 1 | df3b9203834192086b6b91bb9d16857d1cc51779 | 6e9e555cfb3ce2642b8e193ad51a8aac1e850d0a | pass |
 | T17 | 1 | 7619a3f7347ccf419d3ea8d14ecf16e507dd4f7a | 7b9a4c9fd8598c0e9fb81649229e58f7c28df06d | pass |
-| CR-3 | 1 | cd28248e19b2d08ad78fd64d2511ecb7e315bf37 |  |  |
+| CR-3 | 1 | cd28248e19b2d08ad78fd64d2511ecb7e315bf37 | c82a2c38a675429eb7f1e2dd17999eca9dc0ca58 | fix |
 
 ---
 
@@ -1439,6 +1439,8 @@ Review findings, kept by the caller. Columns and statuses: see "Review rounds" i
 | T16-F1 | T16 | 1 | minor | Compile-time fit check uses font metrics copied by hand (kCellMax, kGlyphH), not tied to the runtime cell width and line height | follow-up | 1 | Correct today (runtime width 99 and line height 106 match the constants); tie them to the font at runtime in a later CR, before the font is ever regenerated (caller, under maintainer delegation) |
 | T16-F2 | T16 | 1 | nit | boxInside computes max(\|top\|,\|top+h\|) in one unreadable nested ternary | accepted | 1 | Readability only; reviewer verified it by hand and by mutation |
 | T17-F1 | T17 | 1 | minor | REQ-D1 says the MAX value is always shown; it is shown only while calibrated with a reading in or beyond the table (request.md amended) | follow-up | 2026-11-11 | Carried into the CR-level review: the reviewer is told to check docs/spec.md REQ-D1 against the amended request.md wording, so a finding there reopens T17 |
+| T17-F2 | T17 | 1 | blocker | docs/spec.md REQ-D1 still has the superseded 'Always shown' MAX bullet, not the amended 'Shown in both layouts' wording | open |  | CR-3 review round 1 |
+| T14-F5 | T14 | 3 | minor | VALIDATION.md expects a ghost 888 but the 4-cell Sweep layout shows 8888 | open |  | CR-3 review round 1 |
 
 ---
 
@@ -1514,3 +1516,4 @@ Newest last. One row per implementer run, review round, approval, escalation or 
 | 2026-11-11 | T17 | Escalated | T17-F1 |  |
 | 2026-11-11 | T17 | Decision | must-fix | Caller under maintainer delegation: T17-F1 must be fixed (carry the amended REQ-D1 wording into docs/spec.md); it stays escalated until fixed |
 | 2026-11-11 | T17 | Decision | to-cr-review | cr.py does not start a fix round after a pass; T17-F1 is routed through the CR-level review instead |
+| 2026-11-11 | CR-3 | Review round 1 | fix | raised: T17-F2, T14-F5 |
