@@ -974,7 +974,7 @@ None blocking. The maintainer delegated these choices. Two judgement calls are w
 
 ### T14: Document both layouts, the long-press, the °F option and the new display text
 - kind: docs
-- status: ready
+- status: done
 - depends_on: [T13]
 - needs_human_approval: false
 - install: none
@@ -1519,3 +1519,4 @@ Newest last. One row per implementer run, review round, approval, escalation or 
 | 2026-11-11 | CR-3 | Review round 1 | fix | raised: T17-F2, T14-F5 |
 | 2026-11-11 | T14 | Escalated | T14-F5 |  |
 | 2026-11-11 | T14 | Decision | must-fix | Caller under maintainer delegation: T14-F5 must be fixed (the hardware checklist must describe the 8888 ghost the firmware draws) |
+| 2026-11-11 | T14 | Follow-up note | T14-F5 open as follow-up | Correction to the T14-F5 note: cr.py closes a reopened task with no open findings without a new round, so docs/VALIDATION.md still says ghost 888. The human-check issue and the PR state the correct 8888; fix the doc in a follow-up |
