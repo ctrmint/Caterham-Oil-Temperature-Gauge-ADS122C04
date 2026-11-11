@@ -57,7 +57,7 @@ sudo dnf install -y gcc-c++ python3
 ./scripts/test_host.sh
 ```
 
-These tests require no ESP-IDF. The host tests pass and the firmware compiles cleanly with ESP-IDF 5.5.5, but **flashing, live display bring-up and ADS1115 communication remain unverified** until a physical board is available.
+These tests require no ESP-IDF. The host tests pass and the firmware compiles cleanly with ESP-IDF 5.5.5. Flashing and display bring-up have been verified on a 31261 board (see [VALIDATION.md](VALIDATION.md)), but **ADS1115 communication remains unverified** until the ADS1115 is wired up on the bench.
 
 ## Common faults
 
