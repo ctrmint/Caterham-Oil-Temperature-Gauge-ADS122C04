@@ -12,6 +12,7 @@ This is an **experimental supplemental display**. It is not automotive-certified
 - **Open-circuit reading:** an open sender stops current through the pull-up, so `Vp` falls to about 0 V and is reported as `SENSOR OPEN`. **No temperature** is shown.
 - **Calibration missing/wrong:** no invented table in live firmware. Only measured sender data can enable °C, and no extrapolation is performed. Readings hotter than the table are shown as critical rather than as a fault.
 - **Warning limits:** defaults are *illustrations* and not a definition of safe Caterham oil operation. High-temperature alerts provide no guarantee against engine damage.
+- **Touch:** touch does one thing only: a press of at least 1 s (a long-press) switches the display layout. It cannot change the unit, the calibration or the alarms. Choose the layout before driving and do not change it while driving.
 - **Display/software faults:** board resets or LVGL bugs can result in a blank screen. The primary vehicle monitoring remains mandatory.
 
 ## Acceptance gate
