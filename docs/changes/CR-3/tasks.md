@@ -1421,3 +1421,4 @@ Newest last. One row per implementer run, review round, approval, escalation or 
 | 2026-11-11 | T3 | Review round 2 | pass | closed: T3-F1 fixed, T3-F2 fixed, T3-F3 fixed |
 | 2026-11-11 | T4 | Implementer round 1 | done | files: main/CMakeLists.txt, main/core/SweepModel.cpp, main/core/SweepModel.h; gates: tests=pass build=pass build-demo=pass |
 | 2026-11-11 | T4 | Review round 1 | pass | raised: T4-F1 |
+| 2026-11-11 | T5 | Implementer round 1 | done | files: scripts/test_host.sh, tests/layout_choice_test.cpp; gates: tests=fail |
