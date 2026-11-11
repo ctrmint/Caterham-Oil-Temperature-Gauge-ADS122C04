@@ -1462,3 +1462,4 @@ Newest last. One row per implementer run, review round, approval, escalation or 
 | 2026-11-11 | T9 | Scope note | T8 follow-ups | T9 also fixes T8-F1..F4 and the subtitle allocation (lv_label_set_text_static), inside its own allowlist |
 | 2026-11-11 | T9 | Implementer round 1 | done | files: main/CMakeLists.txt, main/display/ClassicLayout.cpp, main/display/GaugeDisplay.cpp, main/display/GaugeDisplay.h, main/display/Layouts.h; gates: tests=pass build=pass demo-build=pass |
 | 2026-11-11 | T9 | Review round 1 | pass | raised: T9-F1, T9-F2 |
+| 2026-11-11 | T10 | Implementer round 1 | done | files: main/CMakeLists.txt, main/display/GaugeDisplay.cpp, main/display/GaugeDisplay.h, main/display/Layouts.h, main/display/SweepLayout.cpp; gates: tests=pass build=pass demo-build=pass |
