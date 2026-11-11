@@ -135,7 +135,7 @@ int main() {
   assert(foots(norm,112.5f,false,Unit::Fahrenheit,"MAX 235  |  123 ohm"));
   assert(foots(norm,114.7f,false,Unit::Fahrenheit,"MAX 238  |  123 ohm"));
   assert(foots(make(Status::Normal,122.5f,true,112.4f),112.4f,false,Unit::Celsius,"MAX 112  |  123 ohm"));
-  assert(foots(make(Status::Normal,122.5f),-999.f,false,Unit::Celsius,"123 ohm"));
+  assert(foots(make(Status::Normal,122.5f,true,112.4f),-999.f,false,Unit::Celsius,"123 ohm"));
   for(float m:{112.4f,-999.f}) {
     assert(foots(norm,m,true,Unit::Celsius,"MAX >140  |  123 ohm"));
     assert(foots(norm,m,true,Unit::Fahrenheit,"MAX >284  |  123 ohm"));
