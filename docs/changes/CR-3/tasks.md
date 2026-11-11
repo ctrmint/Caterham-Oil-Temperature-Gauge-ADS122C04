@@ -1195,7 +1195,7 @@ None blocking. The maintainer delegated these choices. Two judgement calls are w
 
 ### T17: Write the approved §1 and REQ-D1 wording into docs/spec.md and note the font licence in the README
 - kind: docs
-- status: ready
+- status: done
 - depends_on: [T16, T14]
 - needs_human_approval: false
 - install: none
@@ -1392,7 +1392,7 @@ One row per review round, kept by the caller with cr.py start-round and record-r
 | T16 | 1 | df3b9203834192086b6b91bb9d16857d1cc51779 | 6e9e555cfb3ce2642b8e193ad51a8aac1e850d0a | pass |
 | T17 | 1 | 7619a3f7347ccf419d3ea8d14ecf16e507dd4f7a | 7b9a4c9fd8598c0e9fb81649229e58f7c28df06d | pass |
 | CR-3 | 1 | cd28248e19b2d08ad78fd64d2511ecb7e315bf37 | c82a2c38a675429eb7f1e2dd17999eca9dc0ca58 | fix |
-| T17 | 2 | 37019eec7e71a2f62243757a1de1469dd7b3576e |  |  |
+| T17 | 2 | 37019eec7e71a2f62243757a1de1469dd7b3576e | 9d2163352a953f51a0187fccd8dca8c4555c4884 | pass |
 
 ---
 
@@ -1440,7 +1440,7 @@ Review findings, kept by the caller. Columns and statuses: see "Review rounds" i
 | T16-F1 | T16 | 1 | minor | Compile-time fit check uses font metrics copied by hand (kCellMax, kGlyphH), not tied to the runtime cell width and line height | follow-up | 1 | Correct today (runtime width 99 and line height 106 match the constants); tie them to the font at runtime in a later CR, before the font is ever regenerated (caller, under maintainer delegation) |
 | T16-F2 | T16 | 1 | nit | boxInside computes max(\|top\|,\|top+h\|) in one unreadable nested ternary | accepted | 1 | Readability only; reviewer verified it by hand and by mutation |
 | T17-F1 | T17 | 1 | minor | REQ-D1 says the MAX value is always shown; it is shown only while calibrated with a reading in or beyond the table (request.md amended) | follow-up | 2026-11-11 | Carried into the CR-level review: the reviewer is told to check docs/spec.md REQ-D1 against the amended request.md wording, so a finding there reopens T17 |
-| T17-F2 | T17 | 1 | blocker | docs/spec.md REQ-D1 still has the superseded 'Always shown' MAX bullet, not the amended 'Shown in both layouts' wording | open |  | CR-3 review round 1 |
+| T17-F2 | T17 | 1 | blocker | docs/spec.md REQ-D1 still has the superseded 'Always shown' MAX bullet, not the amended 'Shown in both layouts' wording | fixed | 2 | CR-3 review round 1 |
 | T14-F5 | T14 | 3 | minor | VALIDATION.md expects a ghost 888 but the 4-cell Sweep layout shows 8888 | follow-up | 2026-11-11 | Fixed in T14's reopened round (the one change that round makes); the reviewer checks it |
 
 ---
@@ -1522,3 +1522,4 @@ Newest last. One row per implementer run, review round, approval, escalation or 
 | 2026-11-11 | T14 | Decision | must-fix | Caller under maintainer delegation: T14-F5 must be fixed (the hardware checklist must describe the 8888 ghost the firmware draws) |
 | 2026-11-11 | T14 | Follow-up note | T14-F5 open as follow-up | Correction to the T14-F5 note: cr.py closes a reopened task with no open findings without a new round, so docs/VALIDATION.md still says ghost 888. The human-check issue and the PR state the correct 8888; fix the doc in a follow-up |
 | 2026-11-11 | T17 | Implementer round 2 | done | files: docs/spec.md; gates: tests=pass; responses: T17-F2 fixed |
+| 2026-11-11 | T17 | Review round 2 | pass | closed: T17-F2 fixed |
