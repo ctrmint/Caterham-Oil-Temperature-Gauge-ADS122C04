@@ -93,7 +93,7 @@ None blocking. The maintainer delegated these choices. Two judgement calls are w
 
 ### T1: Add failing host tests for the display text helpers
 - kind: test
-- status: ready
+- status: done
 - depends_on: []
 - needs_human_approval: false
 - install: none
