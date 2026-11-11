@@ -11,7 +11,7 @@ An independent **oil-temperature gauge** for the Caterham 420R dry-sump tank's r
 1. Read [hardware/BOM.md](hardware/BOM.md), [hardware/WIRING.md](hardware/WIRING.md), and [docs/SAFETY.md](docs/SAFETY.md) before wiring to the car.
 2. On a **bench** (not in the vehicle) wire the ADS1115 to the H2 expansion header (I²C on GPIO17/18), then the 470 Ω pull-up, the three 1 kΩ / 100 nF input filters and a known test resistor in place of the sender; check all voltages with a meter before connecting the PCB.
 3. Install **ESP-IDF 5.5.5** on Fedora as described in [docs/SETUP_FEDORA.md](docs/SETUP_FEDORA.md).
-4. `idf.py set-target esp32s3 && idf.py build && idf.py -p /dev/ttyACM0 flash monitor`
+4. `idf.py set-target esp32s3 && idf.py build`, then flash through the board's `/dev/serial/by-id/usb-Espressif_*` port, never a bare `/dev/ttyACM0`, which can be another USB device: `idf.py -p "$(ls /dev/serial/by-id/usb-Espressif_*)" flash monitor` (see [Connect the board and flash](docs/SETUP_FEDORA.md#connect-the-board-and-flash)).
 5. Boot with an **uncalibrated** sensor and confirm the display shows resistance and `CALIBRATION REQUIRED`; simulate open and short faults on the bench.
 6. Independently characterise the exact sender, generate `main/CalibrationData.h`, rebuild, and verify °C against a reference thermometer. See [docs/CALIBRATION.md](docs/CALIBRATION.md).
 7. Only consider vehicle mounting after power-conditioning, grounding, thermal, EMI and installation checks.
