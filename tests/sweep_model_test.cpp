@@ -4,6 +4,7 @@
 #include <cassert>
 #include <cmath>
 #include <cstdio>
+#include <initializer_list>
 
 static gauge::Reading make(gauge::Status s, bool has_t=false, float t_c=0) {
   gauge::Reading r;
@@ -45,6 +46,8 @@ int main() {
     for(int i=static_cast<int>(Status::NoAdc);i<=static_cast<int>(Status::NeedsCalibration);i++)
       assert(gauge::litSegments(make(static_cast<Status>(i)),u)==0);
     assert(gauge::litSegments(make(Status::Normal,true,NAN),u)==0);
+    assert(gauge::litSegments(make(Status::Normal,true,INFINITY),u)==0);
+    assert(gauge::litSegments(make(Status::Normal,true,-INFINITY),u)==0);
     assert(gauge::litSegments(make(Status::Normal,false,100.f),u)==0);  // stale temperature, no flag
   }
 
@@ -63,6 +66,25 @@ int main() {
   assert(lit(60.01f,Unit::Fahrenheit)==8);
   assert(lit(37.f,Unit::Fahrenheit)==0);
   assert(lit(150.f,Unit::Fahrenheit)==40);
+  // Statuses the ring really gets: Cold, Amber and Red carry a temperature too.
+  const struct { Status s; float t_c; int c; int f; } carry[]={
+    {Status::Cold,50.f,3,4}, {Status::Amber,120.f,29,29}, {Status::Red,130.f,32,33}};
+  for(const auto &k:carry) {
+    assert(gauge::litSegments(make(k.s,true,k.t_c),Unit::Celsius)==k.c);
+    assert(gauge::litSegments(make(k.s,true,k.t_c),Unit::Fahrenheit)==k.f);
+  }
+  // Faults and BelowRange light nothing even with a temperature set or an alarm latched.
+  for(Unit u:units) {
+    for(int i=static_cast<int>(Status::NoAdc);i<=static_cast<int>(Status::BelowRange);i++) {
+      assert(gauge::litSegments(make(static_cast<Status>(i),true,100.f),u)==0);
+      for(Status a:{Status::Amber,Status::Red}) {
+        gauge::Reading r=make(static_cast<Status>(i)); r.alarm=a;
+        assert(gauge::litSegments(r,u)==0);
+        r.has_temperature=true; r.temperature_c=100.f;
+        assert(gauge::litSegments(r,u)==0);
+      }
+    }
+  }
   // Above range lights only up to the table maximum, never the full scale.
   for(Unit u:units) assert(gauge::litSegments(make(Status::AboveRange),u)==36);
   std::puts("Sweep model tests passed (demo)");
