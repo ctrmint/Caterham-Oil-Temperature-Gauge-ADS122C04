@@ -563,7 +563,7 @@ None blocking. The maintainer delegated these choices. Two judgement calls are w
 
 ### T8: Show the Classic title, fixed-width reading and MAX line from the core helpers
 - kind: impl
-- status: ready
+- status: done
 - depends_on: [T2]
 - needs_human_approval: false
 - install: none
@@ -1377,7 +1377,7 @@ One row per review round, kept by the caller with cr.py start-round and record-r
 | T5 | 3 | d2d9bd23c1f66d9da8b698340f1014d0905375fd | 6c490fdc1c2fdde1c0d69fa16c32995caf48914f | pass |
 | T6 | 2 | e78d12f63e6b382865d17141dc3c57859968f5b1 | 32884e1fd6bb71a72f6f974e2566707f36fb4231 | pass |
 | T7 | 1 | a441d22fdb9257c0ed9a45966da09a083b49b26e | 2208fcf8b2c0149d357287235316fff849495d5f | pass |
-| T8 | 1 | 35c58619b6b4905a9096b002fba1a873e2977976 |  |  |
+| T8 | 1 | 35c58619b6b4905a9096b002fba1a873e2977976 | bb408de25dd20e4fb5832fd44f4e91f08c07951c | pass |
 
 ---
 
@@ -1407,6 +1407,10 @@ Review findings, kept by the caller. Columns and statuses: see "Review rounds" i
 | T6-F2 | T6 | 1 | major | Restarting a press with a second press() before release() is not tested | follow-up | 2026-11-11 | Decision: test gap, moved to T5-F6 (T5 reopened); T6 code unchanged and re-reviewed after |
 | T5-F5 | T5 | 2 | major | No off-diagonal press point: an x/y swap in press or hold survives (from T6-F1) | fixed | 3 |  |
 | T5-F6 | T5 | 2 | major | No re-press without release: a press() that keeps the old time and point survives (from T6-F2) | fixed | 3 |  |
+| T8-F1 | T8 | 1 | minor | Unknown reading character renders as a blank cell instead of failing closed to -- | follow-up | 1 | Carried into T9, which moves this code into ClassicLayout (same files); the T9 implementer is told to fix it and the T9 reviewer to check it |
+| T8-F2 | T8 | 1 | nit | Cells start blank before the first render instead of the previous -- placeholder | follow-up | 1 | Carried into T9, which moves this code into ClassicLayout (same files); the T9 implementer is told to fix it and the T9 reviewer to check it |
+| T8-F3 | T8 | 1 | nit | Per-cell truncating offset gives uneven pitch for odd cell widths (latent until T16) | follow-up | 1 | Carried into T9, which moves this code into ClassicLayout (same files); the T9 implementer is told to fix it and the T9 reviewer to check it |
+| T8-F4 | T8 | 1 | nit | Stale ohm comment in render and now-unused Calibration.h and cstdio includes | follow-up | 1 | Carried into T9, which moves this code into ClassicLayout (same files); the T9 implementer is told to fix it and the T9 reviewer to check it |
 
 ---
 
@@ -1450,3 +1454,5 @@ Newest last. One row per implementer run, review round, approval, escalation or 
 | 2026-11-11 | T7 | Implementer round 1 | done | files: main/Kconfig.projbuild; gates: tests=pass build-normal=pass build-demo=pass build-f=pass |
 | 2026-11-11 | T7 | Review round 1 | pass |  |
 | 2026-11-11 | T8 | Implementer round 1 | done | files: main/display/GaugeDisplay.cpp, main/display/GaugeDisplay.h; gates: tests=pass build-normal=pass build-demo=pass |
+| 2026-11-11 | T8 | Review round 1 | pass | raised: T8-F1, T8-F2, T8-F3, T8-F4 |
+| 2026-11-11 | T9 | Scope note | T8 follow-ups | T9 also fixes T8-F1..F4 and the subtitle allocation (lv_label_set_text_static), inside its own allowlist |
