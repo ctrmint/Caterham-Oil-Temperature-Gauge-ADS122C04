@@ -102,6 +102,10 @@ The 1 kΩ / 100 nF networks limit current and filter noise, but they are **not**
 
 ## Bench steps
 
+[breadboard.svg](breadboard.svg) shows a hole-by-hole layout of this circuit on a half-size (400-point) breadboard for these steps. It includes the step 8 parts, the probe points and a placement table.
+
+![Bench breadboard layout: ADS1115 module, 470 Ω pull-up, filters, test resistor and ground-sense wire on a half-size breadboard](breadboard.svg)
+
 1. With the interface board disconnected from the ESP32, check continuity for unintended shorts to battery+ / chassis.
 2. Power the Waveshare board from a clean bench 5 V source. Check the 3.3 V rail is stable.
 3. Connect the ADS1115 (VDD, GND, SDA, SCL, ADDR to GND). Confirm the firmware or an I²C scan finds address **0x48**.
