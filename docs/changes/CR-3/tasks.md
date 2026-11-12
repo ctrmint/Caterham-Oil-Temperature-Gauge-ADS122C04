@@ -1527,3 +1527,6 @@ Newest last. One row per implementer run, review round, approval, escalation or 
 | 2026-11-11 | CR-3 | Review round 2 | pass |  |
 | 2026-11-11 | CR-3 | Ready for PR | all tasks done | Gates pass (host, normal, demo); hardware checks owed in #21; follow-ups: T6-F1/F2 (moved to T5, fixed), T8/T9 (fixed in later tasks), T14-F5 (VALIDATION 888 -> 8888), T16-F1 (tie font metrics to runtime), plus the plan's section 8 |
 | 2026-11-12 | CR-3 | Done | merging PR #22 |  |
+| 2026-11-12 | CR-3 | Human check: demo °C (#21 §1, §3) | pass | Waveshare 31261, main at 0668e1a. Maintainer: all checks pass, both layouts, long-press switching, restore after power cycle, Classic after erase-flash |
+| 2026-11-12 | CR-3 | Human check: demo °F (#21 §2) | pass | Waveshare 31261, main at 0668e1a. Maintainer: all checks pass (OIL °F / °F, labels 100…300, amber ~239, red ~266, CSV in °C) |
+| 2026-11-12 | CR-3 | Human check: normal uncalibrated (#21 §4, §5) | pass | Waveshare 31261, main at 0668e1a, no ADS1115 fitted. Maintainer: 'the latest build works' (ohm, --, ADC UNAVAILABLE, CHECK SENSOR AND WIRING; Sweep unlit, no scale). Normal °C build left on the gauge. Still owed: 4-digit ohms with an ADS1115 and test resistor; >max/<min with a calibration table and decade box |
