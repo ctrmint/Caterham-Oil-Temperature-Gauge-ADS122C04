@@ -20,6 +20,7 @@ Run: `./scripts/test_host.sh`.
 | 2026-11-12 | Display layouts (CR-3), normal uncalibrated build, no ADS1115 fitted, both layouts | **Pass.** The unit reads `ohm`, never °C or °F. The reading is `--`, with `ADC UNAVAILABLE` and `CHECK SENSOR AND WIRING`. Sweep has no lit segments and no scale numbers. A 4-digit ohms reading with an ADS1115 and test resistor is still owed (#24). | Observation by the user (#21). Firmware from `main` at `0668e1a`. |
 | 2026-11-12 | Graduated colours, 30–130 °C dial, fainter ghost digits, centred Classic reading (#27): demo build, °C, both layouts | **Pass.** The digits, status text and Classic's arc blend from dark blue through light blue, green, yellow and amber to red as the reading rises, and back as it falls. They are at least amber while `HIGH TEMPERATURE` is shown and red while `CRITICAL TEMP` is shown. Each lit segment keeps the colour of its place on the dial, and the labels read 30…130. The ghost `8888` is faint, a 3-digit reading is centred in Classic, and dark blue is legible. | Observation by the user (#27). Firmware from `main` at `1a48813`. |
 | 2026-11-12 | The same (#27): demo build, °F | **Pass.** `OIL °F` / `°F` and labels 86…266. The colours change at the same temperatures as in °C (red from about 248). `HIGH TEMPERATURE` comes on at about 239 and `CRITICAL TEMP` at about 266, and the serial CSV still logs `temp_c` in °C. | Observation by the user (#27). Firmware from `main` at `1a48813`. |
+| 2026-11-12 | Sweep three-digit reading (#29): demo build, °C | **Pass.** Three seven-segment digits, larger than the earlier four, centred on the screen over a faint ghost `888`. Nothing touches the scale labels, the unit, `OIL TEMP` or the status line. The user's verdict: "the revised 7 segment looks brilliant". | Observation by the user (#29). Firmware from branch `sweep-three-digits` at `b330466`, the same code that #29 merged to `main`. |
 
 ## Tests that require physical hardware (not yet carried out)
 
@@ -42,6 +43,6 @@ Run: `./scripts/test_host.sh`.
 | Alarm debounce and reset hysteresis | No oscillation at threshold | event log |
 | Engine cranking and alternator operation | No resets, surge damage or false readings | powered test |
 | Vibration/thermal | Wiring/enclosure hold, stable function | inspection |
-| Sweep three-digit reading (demo build, °C and °F) | Three seven-segment digits, larger than the earlier four, centred on the screen, over a faint ghost `888`; nothing touches the scale labels, the unit, `OIL TEMP` or the status line. The `<` / `>` sign beside the digits needs a reading beyond the table (#25). | photos |
+| Sweep three-digit reading, demo build, °F | As in °C (passed on 2026-11-12): three centred digits over a faint `888`, with nothing touching the scale labels (86…266), the unit, `OIL TEMP` or the status line. The `<` / `>` sign beside the digits needs a reading beyond the table (#25). | photos |
 
 Until those tests are documented and passed, the project remains a **bench development prototype**.
