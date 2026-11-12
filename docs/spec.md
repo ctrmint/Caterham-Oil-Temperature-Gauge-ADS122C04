@@ -102,4 +102,4 @@ At most one change request is `active` at a time. Its folder is what the planner
 |----|-------|-------|--------|--------|
 | CR-1 | [#5](https://github.com/ctrmint/Caterham-Oil-Temperature-Gauge/issues/5) | Close host-test coverage gaps in the alarm and conversion logic | done | [docs/changes/CR-1/](changes/CR-1/) |
 | CR-2 | [#7](https://github.com/ctrmint/Caterham-Oil-Temperature-Gauge/issues/7) | Keep a latched alarm when the sender suddenly reads colder than the calibration table | done (HW check owed) | [docs/changes/CR-2/](changes/CR-2/) |
-| CR-3 | [#20](https://github.com/ctrmint/Caterham-Oil-Temperature-Gauge/issues/20) | Display: selectable layouts (classic and segmented sweep), larger fixed-position digits, °F option | done (hardware checks owed (#21)) | [docs/changes/CR-3/](changes/CR-3/) |
+| CR-3 | [#20](https://github.com/ctrmint/Caterham-Oil-Temperature-Gauge/issues/20) | Display: selectable layouts (classic and segmented sweep), larger fixed-position digits, °F option | done (hardware checks owed (#24, #25)) | [docs/changes/CR-3/](changes/CR-3/) |

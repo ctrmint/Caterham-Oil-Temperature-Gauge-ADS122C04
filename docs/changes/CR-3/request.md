@@ -1,6 +1,6 @@
 # CR-3: Display: selectable layouts (classic and segmented sweep), larger fixed-position digits, °F option
 
-- **Status:** done. hardware checks owed (#21)  (keep the docs/spec.md §3 index in step)
+- **Status:** done. hardware checks owed (#24, #25)  (keep the docs/spec.md §3 index in step)
 - **Issue:** [#20](https://github.com/ctrmint/Caterham-Oil-Temperature-Gauge/issues/20). *The scope was widened by the maintainer on 2026-11-11, while this was still a draft, to add a second, segmented-sweep layout and an on-screen way to choose between the layouts. The issue's text covers only the first part.*
 - **Motivation:**
   - This is feedback from the first run on hardware: the demo build on a Waveshare 31261, 2026-11-11 (`docs/VALIDATION.md`).
