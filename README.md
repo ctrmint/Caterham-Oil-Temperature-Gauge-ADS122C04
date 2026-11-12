@@ -18,6 +18,19 @@ An independent **oil-temperature gauge** for the Caterham 420R dry-sump tank's r
 
 `./scripts/test_host.sh` runs the host-based conversion and calibration tests without any ESP32 hardware. GitHub Actions ([CI workflow](.github/workflows/ci.yml)) runs them, plus the normal and demo firmware builds, on every pull request and every push to `main`. `idf.py menuconfig` → **Caterham oil temperature gauge** → **Display synthetic sensor readings** runs a clearly marked BENCH DEMO; it must remain **off** for a real vehicle.
 
+## Display
+
+There are two layouts of the same readings.
+
+* **Classic:** the title reads `OIL °C`, `OIL °F` or `OIL ohm`. The reading itself has no unit: large fixed-width digits in 4 right-aligned cells, so the ones digit stays in place. The bottom line reads like `MAX 112  |  123 ohm` (maximum, then the sender resistance).
+* **Sweep:** a 40-segment ring around the edge with scale labels 40…140 °C (100…300 °F), large seven-segment digits with dim ghost segments behind them, the unit above `OIL TEMP`, and the status, footer and demo text below.
+
+Beyond the calibration table the reading shows `<min` or `>max` (for example `<20` or `>140`) and no temperature reading, and the unit stays in the label. Uncalibrated firmware shows `ohm` in both layouts, with no scale numbers and no lit segments in Sweep.
+
+**Changing layout:** press anywhere on the screen for at least 1 s (a long-press). A short tap or a swipe does nothing. The choice is stored in flash and restored at power-up; it is Classic on first boot, or if the stored choice is missing or can't be read.
+
+**Choosing °F:** `idf.py menuconfig` → **Caterham oil temperature gauge** → **Display temperature unit**, then rebuild. °C is the default. The unit applies to the display only; the serial CSV log stays in °C.
+
 ## Repository structure
 
 ```text
@@ -26,9 +39,16 @@ An independent **oil-temperature gauge** for the Caterham 420R dry-sump tank's r
 │   ├── main.cpp                    # main sampling / display loop
 │   ├── Config.h                    # pull-up value and warning settings
 │   ├── CalibrationData.h           # fail-closed uncalibrated default
-│   ├── core/                       # platform-independent resistance & temp math
+│   ├── core/                       # platform-independent resistance & temp math,
+│   │                               # plus display text (DisplayText.*), sweep ring
+│   │                               # model (SweepModel.*) and layout choice/long-press
+│   │                               # (LayoutChoice.*)
 │   ├── hal/Ads1115Source.*         # ADS1115 over I²C (port 0, GPIO17/18)
-│   ├── display/GaugeDisplay.*      # Waveshare BSP + LVGL 9 gauge
+│   ├── display/GaugeDisplay.*      # Waveshare BSP + LVGL 9 gauge; layout switching
+│   │   ├── ClassicLayout.cpp       # Classic layout
+│   │   ├── SweepLayout.cpp         # Sweep layout
+│   │   ├── Layouts.h               # shared layout interface
+│   │   └── fonts/                  # generated Classic digit font + its licence
 │   ├── Kconfig.projbuild           # explicitly opt-in simulation
 │   └── idf_component.yml          # Waveshare BSP / LVGL dependencies
 ├── hardware/                       # wiring, schematic (wiring.svg) and BOM
@@ -43,7 +63,7 @@ An independent **oil-temperature gauge** for the Caterham 420R dry-sump tank's r
 | Area | Choice |
 | --- | --- |
 | Board | Waveshare ESP32-S3-Touch-AMOLED-1.75, **standard or -B** |
-| Display | 466×466 QSPI **CO5300** AMOLED, Waveshare BSP + LVGL 9 |
+| Display | 466×466 QSPI **CO5300** AMOLED, Waveshare BSP + LVGL 9; two layouts (Classic and Sweep), switched by a 1 s long-press; °C or °F set in menuconfig |
 | ADC | **ADS1115** 16-bit I²C ADC at 0x48, ±4.096 V range; SDA GPIO17 (H2-6), SCL GPIO18 (H2-7), optional ALERT/RDY GPIO16 (H2-8) |
 | Measurement | Differential: Vp = A0 − A3 across the pull-up, Vs = A3 − A1 across the sender; `Rs = Rp × Vs / Vp` (ratiometric, cancels rail and ground offset) |
 | Sender interface | 470 Ω 0.1 % pull-up to 3.3 V; signal wire to the spade plus a **dedicated ground-sense wire** to the tank bond stud |
@@ -74,4 +94,4 @@ An independent **oil-temperature gauge** for the Caterham 420R dry-sump tank's r
 
 ## License
 
-MIT, see [LICENSE](LICENSE). Third-party libraries are **not vendored** and keep their own licenses when installed by the Espressif component manager.
+MIT, see [LICENSE](LICENSE). Classic's digits are a bitmap font generated from Montserrat Medium (SIL Open Font License 1.1); the licence and the generation record (in the header of the generated file) are in [main/display/fonts/](main/display/fonts/). Third-party libraries are **not vendored** and keep their own licenses when installed by the Espressif component manager.

@@ -11,4 +11,24 @@ g++ -std=c++17 -Wall -Wextra -Werror -DGAUGE_DEMO -Imain \
   tests/demo_temperature_test.cpp main/core/Calibration.cpp main/core/Temperature.cpp \
   -o /tmp/caterham-oil-gauge-tests/demo_tests
 /tmp/caterham-oil-gauge-tests/demo_tests
+g++ -std=c++17 -Wall -Wextra -Werror -Imain \
+  tests/display_text_test.cpp main/core/Calibration.cpp main/core/Temperature.cpp main/core/DisplayText.cpp \
+  -o /tmp/caterham-oil-gauge-tests/display_text_tests
+/tmp/caterham-oil-gauge-tests/display_text_tests
+g++ -std=c++17 -Wall -Wextra -Werror -DGAUGE_DEMO -Imain \
+  tests/display_text_test.cpp main/core/Calibration.cpp main/core/Temperature.cpp main/core/DisplayText.cpp \
+  -o /tmp/caterham-oil-gauge-tests/display_text_demo_tests
+/tmp/caterham-oil-gauge-tests/display_text_demo_tests
+g++ -std=c++17 -Wall -Wextra -Werror -Imain \
+  tests/sweep_model_test.cpp main/core/Calibration.cpp main/core/Temperature.cpp main/core/DisplayText.cpp main/core/SweepModel.cpp \
+  -o /tmp/caterham-oil-gauge-tests/sweep_model_tests
+/tmp/caterham-oil-gauge-tests/sweep_model_tests
+g++ -std=c++17 -Wall -Wextra -Werror -DGAUGE_DEMO -Imain \
+  tests/sweep_model_test.cpp main/core/Calibration.cpp main/core/Temperature.cpp main/core/DisplayText.cpp main/core/SweepModel.cpp \
+  -o /tmp/caterham-oil-gauge-tests/sweep_model_demo_tests
+/tmp/caterham-oil-gauge-tests/sweep_model_demo_tests
+g++ -std=c++17 -Wall -Wextra -Werror -Imain \
+  tests/layout_choice_test.cpp main/core/LayoutChoice.cpp \
+  -o /tmp/caterham-oil-gauge-tests/layout_choice_tests
+/tmp/caterham-oil-gauge-tests/layout_choice_tests
 python3 -m unittest discover -s tests -p 'test_*.py' -v

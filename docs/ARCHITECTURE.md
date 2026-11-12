@@ -28,13 +28,13 @@
                                          [measured curve lookup]
                                          [EMA + warnings]
                                                   │
-                                            [LVGL gauge]
+                                   [LVGL gauge: Classic / Sweep]
                                        [466x466 CO5300 AMOLED]
 ```
 
 See [hardware/wiring.svg](../hardware/wiring.svg) for the full schematic.
 
-`main/hal/Ads1115Source` owns acquisition: it talks to the ADS1115 over I²C port 0 (the Waveshare BSP uses port 1), takes the differential readings at the same gain, and hands voltages to the core. If a transfer fails it resets the bus and retries on the next cycle, so the gauge recovers when the module is reconnected. `main/core/` is **platform-independent** and unit-tested with `g++`; it turns voltages into sender resistance, handles sender fault states and interpolates a user-validated monotonically decreasing R/T calibration curve. `main/display/` exclusively handles Waveshare BSP/LVGL calls. `main/main.cpp` schedules acquisition at 4 Hz, updates the display at 4 Hz and reports CSV-like serial diagnostics at 1 Hz.
+`main/hal/Ads1115Source` owns acquisition: it talks to the ADS1115 over I²C port 0 (the Waveshare BSP uses port 1), takes the differential readings at the same gain, and hands voltages to the core. If a transfer fails it resets the bus and retries on the next cycle, so the gauge recovers when the module is reconnected. `main/core/` is **platform-independent** and unit-tested with `g++`; it turns voltages into sender resistance, handles sender fault states and interpolates a user-validated monotonically decreasing R/T calibration curve. `main/display/` exclusively handles Waveshare BSP/LVGL calls. It draws a frame built from host-tested core helpers (`DisplayText`, `SweepModel`, `LayoutChoice`), so the text, the lit-segment count and the layout rules are tested without hardware. The two layouts (Classic and Sweep) are each built once and switched by hiding and showing; the long-press (at least 1 s) is detected in the LVGL task. `main.cpp` stores the layout in NVS only when it changes, and restores it at power-up (Classic on first boot, or if the stored choice is missing or can't be read). `main/main.cpp` schedules acquisition at 4 Hz, updates the display at 4 Hz and reports CSV-like serial diagnostics at 1 Hz.
 
 The ADS1115 is used in single-shot mode at 128 samples/s. One measurement cycle is four interleaved Vp/Vs pairs plus one rail reading (nine conversions, about 80 ms), well inside the 250 ms sample interval. The core computes `Rs = Rp × Vs / Vp` and the tank ground offset as `supply − (Vp + Vs)`, which equals `V(A1)`.
 
@@ -46,8 +46,8 @@ The ADS1115 is used in single-shot mode at 128 samples/s. One measurement cycle 
 * `Vs ≈ 0` / sender resistance under 20 Ω → `SENSOR SHORT`.
 * `Vp ≈ 0` (no current through the pull-up) → `SENSOR OPEN`. This no longer depends on the unreliable top end of the ESP32 ADC.
 * No human-verified curve → `CALIBRATION REQUIRED` and ohms only.
-* Colder than the first calibration point → `BELOW CAL RANGE`, shown as `< 20 °C` style text; not a fault and raises no alarm. If an alarm is already latched, it is held (status is `BelowRange`, no temperature shown) until `kBelowRangeHoldMs` (10 s) after the first such sample, then cleared. Fault samples in between neither pause nor restart that time.
-* Hotter than the last calibration point → `ABOVE CAL RANGE`, shown as `> 140 °C` style text and treated as **critical** (debounced Red). No extrapolation in either direction.
+* Colder than the first calibration point → `BELOW CAL RANGE`, shown as `<20` style text, with the unit in the label; not a fault and raises no alarm. If an alarm is already latched, it is held (status is `BelowRange`, no temperature shown) until `kBelowRangeHoldMs` (10 s) after the first such sample, then cleared. Fault samples in between neither pause nor restart that time.
+* Hotter than the last calibration point → `ABOVE CAL RANGE`, shown as `>140` style text, with the unit in the label, and treated as **critical** (debounced Red). No extrapolation in either direction.
 * Excess temperature sustained for the configured debounce (2.5 s) → warning/critical state. Alarms clear with 5 °C hysteresis, and Red steps down through Amber. The default alarm limits are **placeholders**.
 * A fault shorter than 3 s keeps the filter and the latched alarm (shown in the alarm colour with the fault text), so a vibrating connector cannot keep restarting the alarm debounce. A longer fault resets them.
 

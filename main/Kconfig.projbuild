@@ -5,4 +5,18 @@ menu "Caterham oil temperature gauge"
         help
             Uses a deliberately synthetic calibration curve and readings.
             NEVER use this firmware setting in the car.
+    choice OIL_GAUGE_DISPLAY_UNIT
+        prompt "Display temperature unit"
+        default OIL_GAUGE_UNIT_CELSIUS
+        help
+            Temperature unit for calibrated display readings only.
+            The CSV log always records temp_c in degrees Celsius.
+            Uncalibrated firmware shows ohms, whatever is chosen here.
+
+        config OIL_GAUGE_UNIT_CELSIUS
+            bool "Degrees Celsius"
+
+        config OIL_GAUGE_UNIT_FAHRENHEIT
+            bool "Degrees Fahrenheit"
+    endchoice
 endmenu
