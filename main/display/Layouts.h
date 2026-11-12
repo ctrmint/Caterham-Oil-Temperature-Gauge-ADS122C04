@@ -16,7 +16,9 @@ constexpr uint32_t kRed = gauge::kColourRed;
 // Everything a layout needs for one update. All pointers are static or owned by GaugeDisplay.
 struct DisplayFrame {
   uint32_t colour = layout::kAmber;
-  char cells[gauge::kReadingCells + 1] = {};
+  char cells[gauge::kReadingCells + 1] = {};        // Classic: four right-aligned cells
+  char sweep_cells[gauge::kSweepCells + 1] = {};    // Sweep: three right-aligned cells
+  char sweep_sign = 0;                              // Sweep: '<', '>' or 0
   const char* title = "";
   const char* unit = "";
   const char* status = "";
@@ -62,8 +64,12 @@ class ClassicLayout : public LayoutView {
 // Sweep geometry on the 466 px screen, for the digit block, scale labels and small texts.
 namespace sweep {
 constexpr int kCentre = 233;
-constexpr int kDigitW = 224, kDigitH = 96;       // 4 cells of 56 px; digit height 96 px
-constexpr int kDigitCx = 233, kDigitCy = 205;
+// Three seven-segment cells of kCellW px; each glyph is kGlyphW wide, kDigitH tall and kThick thick.
+constexpr int kCellW = 64, kGlyphW = 52, kThick = 12, kGap = 2;
+constexpr int kDigitW = static_cast<int>(gauge::kSweepCells) * kCellW, kDigitH = 116;
+constexpr int kDigitCx = 233, kDigitCy = 195;
+// '<' / '>' sign to the left of the cells: at most kSignW wide, ink at most kSignInkH tall, kSignGap from the first cell.
+constexpr int kSignW = 32, kSignInkH = 36, kSignGap = 6;
 constexpr int kMaxLabels = 6;  // 30..130 step 20 degC, 86..266 step 36 degF
 } // namespace sweep
 

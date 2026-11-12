@@ -71,6 +71,7 @@ void GaugeDisplay::render(const gauge::Reading& r, float max_temp_c, bool max_ab
   char text[gauge::kReadingTextSize];
   gauge::readingText(r,unit_,text,sizeof(text));
   gauge::readingCells(text,f.cells,sizeof(f.cells));
+  gauge::sweepReading(text,f.sweep_sign,f.sweep_cells,sizeof(f.sweep_cells));
   gauge::footerText(r,max_temp_c,max_above_range,unit_,footer_text_,sizeof(footer_text_));
   f.title = gauge::titleText(unit_);
   f.unit = gauge::unitLabel(unit_);

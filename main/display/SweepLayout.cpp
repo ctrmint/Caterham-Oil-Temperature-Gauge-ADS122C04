@@ -2,6 +2,7 @@
 #include <cmath>
 #include <cstdio>
 #include <cstring>
+#include <initializer_list>
 
 using namespace layout;
 
@@ -12,8 +13,30 @@ constexpr float kPi = 3.14159265f;
 constexpr float kStartDeg = 135.0f, kSweepDeg = 270.0f;  // as the Classic arc: start lower left, open at the bottom
 constexpr int kRingInner = 198, kRingOuter = 226, kSegWidth = 16;
 constexpr int kLabelRadius = 168, kLabelW = 36, kLabelH = 16;
+constexpr int kDigitLeft = sweep::kDigitCx - sweep::kDigitW / 2;
 constexpr int kDigitRight = sweep::kDigitCx + sweep::kDigitW / 2;
+constexpr int kDigitTop = sweep::kDigitCy - sweep::kDigitH / 2;
 constexpr int kDigitBottom = sweep::kDigitCy + sweep::kDigitH / 2;
+constexpr int kSignRight = kDigitLeft - sweep::kSignGap;
+// Every scale label box (kLabelW x kLabelH, centred on kLabelRadius) lies outside kLabelClear of the centre, so a box
+// whose corners are all inside it can never touch a label, whatever the label's angle.
+constexpr int kLabelClear = kLabelRadius - 20;  // 20 >= half-diagonal of the 36 x 16 label box (19.7)
+constexpr bool insideLabels(int x, int y) {
+  const int dx = x - sweep::kCentre, dy = y - sweep::kCentre;
+  return dx * dx + dy * dy < kLabelClear * kLabelClear;
+}
+static_assert(insideLabels(kDigitLeft, kDigitTop) && insideLabels(kDigitRight, kDigitTop) &&
+              insideLabels(kDigitLeft, kDigitBottom) && insideLabels(kDigitRight, kDigitBottom),
+              "Sweep digits must stay inside the scale labels");
+static_assert(insideLabels(kSignRight - sweep::kSignW, sweep::kDigitCy - sweep::kSignInkH / 2) &&
+              insideLabels(kSignRight - sweep::kSignW, sweep::kDigitCy + sweep::kSignInkH / 2),
+              "Sweep sign must stay inside the scale labels");
+// Small texts (16 px tall): unit and OIL TEMP under the digits' right edge, then status, footer and demo banner.
+constexpr int kTextH = 16, kUnitY = kDigitBottom + 6, kTitleY = kUnitY + 18, kStatusY = 300, kFooterY = 320, kDemoY = 340;
+static_assert(kTitleY + kTextH < kStatusY && kStatusY + kTextH < kFooterY && kFooterY + kTextH < kDemoY,
+              "Sweep texts must not overlap");
+static_assert(sweep::kGlyphW <= sweep::kCellW && 2 * sweep::kThick + 2 * sweep::kGap < sweep::kGlyphW,
+              "seven-segment glyph must fit its cell");
 
 // Build-once tables in static storage (one SweepLayout instance), so they stay off the 8 KB main-task stack.
 // lv_line keeps the points pointer, so pts must outlive the lines.
@@ -25,22 +48,20 @@ lv_obj_t* label[sweep::kMaxLabels];
 char label_text[sweep::kMaxLabels][8];
 char footer_text[gauge::kFooterTextSize];
 
-// Seven-segment digits: cell pitch is kDigitW / kReadingCells; each glyph is kGlyphW wide, kDigitH tall, kThick thick.
-constexpr int kCellW = sweep::kDigitW / static_cast<int>(gauge::kReadingCells);
-constexpr int kGlyphW = 44, kThick = 10, kGap = 2;
-constexpr uint32_t kHidden = 0xFFFFFFFFu;  // cache value: object is hidden
-lv_obj_t* digit_seg[gauge::kReadingCells][7];
-uint32_t digit_colour[gauge::kReadingCells][7];
-lv_obj_t* digit_label[gauge::kReadingCells];
-char digit_label_ch[gauge::kReadingCells];    // 0 = label hidden
-uint32_t digit_label_colour[gauge::kReadingCells];
+// Seven-segment digits (geometry in sweep::), plus one '<' / '>' sign label.
+using sweep::kCellW; using sweep::kGlyphW; using sweep::kThick; using sweep::kGap;
+lv_obj_t* digit_seg[gauge::kSweepCells][7];
+uint32_t digit_colour[gauge::kSweepCells][7];
+lv_obj_t* sign_label;
+char sign_ch;          // 0 = sign hidden
+uint32_t sign_colour;
 
 int px(float v) { return static_cast<int>(lroundf(v)); }
 
 lv_obj_t* small_label(lv_obj_t* parent, int w, int x, int y, lv_text_align_t align, uint32_t color) {
   lv_obj_t* l = lv_label_create(parent);
   lv_label_set_long_mode(l, LV_LABEL_LONG_CLIP);
-  lv_obj_set_size(l, w, 16);
+  lv_obj_set_size(l, w, kTextH);
   lv_obj_set_pos(l, x, y);
   lv_obj_set_style_text_align(l, align, 0);
   lv_obj_set_style_text_font(l, &lv_font_montserrat_14, 0);
@@ -93,9 +114,8 @@ void SweepLayout::build(lv_obj_t* screen, gauge::Unit unit) {
     label[i] = l;
   }
 
-  // Seven-segment cells: segments a-g (bits 0-6 of sevenSegmentMask) as small rectangles, plus a 48 px label for < and >.
+  // Seven-segment cells: segments a-g (bits 0-6 of sevenSegmentMask) as small rectangles, centred as a block of three.
   {
-    const int top = sweep::kDigitCy - sweep::kDigitH / 2, left = sweep::kDigitCx - sweep::kDigitW / 2;
     const int mid = (sweep::kDigitH - kThick) / 2;
     const int vlen = mid - kThick - 2 * kGap;
     const int hlen = kGlyphW - 2 * kThick - 2 * kGap;
@@ -108,13 +128,12 @@ void SweepLayout::build(lv_obj_t* screen, gauge::Unit unit) {
       {0, mid + kThick + kGap, kThick, vlen},
       {0, kThick + kGap, kThick, vlen},
       {kThick + kGap, mid, hlen, kThick}};
-    const int lh = static_cast<int>(lv_font_get_line_height(&lv_font_montserrat_48));
-    for (int i = 0; i < static_cast<int>(gauge::kReadingCells); ++i) {
-      const int gx = left + i * kCellW + (kCellW - kGlyphW) / 2;
+    for (int i = 0; i < static_cast<int>(gauge::kSweepCells); ++i) {
+      const int gx = kDigitLeft + i * kCellW + (kCellW - kGlyphW) / 2;
       for (int k = 0; k < 7; ++k) {
         lv_obj_t* o = lv_obj_create(root_);
         lv_obj_set_size(o, geo[k][2], geo[k][3]);
-        lv_obj_set_pos(o, gx + geo[k][0], top + geo[k][1]);
+        lv_obj_set_pos(o, gx + geo[k][0], kDigitTop + geo[k][1]);
         lv_obj_set_style_radius(o, 3, 0);
         lv_obj_set_style_border_width(o, 0, 0);
         lv_obj_set_style_pad_all(o, 0, 0);
@@ -123,31 +142,38 @@ void SweepLayout::build(lv_obj_t* screen, gauge::Unit unit) {
         digit_seg[i][k] = o;
         digit_colour[i][k] = kGhost;
       }
-      lv_obj_t* l = lv_label_create(root_);
-      lv_label_set_long_mode(l, LV_LABEL_LONG_CLIP);
-      lv_obj_set_size(l, kCellW, lh);
-      lv_obj_set_pos(l, left + i * kCellW, sweep::kDigitCy - lh / 2);
-      lv_obj_set_style_text_align(l, LV_TEXT_ALIGN_CENTER, 0);
-      lv_obj_set_style_text_font(l, &lv_font_montserrat_48, 0);
-      lv_obj_set_style_text_color(l, lv_color_hex(kWhite), 0);
-      lv_label_set_text_static(l, "<");
-      lv_obj_add_flag(l, LV_OBJ_FLAG_HIDDEN);
-      digit_label[i] = l;
-      digit_label_ch[i] = 0;
-      digit_label_colour[i] = kWhite;
     }
+    // The sign, right-aligned against the first cell, as wide as the wider of '<' and '>' (at most kSignW).
+    int32_t sw = 0;
+    for (uint32_t c : {static_cast<uint32_t>('<'), static_cast<uint32_t>('>')}) {
+      const int32_t w = static_cast<int32_t>(lv_font_get_glyph_width(&lv_font_montserrat_48, c, 0));
+      if (w > sw) sw = w;
+    }
+    if (sw > sweep::kSignW) sw = sweep::kSignW;
+    const int lh = static_cast<int>(lv_font_get_line_height(&lv_font_montserrat_48));
+    sign_label = lv_label_create(root_);
+    lv_label_set_long_mode(sign_label, LV_LABEL_LONG_CLIP);
+    lv_obj_set_size(sign_label, sw, lh);
+    lv_obj_set_pos(sign_label, kSignRight - sw, sweep::kDigitCy - lh / 2);
+    lv_obj_set_style_text_align(sign_label, LV_TEXT_ALIGN_RIGHT, 0);
+    lv_obj_set_style_text_font(sign_label, &lv_font_montserrat_48, 0);
+    lv_obj_set_style_text_color(sign_label, lv_color_hex(kWhite), 0);
+    lv_label_set_text_static(sign_label, ">");
+    lv_obj_add_flag(sign_label, LV_OBJ_FLAG_HIDDEN);
+    sign_ch = 0;
+    sign_colour = kWhite;
   }
 
   // Unit above OIL TEMP, lower right of the digit block.
-  unit_ = small_label(root_, 70, kDigitRight - 70, kDigitBottom + 6, LV_TEXT_ALIGN_RIGHT, kMute);
-  title_ = small_label(root_, 90, kDigitRight - 90, kDigitBottom + 24, LV_TEXT_ALIGN_RIGHT, kWhite);
+  unit_ = small_label(root_, 70, kDigitRight - 70, kUnitY, LV_TEXT_ALIGN_RIGHT, kMute);
+  title_ = small_label(root_, 90, kDigitRight - 90, kTitleY, LV_TEXT_ALIGN_RIGHT, kWhite);
   // Status, footer and demo banner in the open bottom of the ring.
   lv_label_set_text_static(unit_, gauge::unitLabel(unit));
   lv_label_set_text_static(title_, "OIL TEMP");
-  status_ = small_label(root_, 220, sweep::kCentre - 110, 300, LV_TEXT_ALIGN_CENTER, kAmber);
+  status_ = small_label(root_, 220, sweep::kCentre - 110, kStatusY, LV_TEXT_ALIGN_CENTER, kAmber);
   lv_label_set_text_static(status_, "SENSOR CHECK");
-  footer_ = small_label(root_, 220, sweep::kCentre - 110, 320, LV_TEXT_ALIGN_CENTER, kMute);
-  demo_ = small_label(root_, 180, sweep::kCentre - 90, 340, LV_TEXT_ALIGN_CENTER, kRed);
+  footer_ = small_label(root_, 220, sweep::kCentre - 110, kFooterY, LV_TEXT_ALIGN_CENTER, kMute);
+  demo_ = small_label(root_, 180, sweep::kCentre - 90, kDemoY, LV_TEXT_ALIGN_CENTER, kRed);
   lv_label_set_text_static(demo_, "DEMO ONLY - NOT REAL");
   lv_obj_add_flag(demo_, LV_OBJ_FLAG_HIDDEN);
   std::snprintf(footer_text, sizeof(footer_text), "NOT CALIBRATED");
@@ -163,41 +189,36 @@ void SweepLayout::build(lv_obj_t* screen, gauge::Unit unit) {
 
 void SweepLayout::render(const DisplayFrame& f) {
   if (!root_) return;
-  // Fail closed: if any cell is not displayable, show the whole reading as "--".
-  char ch[gauge::kReadingCells];
+  // Fail closed: if any cell is not displayable, show the whole reading as " --" with no sign.
+  char ch[gauge::kSweepCells];
   bool ok = true;
-  for (size_t i = 0; i < gauge::kReadingCells; ++i) {
-    ch[i] = f.cells[i];
-    const bool shown = ch[i] == '<' || ch[i] == '>' || ch[i] == ' ' || (ch[i] != '\0' && gauge::sevenSegmentMask(ch[i]) != 0);
-    if (!shown) ok = false;
+  for (size_t i = 0; i < gauge::kSweepCells; ++i) {
+    ch[i] = f.sweep_cells[i];
+    if (!(ch[i] == ' ' || (ch[i] != '\0' && gauge::sevenSegmentMask(ch[i]) != 0))) ok = false;
   }
-  for (size_t i = 0; i < gauge::kReadingCells; ++i) {
-    if (!ok) ch[i] = (i + 2 >= gauge::kReadingCells) ? '-' : ' ';
-    const bool arrow = ch[i] == '<' || ch[i] == '>';
-    const uint8_t mask = arrow ? 0 : gauge::sevenSegmentMask(ch[i]);
+  const char sign = (ok && (f.sweep_sign == '<' || f.sweep_sign == '>')) ? f.sweep_sign : 0;
+  for (size_t i = 0; i < gauge::kSweepCells; ++i) {
+    if (!ok) ch[i] = (i + 2 >= gauge::kSweepCells) ? '-' : ' ';
+    const uint8_t mask = gauge::sevenSegmentMask(ch[i]);
     for (int k = 0; k < 7; ++k) {
-      const uint32_t c = arrow ? kHidden : ((mask >> k) & 1 ? f.colour : kGhost);
+      const uint32_t c = (mask >> k) & 1 ? f.colour : kGhost;
       if (c == digit_colour[i][k]) continue;
-      if (c == kHidden) lv_obj_add_flag(digit_seg[i][k], LV_OBJ_FLAG_HIDDEN);
-      else {
-        if (digit_colour[i][k] == kHidden) lv_obj_remove_flag(digit_seg[i][k], LV_OBJ_FLAG_HIDDEN);
-        lv_obj_set_style_bg_color(digit_seg[i][k], lv_color_hex(c), 0);
-      }
+      lv_obj_set_style_bg_color(digit_seg[i][k], lv_color_hex(c), 0);
       digit_colour[i][k] = c;
     }
-    if (!arrow) {
-      if (digit_label_ch[i]) { lv_obj_add_flag(digit_label[i], LV_OBJ_FLAG_HIDDEN); digit_label_ch[i] = 0; }
-      continue;
+  }
+  if (sign != sign_ch) {
+    if (sign) {
+      lv_label_set_text_static(sign_label, sign == '<' ? "<" : ">");
+      if (!sign_ch) lv_obj_remove_flag(sign_label, LV_OBJ_FLAG_HIDDEN);
+    } else {
+      lv_obj_add_flag(sign_label, LV_OBJ_FLAG_HIDDEN);
     }
-    if (digit_label_ch[i] != ch[i]) {
-      lv_label_set_text_static(digit_label[i], ch[i] == '<' ? "<" : ">");
-      if (!digit_label_ch[i]) lv_obj_remove_flag(digit_label[i], LV_OBJ_FLAG_HIDDEN);
-      digit_label_ch[i] = ch[i];
-    }
-    if (digit_label_colour[i] != f.colour) {
-      digit_label_colour[i] = f.colour;
-      lv_obj_set_style_text_color(digit_label[i], lv_color_hex(f.colour), 0);
-    }
+    sign_ch = sign;
+  }
+  if (sign && sign_colour != f.colour) {
+    sign_colour = f.colour;
+    lv_obj_set_style_text_color(sign_label, lv_color_hex(f.colour), 0);
   }
   for (int i = 0; i < gauge::kSweepSegments; ++i) {
     const uint32_t c = i < f.lit_segments ? seg_lit_colour[i] : kDim;

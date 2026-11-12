@@ -15,6 +15,12 @@ bool scaleLabelsVisible();
 int litSegments(const Reading &r, Unit unit);
 // Seven-segment pattern, bits 0-6 are segments a-g. Characters without a pattern give 0.
 uint8_t sevenSegmentMask(char c);
+// Sweep shows three seven-segment cells, with '<' or '>' drawn as a separate sign to their left.
+constexpr size_t kSweepCells = 3;
+// Splits a readingText() string: a leading '<' or '>' goes to sign (otherwise sign is 0), and the rest is right-aligned in
+// kSweepCells characters. Anything that does not fit (a 4-digit resistance, an empty or missing text) becomes " --" with
+// no sign. size >= kSweepCells + 1.
+void sweepReading(const char *text, char &sign, char *out, size_t size);
 
 // Graduated colours, 0xRRGGBB. The bands are dark blue below 50 degC, light blue 50-69, green 70-95, yellow 96-105,
 // amber 106-119 and red from 120. Each colour is pure at its stop and blends linearly to the next stop, so a band
