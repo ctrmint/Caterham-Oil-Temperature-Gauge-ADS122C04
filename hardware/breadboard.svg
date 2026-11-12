@@ -486,31 +486,42 @@
 <text x='714.0' y='360.0' font-family='DejaVu Sans, Arial, Helvetica, sans-serif' font-size='10.5' text-anchor='start' font-weight='bold' fill='#fff' transform='rotate(-90 717.5 360.0)'>A2</text>
 <rect x='731.5' y='367.5' width='9.0' height='9.0' rx='1' fill='#d4af37' stroke='#7a5c00' stroke-width='1'/>
 <text x='736.0' y='360.0' font-family='DejaVu Sans, Arial, Helvetica, sans-serif' font-size='10.5' text-anchor='start' font-weight='bold' fill='#fff' transform='rotate(-90 739.5 360.0)'>A3</text>
-<rect x='40.0' y='380.0' width='300.0' height='240.0' rx='10' fill='#f6f8fb' stroke='#333' stroke-width='2'/>
-<circle cx='125.0' cy='500.0' r='70' fill='#111' stroke='#555' stroke-width='3'/>
-<text x='125.0' y='496.0' font-family='DejaVu Sans, Arial, Helvetica, sans-serif' font-size='11' text-anchor='middle' font-weight='normal' fill='#aaa'>AMOLED</text>
-<text x='125.0' y='511.0' font-family='DejaVu Sans, Arial, Helvetica, sans-serif' font-size='11' text-anchor='middle' font-weight='normal' fill='#aaa'>1.75 in</text>
-<text x='60.0' y='400.0' font-family='DejaVu Sans, Arial, Helvetica, sans-serif' font-size='13' text-anchor='start' font-weight='bold' fill='#111'>Waveshare ESP32-S3</text>
-<text x='60.0' y='416.0' font-family='DejaVu Sans, Arial, Helvetica, sans-serif' font-size='12' text-anchor='start' font-weight='normal' fill='#111'>Touch-AMOLED-1.75 (31261)</text>
-<text x='258.0' y='400.0' font-family='DejaVu Sans, Arial, Helvetica, sans-serif' font-size='11' text-anchor='middle' font-weight='normal' fill='#555'>header H2</text>
-<rect x='312.0' y='424.0' width='12.0' height='12.0' rx='1' fill='#d4af37' stroke='#7a5c00' stroke-width='1'/>
-<text x='306.0' y='434.0' font-family='DejaVu Sans, Arial, Helvetica, sans-serif' font-size='11' text-anchor='end' font-weight='normal' fill='#999'>1  VBUS</text>
-<rect x='312.0' y='450.0' width='12.0' height='12.0' rx='1' fill='#d4af37' stroke='#7a5c00' stroke-width='1'/>
-<text x='306.0' y='460.0' font-family='DejaVu Sans, Arial, Helvetica, sans-serif' font-size='11' text-anchor='end' font-weight='bold' fill='#111'>2  GND</text>
-<rect x='312.0' y='476.0' width='12.0' height='12.0' rx='1' fill='#d4af37' stroke='#7a5c00' stroke-width='1'/>
-<text x='306.0' y='486.0' font-family='DejaVu Sans, Arial, Helvetica, sans-serif' font-size='11' text-anchor='end' font-weight='bold' fill='#111'>3  3V3</text>
-<rect x='312.0' y='502.0' width='12.0' height='12.0' rx='1' fill='#d4af37' stroke='#7a5c00' stroke-width='1'/>
-<text x='306.0' y='512.0' font-family='DejaVu Sans, Arial, Helvetica, sans-serif' font-size='11' text-anchor='end' font-weight='normal' fill='#999'>4  GPIO44</text>
-<rect x='312.0' y='528.0' width='12.0' height='12.0' rx='1' fill='#d4af37' stroke='#7a5c00' stroke-width='1'/>
-<text x='306.0' y='538.0' font-family='DejaVu Sans, Arial, Helvetica, sans-serif' font-size='11' text-anchor='end' font-weight='normal' fill='#999'>5  GPIO43</text>
-<rect x='312.0' y='554.0' width='12.0' height='12.0' rx='1' fill='#d4af37' stroke='#7a5c00' stroke-width='1'/>
-<text x='306.0' y='564.0' font-family='DejaVu Sans, Arial, Helvetica, sans-serif' font-size='11' text-anchor='end' font-weight='bold' fill='#111'>6  GPIO17 SDA</text>
-<rect x='312.0' y='580.0' width='12.0' height='12.0' rx='1' fill='#d4af37' stroke='#7a5c00' stroke-width='1'/>
-<text x='306.0' y='590.0' font-family='DejaVu Sans, Arial, Helvetica, sans-serif' font-size='11' text-anchor='end' font-weight='bold' fill='#111'>7  GPIO18 SCL</text>
-<rect x='312.0' y='606.0' width='12.0' height='12.0' rx='1' fill='#d4af37' stroke='#7a5c00' stroke-width='1'/>
-<text x='306.0' y='616.0' font-family='DejaVu Sans, Arial, Helvetica, sans-serif' font-size='11' text-anchor='end' font-weight='normal' fill='#999'>8  GPIO16</text>
-<text x='190.0' y='642.0' font-family='DejaVu Sans, Arial, Helvetica, sans-serif' font-size='11' text-anchor='middle' font-weight='normal' fill='#555'>USB to the laptop powers everything.</text>
-<text x='190.0' y='658.0' font-family='DejaVu Sans, Arial, Helvetica, sans-serif' font-size='11' text-anchor='middle' font-weight='normal' fill='#a35f00'>Check H2&#x27;s pin order against your board.</text>
+<text x='60.0' y='330.0' font-family='DejaVu Sans, Arial, Helvetica, sans-serif' font-size='13' text-anchor='start' font-weight='bold' fill='#111'>Waveshare ESP32-S3-Touch-AMOLED-1.75</text>
+<text x='60.0' y='347.0' font-family='DejaVu Sans, Arial, Helvetica, sans-serif' font-size='11.5' text-anchor='start' font-weight='normal' fill='#555'>seen from the back, header on the bottom edge</text>
+<rect x='55.0' y='362.0' width='280.0' height='262.0' rx='60' fill='#3a3a3a' stroke='#222' stroke-width='2'/>
+<rect x='80.0' y='395.0' width='230.0' height='150.0' rx='6' fill='#fafafa' stroke='#ccc' stroke-width='1'/>
+<text x='195.0' y='432.0' font-family='DejaVu Sans, Arial, Helvetica, sans-serif' font-size='11' text-anchor='middle' font-weight='normal' fill='#999' font-style='italic'>case label</text>
+<text x='195.0' y='458.0' font-family='DejaVu Sans, Arial, Helvetica, sans-serif' font-size='18' text-anchor='middle' font-weight='bold' fill='#d22'>ESP32-S3</text>
+<text x='195.0' y='478.0' font-family='DejaVu Sans, Arial, Helvetica, sans-serif' font-size='12' text-anchor='middle' font-weight='bold' fill='#2c5aa0'>Touch-AMOLED-1.75</text>
+<rect x='86.5' y='512.0' width='25.0' height='20.0' rx='2' fill='#8dc63f' stroke='none' stroke-width='0'/>
+<text x='99.0' y='526.0' font-family='DejaVu Sans, Arial, Helvetica, sans-serif' font-size='10.5' text-anchor='middle' font-weight='bold' fill='#fff'>18</text>
+<rect x='112.5' y='512.0' width='25.0' height='20.0' rx='2' fill='#8dc63f' stroke='none' stroke-width='0'/>
+<text x='125.0' y='526.0' font-family='DejaVu Sans, Arial, Helvetica, sans-serif' font-size='10.5' text-anchor='middle' font-weight='bold' fill='#fff'>17</text>
+<rect x='138.5' y='512.0' width='25.0' height='20.0' rx='2' fill='#8dc63f' stroke='none' stroke-width='0'/>
+<text x='151.0' y='526.0' font-family='DejaVu Sans, Arial, Helvetica, sans-serif' font-size='10.5' text-anchor='middle' font-weight='bold' fill='#fff'>16</text>
+<rect x='164.5' y='512.0' width='25.0' height='20.0' rx='2' fill='#8a8fb8' stroke='none' stroke-width='0'/>
+<text x='177.0' y='526.0' font-family='DejaVu Sans, Arial, Helvetica, sans-serif' font-size='10.5' text-anchor='middle' font-weight='bold' fill='#fff'>RX</text>
+<rect x='190.5' y='512.0' width='25.0' height='20.0' rx='2' fill='#8a8fb8' stroke='none' stroke-width='0'/>
+<text x='203.0' y='526.0' font-family='DejaVu Sans, Arial, Helvetica, sans-serif' font-size='10.5' text-anchor='middle' font-weight='bold' fill='#fff'>TX</text>
+<rect x='216.5' y='512.0' width='25.0' height='20.0' rx='2' fill='#e03a2f' stroke='none' stroke-width='0'/>
+<text x='229.0' y='526.0' font-family='DejaVu Sans, Arial, Helvetica, sans-serif' font-size='9.5' text-anchor='middle' font-weight='bold' fill='#fff'>3.3V</text>
+<rect x='242.5' y='512.0' width='25.0' height='20.0' rx='2' fill='#1a1a1a' stroke='none' stroke-width='0'/>
+<text x='255.0' y='526.0' font-family='DejaVu Sans, Arial, Helvetica, sans-serif' font-size='10.5' text-anchor='middle' font-weight='bold' fill='#fff'>G</text>
+<rect x='268.5' y='512.0' width='25.0' height='20.0' rx='2' fill='#e03a2f' stroke='none' stroke-width='0'/>
+<text x='281.0' y='526.0' font-family='DejaVu Sans, Arial, Helvetica, sans-serif' font-size='10.5' text-anchor='middle' font-weight='bold' fill='#fff'>5V</text>
+<rect x='83.0' y='586.0' width='214.0' height='22.0' rx='3' fill='#111' stroke='#555' stroke-width='1.5'/>
+<rect x='94.0' y='592.0' width='10.0' height='10.0' rx='1' fill='#d4af37' stroke='#888' stroke-width='1'/>
+<rect x='120.0' y='592.0' width='10.0' height='10.0' rx='1' fill='#d4af37' stroke='#888' stroke-width='1'/>
+<rect x='146.0' y='592.0' width='10.0' height='10.0' rx='1' fill='#444' stroke='#888' stroke-width='1'/>
+<rect x='172.0' y='592.0' width='10.0' height='10.0' rx='1' fill='#444' stroke='#888' stroke-width='1'/>
+<rect x='198.0' y='592.0' width='10.0' height='10.0' rx='1' fill='#444' stroke='#888' stroke-width='1'/>
+<rect x='224.0' y='592.0' width='10.0' height='10.0' rx='1' fill='#d4af37' stroke='#888' stroke-width='1'/>
+<rect x='250.0' y='592.0' width='10.0' height='10.0' rx='1' fill='#d4af37' stroke='#888' stroke-width='1'/>
+<rect x='276.0' y='592.0' width='10.0' height='10.0' rx='1' fill='#444' stroke='#888' stroke-width='1'/>
+<text x='40.0' y='702.0' font-family='DejaVu Sans, Arial, Helvetica, sans-serif' font-size='11.5' text-anchor='start' font-weight='normal' fill='#333'>8-way socket header: push male jumper pins in.</text>
+<text x='40.0' y='718.0' font-family='DejaVu Sans, Arial, Helvetica, sans-serif' font-size='11.5' text-anchor='start' font-weight='normal' fill='#333'>Used: 18 (SCL), 17 (SDA), 3.3V, G.   Not used: 16, RX, TX, 5V.</text>
+<text x='40.0' y='734.0' font-family='DejaVu Sans, Arial, Helvetica, sans-serif' font-size='11.5' text-anchor='start' font-weight='bold' fill='#a35f00'>3.3V and 5V are two sockets apart: check before power-on.</text>
+<text x='40.0' y='750.0' font-family='DejaVu Sans, Arial, Helvetica, sans-serif' font-size='11.5' text-anchor='start' font-weight='normal' fill='#555'>USB-C to the laptop powers everything.</text>
 <line x1='802.0' y1='614.0' x2='802.0' y2='658.0' stroke='#8a8a8a' stroke-width='2'/>
 <ellipse cx='811.0' cy='636.0' rx='9' ry='7' fill='#e8b33a' stroke='#8a6514' stroke-width='1.2'/>
 <text x='811.0' y='639.0' font-family='DejaVu Sans, Arial, Helvetica, sans-serif' font-size='7.5' text-anchor='middle' font-weight='bold' fill='#5a3f00'>104</text>
@@ -556,21 +567,21 @@
 <text x='0' y='3.2' transform='translate(1066.0,372.0) rotate(-270.0)' font-family='DejaVu Sans, Arial, Helvetica, sans-serif' font-size='8.5' text-anchor='middle' font-weight='bold' fill='#3d2f12'>100k</text>
 <circle cx='1066.0' cy='416.0' r='2.6' fill='#8a8a8a' stroke='none' stroke-width='1'/>
 <circle cx='1066.0' cy='328.0' r='2.6' fill='#8a8a8a' stroke='none' stroke-width='1'/>
-<path d='M318.0,482.0 C398.0,482.0 442.0,368.0 472.0,328.0' fill='none' stroke='#fff' stroke-width='6.5' stroke-linecap='round' opacity='0.9'/>
-<path d='M318.0,482.0 C398.0,482.0 442.0,368.0 472.0,328.0' fill='none' stroke='#d22' stroke-width='4' stroke-linecap='round'/>
-<circle cx='318.0' cy='482.0' r='3.6' fill='#d22' stroke='#fff' stroke-width='1.2'/>
+<path d='M229.0,597.0 L229.0,642.0 Q229.0,650.0 237.0,650.0 L362.0,650.0 C432.0,650.0 412.0,328.0 472.0,328.0' fill='none' stroke='#fff' stroke-width='6.5' stroke-linecap='round' opacity='0.9'/>
+<path d='M229.0,597.0 L229.0,642.0 Q229.0,650.0 237.0,650.0 L362.0,650.0 C432.0,650.0 412.0,328.0 472.0,328.0' fill='none' stroke='#d22' stroke-width='4' stroke-linecap='round'/>
+<circle cx='229.0' cy='597.0' r='3.6' fill='#d22' stroke='#fff' stroke-width='1.2'/>
 <circle cx='472.0' cy='328.0' r='3.6' fill='#d22' stroke='#fff' stroke-width='1.2'/>
-<path d='M318.0,456.0 C398.0,456.0 442.0,618.0 472.0,658.0' fill='none' stroke='#fff' stroke-width='6.5' stroke-linecap='round' opacity='0.9'/>
-<path d='M318.0,456.0 C398.0,456.0 442.0,618.0 472.0,658.0' fill='none' stroke='#222' stroke-width='4' stroke-linecap='round'/>
-<circle cx='318.0' cy='456.0' r='3.6' fill='#222' stroke='#fff' stroke-width='1.2'/>
+<path d='M255.0,597.0 L255.0,632.0 Q255.0,640.0 263.0,640.0 L352.0,640.0 C422.0,640.0 412.0,658.0 472.0,658.0' fill='none' stroke='#fff' stroke-width='6.5' stroke-linecap='round' opacity='0.9'/>
+<path d='M255.0,597.0 L255.0,632.0 Q255.0,640.0 263.0,640.0 L352.0,640.0 C422.0,640.0 412.0,658.0 472.0,658.0' fill='none' stroke='#222' stroke-width='4' stroke-linecap='round'/>
+<circle cx='255.0' cy='597.0' r='3.6' fill='#222' stroke='#fff' stroke-width='1.2'/>
 <circle cx='472.0' cy='658.0' r='3.6' fill='#222' stroke='#fff' stroke-width='1.2'/>
-<path d='M318.0,586.0 C398.0,586.0 552.0,434.0 582.0,394.0' fill='none' stroke='#fff' stroke-width='6.5' stroke-linecap='round' opacity='0.9'/>
-<path d='M318.0,586.0 C398.0,586.0 552.0,434.0 582.0,394.0' fill='none' stroke='#e0b000' stroke-width='4' stroke-linecap='round'/>
-<circle cx='318.0' cy='586.0' r='3.6' fill='#e0b000' stroke='#fff' stroke-width='1.2'/>
+<path d='M99.0,597.0 L99.0,662.0 Q99.0,670.0 107.0,670.0 L382.0,670.0 C452.0,670.0 522.0,394.0 582.0,394.0' fill='none' stroke='#fff' stroke-width='6.5' stroke-linecap='round' opacity='0.9'/>
+<path d='M99.0,597.0 L99.0,662.0 Q99.0,670.0 107.0,670.0 L382.0,670.0 C452.0,670.0 522.0,394.0 582.0,394.0' fill='none' stroke='#e0b000' stroke-width='4' stroke-linecap='round'/>
+<circle cx='99.0' cy='597.0' r='3.6' fill='#e0b000' stroke='#fff' stroke-width='1.2'/>
 <circle cx='582.0' cy='394.0' r='3.6' fill='#e0b000' stroke='#fff' stroke-width='1.2'/>
-<path d='M318.0,560.0 C398.0,560.0 574.0,434.0 604.0,394.0' fill='none' stroke='#fff' stroke-width='6.5' stroke-linecap='round' opacity='0.9'/>
-<path d='M318.0,560.0 C398.0,560.0 574.0,434.0 604.0,394.0' fill='none' stroke='#1f6fd2' stroke-width='4' stroke-linecap='round'/>
-<circle cx='318.0' cy='560.0' r='3.6' fill='#1f6fd2' stroke='#fff' stroke-width='1.2'/>
+<path d='M125.0,597.0 L125.0,652.0 Q125.0,660.0 133.0,660.0 L372.0,660.0 C442.0,660.0 544.0,394.0 604.0,394.0' fill='none' stroke='#fff' stroke-width='6.5' stroke-linecap='round' opacity='0.9'/>
+<path d='M125.0,597.0 L125.0,652.0 Q125.0,660.0 133.0,660.0 L372.0,660.0 C442.0,660.0 544.0,394.0 604.0,394.0' fill='none' stroke='#1f6fd2' stroke-width='4' stroke-linecap='round'/>
+<circle cx='125.0' cy='597.0' r='3.6' fill='#1f6fd2' stroke='#fff' stroke-width='1.2'/>
 <circle cx='604.0' cy='394.0' r='3.6' fill='#1f6fd2' stroke='#fff' stroke-width='1.2'/>
 <path d='M538.0,394.0 Q492.9,376.4 494.0,328.0' fill='none' stroke='#fff' stroke-width='6.5' stroke-linecap='round' opacity='0.9'/>
 <path d='M538.0,394.0 Q492.9,376.4 494.0,328.0' fill='none' stroke='#d22' stroke-width='4' stroke-linecap='round'/>
@@ -638,78 +649,80 @@
 <text x='1300.0' y='112.0' font-family='DejaVu Sans, Arial, Helvetica, sans-serif' font-size='15' text-anchor='start' font-weight='bold' fill='#111'>Placement (hole by hole)</text>
 <text x='1300.0' y='138.0' font-family='DejaVu Sans, Arial, Helvetica, sans-serif' font-size='11.5' text-anchor='start' font-weight='bold' fill='#111'>ADS1115 VDD…A3</text>
 <text x='1468.0' y='138.0' font-family='DejaVu Sans, Arial, Helvetica, sans-serif' font-size='11.5' text-anchor='start' font-weight='normal' fill='#111'>a5 … a14 (VDD GND SCL SDA ADDR ALRT A0 A1 A2 A3)</text>
-<text x='1300.0' y='157.0' font-family='DejaVu Sans, Arial, Helvetica, sans-serif' font-size='11.5' text-anchor='start' font-weight='bold' fill='#111'>H2-3 3V3</text>
+<text x='1300.0' y='157.0' font-family='DejaVu Sans, Arial, Helvetica, sans-serif' font-size='11.5' text-anchor='start' font-weight='bold' fill='#111'>Waveshare 3.3V</text>
 <text x='1468.0' y='157.0' font-family='DejaVu Sans, Arial, Helvetica, sans-serif' font-size='11.5' text-anchor='start' font-weight='normal' fill='#111'>→ 3V3 strip (left end)</text>
-<text x='1300.0' y='176.0' font-family='DejaVu Sans, Arial, Helvetica, sans-serif' font-size='11.5' text-anchor='start' font-weight='bold' fill='#111'>H2-2 GND</text>
+<text x='1300.0' y='176.0' font-family='DejaVu Sans, Arial, Helvetica, sans-serif' font-size='11.5' text-anchor='start' font-weight='bold' fill='#111'>Waveshare G</text>
 <text x='1468.0' y='176.0' font-family='DejaVu Sans, Arial, Helvetica, sans-serif' font-size='11.5' text-anchor='start' font-weight='normal' fill='#111'>→ GND strip (left end)</text>
-<text x='1300.0' y='195.0' font-family='DejaVu Sans, Arial, Helvetica, sans-serif' font-size='11.5' text-anchor='start' font-weight='bold' fill='#111'>H2-7 SCL / H2-6 SDA</text>
-<text x='1468.0' y='195.0' font-family='DejaVu Sans, Arial, Helvetica, sans-serif' font-size='11.5' text-anchor='start' font-weight='normal' fill='#111'>→ b7 / b8</text>
-<text x='1300.0' y='214.0' font-family='DejaVu Sans, Arial, Helvetica, sans-serif' font-size='11.5' text-anchor='start' font-weight='bold' fill='#111'>module VDD</text>
-<text x='1468.0' y='214.0' font-family='DejaVu Sans, Arial, Helvetica, sans-serif' font-size='11.5' text-anchor='start' font-weight='normal' fill='#111'>b5 → 3V3 strip</text>
-<text x='1300.0' y='233.0' font-family='DejaVu Sans, Arial, Helvetica, sans-serif' font-size='11.5' text-anchor='start' font-weight='bold' fill='#111'>module GND</text>
-<text x='1468.0' y='233.0' font-family='DejaVu Sans, Arial, Helvetica, sans-serif' font-size='11.5' text-anchor='start' font-weight='normal' fill='#111'>e6 → GND strip</text>
-<text x='1300.0' y='252.0' font-family='DejaVu Sans, Arial, Helvetica, sans-serif' font-size='11.5' text-anchor='start' font-weight='bold' fill='#111'>ADDR</text>
-<text x='1468.0' y='252.0' font-family='DejaVu Sans, Arial, Helvetica, sans-serif' font-size='11.5' text-anchor='start' font-weight='normal' fill='#111'>d9 → d6 (address 0x48)</text>
-<text x='1300.0' y='271.0' font-family='DejaVu Sans, Arial, Helvetica, sans-serif' font-size='11.5' text-anchor='start' font-weight='bold' fill='#111'>ALRT, A2</text>
-<text x='1468.0' y='271.0' font-family='DejaVu Sans, Arial, Helvetica, sans-serif' font-size='11.5' text-anchor='start' font-weight='normal' fill='#111'>nothing (leave open)</text>
-<text x='1300.0' y='290.0' font-family='DejaVu Sans, Arial, Helvetica, sans-serif' font-size='11.5' text-anchor='start' font-weight='bold' fill='#111'>A0 / A3 / A1 wires</text>
-<text x='1468.0' y='290.0' font-family='DejaVu Sans, Arial, Helvetica, sans-serif' font-size='11.5' text-anchor='start' font-weight='normal' fill='#111'>e11 → g17,  e14 → g21,  e12 → g29</text>
-<text x='1300.0' y='309.0' font-family='DejaVu Sans, Arial, Helvetica, sans-serif' font-size='11.5' text-anchor='start' font-weight='bold' fill='#111'>1 kΩ × 3</text>
-<text x='1468.0' y='309.0' font-family='DejaVu Sans, Arial, Helvetica, sans-serif' font-size='11.5' text-anchor='start' font-weight='normal' fill='#111'>d17–f17,  d21–f21,  d29–f29</text>
-<text x='1300.0' y='328.0' font-family='DejaVu Sans, Arial, Helvetica, sans-serif' font-size='11.5' text-anchor='start' font-weight='bold' fill='#111'>100 nF × 3 (104)</text>
-<text x='1468.0' y='328.0' font-family='DejaVu Sans, Arial, Helvetica, sans-serif' font-size='11.5' text-anchor='start' font-weight='normal' fill='#111'>j17, j21, j29 → GND strip</text>
-<text x='1300.0' y='347.0' font-family='DejaVu Sans, Arial, Helvetica, sans-serif' font-size='11.5' text-anchor='start' font-weight='bold' fill='#111'>excitation feed</text>
-<text x='1468.0' y='347.0' font-family='DejaVu Sans, Arial, Helvetica, sans-serif' font-size='11.5' text-anchor='start' font-weight='normal' fill='#111'>a17 → 3V3 strip</text>
-<text x='1300.0' y='366.0' font-family='DejaVu Sans, Arial, Helvetica, sans-serif' font-size='11.5' text-anchor='start' font-weight='bold' fill='#111'>Rp 470 Ω</text>
-<text x='1468.0' y='366.0' font-family='DejaVu Sans, Arial, Helvetica, sans-serif' font-size='11.5' text-anchor='start' font-weight='normal' fill='#111'>c17 – c21</text>
-<text x='1300.0' y='385.0' font-family='DejaVu Sans, Arial, Helvetica, sans-serif' font-size='11.5' text-anchor='start' font-weight='bold' fill='#111'>Rs (test &#x27;sender&#x27;)</text>
-<text x='1468.0' y='385.0' font-family='DejaVu Sans, Arial, Helvetica, sans-serif' font-size='11.5' text-anchor='start' font-weight='normal' fill='#111'>b21 – b25  (120 Ω for step 4)</text>
-<text x='1300.0' y='404.0' font-family='DejaVu Sans, Arial, Helvetica, sans-serif' font-size='11.5' text-anchor='start' font-weight='bold' fill='#111'>ground-sense wire</text>
-<text x='1468.0' y='404.0' font-family='DejaVu Sans, Arial, Helvetica, sans-serif' font-size='11.5' text-anchor='start' font-weight='normal' fill='#111'>a25 → b29</text>
-<text x='1300.0' y='423.0' font-family='DejaVu Sans, Arial, Helvetica, sans-serif' font-size='11.5' text-anchor='start' font-weight='bold' fill='#111'>100 kΩ</text>
-<text x='1468.0' y='423.0' font-family='DejaVu Sans, Arial, Helvetica, sans-serif' font-size='11.5' text-anchor='start' font-weight='normal' fill='#111'>c29 → 3V3 strip</text>
-<text x='1300.0' y='442.0' font-family='DejaVu Sans, Arial, Helvetica, sans-serif' font-size='11.5' text-anchor='start' font-weight='bold' fill='#111'>tank link</text>
-<text x='1468.0' y='442.0' font-family='DejaVu Sans, Arial, Helvetica, sans-serif' font-size='11.5' text-anchor='start' font-weight='normal' fill='#111'>e25 – f25 (across the channel)</text>
-<text x='1300.0' y='461.0' font-family='DejaVu Sans, Arial, Helvetica, sans-serif' font-size='11.5' text-anchor='start' font-weight='bold' fill='#111'>bond link</text>
-<text x='1468.0' y='461.0' font-family='DejaVu Sans, Arial, Helvetica, sans-serif' font-size='11.5' text-anchor='start' font-weight='normal' fill='#111'>j25 → GND strip</text>
-<text x='1300.0' y='488.0' font-family='DejaVu Sans, Arial, Helvetica, sans-serif' font-size='11' text-anchor='start' font-weight='normal' fill='#555' font-style='italic'>Why these rows: each measurement tap (d17, d21, a25) sits</text>
-<text x='1300.0' y='503.0' font-family='DejaVu Sans, Arial, Helvetica, sans-serif' font-size='11' text-anchor='start' font-weight='normal' fill='#555' font-style='italic'>outside its column&#x27;s current path, like a Kelvin connection.</text>
-<text x='1300.0' y='518.0' font-family='DejaVu Sans, Arial, Helvetica, sans-serif' font-size='11' text-anchor='start' font-weight='normal' fill='#555' font-style='italic'>Every filter capacitor sits on the ADS1115 side of its 1 kΩ.</text>
-<text x='1300.0' y='544.0' font-family='DejaVu Sans, Arial, Helvetica, sans-serif' font-size='15' text-anchor='start' font-weight='bold' fill='#111'>Bench steps (hardware/WIRING.md)</text>
-<circle cx='1308.0' cy='564.0' r='9' fill='#2c3e6b' stroke='none' stroke-width='1'/>
-<text x='1308.0' y='568.0' font-family='DejaVu Sans, Arial, Helvetica, sans-serif' font-size='10' text-anchor='middle' font-weight='bold' fill='#fff'>1</text>
-<text x='1324.0' y='568.0' font-family='DejaVu Sans, Arial, Helvetica, sans-serif' font-size='11.5' text-anchor='start' font-weight='normal' fill='#111'>Nothing powered: check for shorts between 3V3, GND and every node.</text>
-<circle cx='1308.0' cy='582.0' r='9' fill='#2c3e6b' stroke='none' stroke-width='1'/>
-<text x='1308.0' y='586.0' font-family='DejaVu Sans, Arial, Helvetica, sans-serif' font-size='10' text-anchor='middle' font-weight='bold' fill='#fff'>2</text>
-<text x='1324.0' y='586.0' font-family='DejaVu Sans, Arial, Helvetica, sans-serif' font-size='11.5' text-anchor='start' font-weight='normal' fill='#111'>Power from USB; the 3V3 strip reads about 3.3 V.</text>
-<circle cx='1308.0' cy='600.0' r='9' fill='#2c3e6b' stroke='none' stroke-width='1'/>
-<text x='1308.0' y='604.0' font-family='DejaVu Sans, Arial, Helvetica, sans-serif' font-size='10' text-anchor='middle' font-weight='bold' fill='#fff'>3</text>
-<text x='1324.0' y='604.0' font-family='DejaVu Sans, Arial, Helvetica, sans-serif' font-size='11.5' text-anchor='start' font-weight='normal' fill='#111'>Flash the normal build: the log must not say &#x27;ADS1115 not responding&#x27;.</text>
-<circle cx='1308.0' cy='618.0' r='9' fill='#2c3e6b' stroke='none' stroke-width='1'/>
-<text x='1308.0' y='622.0' font-family='DejaVu Sans, Arial, Helvetica, sans-serif' font-size='10' text-anchor='middle' font-weight='bold' fill='#fff'>4</text>
-<text x='1324.0' y='622.0' font-family='DejaVu Sans, Arial, Helvetica, sans-serif' font-size='11.5' text-anchor='start' font-weight='normal' fill='#111'>Rs = 120 Ω. DMM: col 17 to col 21 ≈ 2.63 V (Vp);</text>
-<text x='1324.0' y='640.0' font-family='DejaVu Sans, Arial, Helvetica, sans-serif' font-size='11.5' text-anchor='start' font-weight='normal' fill='#111'>col 21 to col 25 ≈ 0.67 V (Vs).</text>
-<circle cx='1308.0' cy='654.0' r='9' fill='#2c3e6b' stroke='none' stroke-width='1'/>
-<text x='1308.0' y='658.0' font-family='DejaVu Sans, Arial, Helvetica, sans-serif' font-size='10' text-anchor='middle' font-weight='bold' fill='#fff'>5</text>
-<text x='1324.0' y='658.0' font-family='DejaVu Sans, Arial, Helvetica, sans-serif' font-size='11.5' text-anchor='start' font-weight='normal' fill='#111'>Firmware reads close to 120 Ω.</text>
-<circle cx='1308.0' cy='672.0' r='9' fill='#2c3e6b' stroke='none' stroke-width='1'/>
-<text x='1308.0' y='676.0' font-family='DejaVu Sans, Arial, Helvetica, sans-serif' font-size='10' text-anchor='middle' font-weight='bold' fill='#fff'>6</text>
-<text x='1324.0' y='676.0' font-family='DejaVu Sans, Arial, Helvetica, sans-serif' font-size='11.5' text-anchor='start' font-weight='normal' fill='#111'>Pull Rs out: SENSOR OPEN. Wire b21–b25: SENSOR SHORT.</text>
-<circle cx='1308.0' cy='690.0' r='9' fill='#2c3e6b' stroke='none' stroke-width='1'/>
-<text x='1308.0' y='694.0' font-family='DejaVu Sans, Arial, Helvetica, sans-serif' font-size='10' text-anchor='middle' font-weight='bold' fill='#fff'>7</text>
-<text x='1324.0' y='694.0' font-family='DejaVu Sans, Arial, Helvetica, sans-serif' font-size='11.5' text-anchor='start' font-weight='normal' fill='#111'>Bond link j25 → GND becomes 10 Ω: reading unchanged.</text>
-<circle cx='1308.0' cy='708.0' r='9' fill='#2c3e6b' stroke='none' stroke-width='1'/>
-<text x='1308.0' y='712.0' font-family='DejaVu Sans, Arial, Helvetica, sans-serif' font-size='10' text-anchor='middle' font-weight='bold' fill='#fff'>8</text>
-<text x='1324.0' y='712.0' font-family='DejaVu Sans, Arial, Helvetica, sans-serif' font-size='11.5' text-anchor='start' font-weight='normal' fill='#111'>Bond link becomes 1 Ω; add the step 8 parts: AA cell</text>
-<text x='1324.0' y='730.0' font-family='DejaVu Sans, Arial, Helvetica, sans-serif' font-size='11.5' text-anchor='start' font-weight='normal' fill='#111'>− to h25, + to i27, 27 Ω from j27 to GND (inset). Expect</text>
-<text x='1324.0' y='748.0' font-family='DejaVu Sans, Arial, Helvetica, sans-serif' font-size='11.5' text-anchor='start' font-weight='normal' fill='#111'>ground_offset_v ≈ −0.05 V, no fault, reading within 0.2 %.</text>
-<text x='1324.0' y='766.0' font-family='DejaVu Sans, Arial, Helvetica, sans-serif' font-size='11.5' text-anchor='start' font-weight='normal' fill='#111'>12 Ω instead of 27 Ω: GROUND FAULT. Remove afterwards.</text>
-<circle cx='1308.0' cy='780.0' r='9' fill='#2c3e6b' stroke='none' stroke-width='1'/>
-<text x='1308.0' y='784.0' font-family='DejaVu Sans, Arial, Helvetica, sans-serif' font-size='10' text-anchor='middle' font-weight='bold' fill='#fff'>9</text>
-<text x='1324.0' y='784.0' font-family='DejaVu Sans, Arial, Helvetica, sans-serif' font-size='11.5' text-anchor='start' font-weight='normal' fill='#111'>Swap Rs: 44 Ω, 470 Ω, ~1.2 kΩ (and 4.7 kΩ for #24).</text>
-<circle cx='1308.0' cy='798.0' r='9' fill='#2c3e6b' stroke='none' stroke-width='1'/>
-<text x='1308.0' y='802.0' font-family='DejaVu Sans, Arial, Helvetica, sans-serif' font-size='10' text-anchor='middle' font-weight='bold' fill='#fff'>10</text>
-<text x='1324.0' y='802.0' font-family='DejaVu Sans, Arial, Helvetica, sans-serif' font-size='11.5' text-anchor='start' font-weight='normal' fill='#111'>Pull the ground-sense wire (a25): GROUND FAULT.</text>
+<text x='1300.0' y='195.0' font-family='DejaVu Sans, Arial, Helvetica, sans-serif' font-size='11.5' text-anchor='start' font-weight='bold' fill='#111'>Waveshare 18 / 17</text>
+<text x='1468.0' y='195.0' font-family='DejaVu Sans, Arial, Helvetica, sans-serif' font-size='11.5' text-anchor='start' font-weight='normal' fill='#111'>→ b7 (SCL) / b8 (SDA)</text>
+<text x='1300.0' y='214.0' font-family='DejaVu Sans, Arial, Helvetica, sans-serif' font-size='11.5' text-anchor='start' font-weight='bold' fill='#111'>Waveshare 16, RX, TX, 5V</text>
+<text x='1468.0' y='214.0' font-family='DejaVu Sans, Arial, Helvetica, sans-serif' font-size='11.5' text-anchor='start' font-weight='normal' fill='#111'>nothing (leave open)</text>
+<text x='1300.0' y='233.0' font-family='DejaVu Sans, Arial, Helvetica, sans-serif' font-size='11.5' text-anchor='start' font-weight='bold' fill='#111'>module VDD</text>
+<text x='1468.0' y='233.0' font-family='DejaVu Sans, Arial, Helvetica, sans-serif' font-size='11.5' text-anchor='start' font-weight='normal' fill='#111'>b5 → 3V3 strip</text>
+<text x='1300.0' y='252.0' font-family='DejaVu Sans, Arial, Helvetica, sans-serif' font-size='11.5' text-anchor='start' font-weight='bold' fill='#111'>module GND</text>
+<text x='1468.0' y='252.0' font-family='DejaVu Sans, Arial, Helvetica, sans-serif' font-size='11.5' text-anchor='start' font-weight='normal' fill='#111'>e6 → GND strip</text>
+<text x='1300.0' y='271.0' font-family='DejaVu Sans, Arial, Helvetica, sans-serif' font-size='11.5' text-anchor='start' font-weight='bold' fill='#111'>ADDR</text>
+<text x='1468.0' y='271.0' font-family='DejaVu Sans, Arial, Helvetica, sans-serif' font-size='11.5' text-anchor='start' font-weight='normal' fill='#111'>d9 → d6 (address 0x48)</text>
+<text x='1300.0' y='290.0' font-family='DejaVu Sans, Arial, Helvetica, sans-serif' font-size='11.5' text-anchor='start' font-weight='bold' fill='#111'>ALRT, A2</text>
+<text x='1468.0' y='290.0' font-family='DejaVu Sans, Arial, Helvetica, sans-serif' font-size='11.5' text-anchor='start' font-weight='normal' fill='#111'>nothing (leave open)</text>
+<text x='1300.0' y='309.0' font-family='DejaVu Sans, Arial, Helvetica, sans-serif' font-size='11.5' text-anchor='start' font-weight='bold' fill='#111'>A0 / A3 / A1 wires</text>
+<text x='1468.0' y='309.0' font-family='DejaVu Sans, Arial, Helvetica, sans-serif' font-size='11.5' text-anchor='start' font-weight='normal' fill='#111'>e11 → g17,  e14 → g21,  e12 → g29</text>
+<text x='1300.0' y='328.0' font-family='DejaVu Sans, Arial, Helvetica, sans-serif' font-size='11.5' text-anchor='start' font-weight='bold' fill='#111'>1 kΩ × 3</text>
+<text x='1468.0' y='328.0' font-family='DejaVu Sans, Arial, Helvetica, sans-serif' font-size='11.5' text-anchor='start' font-weight='normal' fill='#111'>d17–f17,  d21–f21,  d29–f29</text>
+<text x='1300.0' y='347.0' font-family='DejaVu Sans, Arial, Helvetica, sans-serif' font-size='11.5' text-anchor='start' font-weight='bold' fill='#111'>100 nF × 3 (104)</text>
+<text x='1468.0' y='347.0' font-family='DejaVu Sans, Arial, Helvetica, sans-serif' font-size='11.5' text-anchor='start' font-weight='normal' fill='#111'>j17, j21, j29 → GND strip</text>
+<text x='1300.0' y='366.0' font-family='DejaVu Sans, Arial, Helvetica, sans-serif' font-size='11.5' text-anchor='start' font-weight='bold' fill='#111'>excitation feed</text>
+<text x='1468.0' y='366.0' font-family='DejaVu Sans, Arial, Helvetica, sans-serif' font-size='11.5' text-anchor='start' font-weight='normal' fill='#111'>a17 → 3V3 strip</text>
+<text x='1300.0' y='385.0' font-family='DejaVu Sans, Arial, Helvetica, sans-serif' font-size='11.5' text-anchor='start' font-weight='bold' fill='#111'>Rp 470 Ω</text>
+<text x='1468.0' y='385.0' font-family='DejaVu Sans, Arial, Helvetica, sans-serif' font-size='11.5' text-anchor='start' font-weight='normal' fill='#111'>c17 – c21</text>
+<text x='1300.0' y='404.0' font-family='DejaVu Sans, Arial, Helvetica, sans-serif' font-size='11.5' text-anchor='start' font-weight='bold' fill='#111'>Rs (test &#x27;sender&#x27;)</text>
+<text x='1468.0' y='404.0' font-family='DejaVu Sans, Arial, Helvetica, sans-serif' font-size='11.5' text-anchor='start' font-weight='normal' fill='#111'>b21 – b25  (120 Ω for step 4)</text>
+<text x='1300.0' y='423.0' font-family='DejaVu Sans, Arial, Helvetica, sans-serif' font-size='11.5' text-anchor='start' font-weight='bold' fill='#111'>ground-sense wire</text>
+<text x='1468.0' y='423.0' font-family='DejaVu Sans, Arial, Helvetica, sans-serif' font-size='11.5' text-anchor='start' font-weight='normal' fill='#111'>a25 → b29</text>
+<text x='1300.0' y='442.0' font-family='DejaVu Sans, Arial, Helvetica, sans-serif' font-size='11.5' text-anchor='start' font-weight='bold' fill='#111'>100 kΩ</text>
+<text x='1468.0' y='442.0' font-family='DejaVu Sans, Arial, Helvetica, sans-serif' font-size='11.5' text-anchor='start' font-weight='normal' fill='#111'>c29 → 3V3 strip</text>
+<text x='1300.0' y='461.0' font-family='DejaVu Sans, Arial, Helvetica, sans-serif' font-size='11.5' text-anchor='start' font-weight='bold' fill='#111'>tank link</text>
+<text x='1468.0' y='461.0' font-family='DejaVu Sans, Arial, Helvetica, sans-serif' font-size='11.5' text-anchor='start' font-weight='normal' fill='#111'>e25 – f25 (across the channel)</text>
+<text x='1300.0' y='480.0' font-family='DejaVu Sans, Arial, Helvetica, sans-serif' font-size='11.5' text-anchor='start' font-weight='bold' fill='#111'>bond link</text>
+<text x='1468.0' y='480.0' font-family='DejaVu Sans, Arial, Helvetica, sans-serif' font-size='11.5' text-anchor='start' font-weight='normal' fill='#111'>j25 → GND strip</text>
+<text x='1300.0' y='507.0' font-family='DejaVu Sans, Arial, Helvetica, sans-serif' font-size='11' text-anchor='start' font-weight='normal' fill='#555' font-style='italic'>Why these rows: each measurement tap (d17, d21, a25) sits</text>
+<text x='1300.0' y='522.0' font-family='DejaVu Sans, Arial, Helvetica, sans-serif' font-size='11' text-anchor='start' font-weight='normal' fill='#555' font-style='italic'>outside its column&#x27;s current path, like a Kelvin connection.</text>
+<text x='1300.0' y='537.0' font-family='DejaVu Sans, Arial, Helvetica, sans-serif' font-size='11' text-anchor='start' font-weight='normal' fill='#555' font-style='italic'>Every filter capacitor sits on the ADS1115 side of its 1 kΩ.</text>
+<text x='1300.0' y='563.0' font-family='DejaVu Sans, Arial, Helvetica, sans-serif' font-size='15' text-anchor='start' font-weight='bold' fill='#111'>Bench steps (hardware/WIRING.md)</text>
+<circle cx='1308.0' cy='583.0' r='9' fill='#2c3e6b' stroke='none' stroke-width='1'/>
+<text x='1308.0' y='587.0' font-family='DejaVu Sans, Arial, Helvetica, sans-serif' font-size='10' text-anchor='middle' font-weight='bold' fill='#fff'>1</text>
+<text x='1324.0' y='587.0' font-family='DejaVu Sans, Arial, Helvetica, sans-serif' font-size='11.5' text-anchor='start' font-weight='normal' fill='#111'>Nothing powered: check for shorts between 3V3, GND and every node.</text>
+<circle cx='1308.0' cy='601.0' r='9' fill='#2c3e6b' stroke='none' stroke-width='1'/>
+<text x='1308.0' y='605.0' font-family='DejaVu Sans, Arial, Helvetica, sans-serif' font-size='10' text-anchor='middle' font-weight='bold' fill='#fff'>2</text>
+<text x='1324.0' y='605.0' font-family='DejaVu Sans, Arial, Helvetica, sans-serif' font-size='11.5' text-anchor='start' font-weight='normal' fill='#111'>Power from USB; the 3V3 strip reads about 3.3 V (not 5 V).</text>
+<circle cx='1308.0' cy='619.0' r='9' fill='#2c3e6b' stroke='none' stroke-width='1'/>
+<text x='1308.0' y='623.0' font-family='DejaVu Sans, Arial, Helvetica, sans-serif' font-size='10' text-anchor='middle' font-weight='bold' fill='#fff'>3</text>
+<text x='1324.0' y='623.0' font-family='DejaVu Sans, Arial, Helvetica, sans-serif' font-size='11.5' text-anchor='start' font-weight='normal' fill='#111'>Flash the normal build: the log must not say &#x27;ADS1115 not responding&#x27;.</text>
+<circle cx='1308.0' cy='637.0' r='9' fill='#2c3e6b' stroke='none' stroke-width='1'/>
+<text x='1308.0' y='641.0' font-family='DejaVu Sans, Arial, Helvetica, sans-serif' font-size='10' text-anchor='middle' font-weight='bold' fill='#fff'>4</text>
+<text x='1324.0' y='641.0' font-family='DejaVu Sans, Arial, Helvetica, sans-serif' font-size='11.5' text-anchor='start' font-weight='normal' fill='#111'>Rs = 120 Ω. DMM: col 17 to col 21 ≈ 2.63 V (Vp);</text>
+<text x='1324.0' y='659.0' font-family='DejaVu Sans, Arial, Helvetica, sans-serif' font-size='11.5' text-anchor='start' font-weight='normal' fill='#111'>col 21 to col 25 ≈ 0.67 V (Vs).</text>
+<circle cx='1308.0' cy='673.0' r='9' fill='#2c3e6b' stroke='none' stroke-width='1'/>
+<text x='1308.0' y='677.0' font-family='DejaVu Sans, Arial, Helvetica, sans-serif' font-size='10' text-anchor='middle' font-weight='bold' fill='#fff'>5</text>
+<text x='1324.0' y='677.0' font-family='DejaVu Sans, Arial, Helvetica, sans-serif' font-size='11.5' text-anchor='start' font-weight='normal' fill='#111'>Firmware reads close to 120 Ω.</text>
+<circle cx='1308.0' cy='691.0' r='9' fill='#2c3e6b' stroke='none' stroke-width='1'/>
+<text x='1308.0' y='695.0' font-family='DejaVu Sans, Arial, Helvetica, sans-serif' font-size='10' text-anchor='middle' font-weight='bold' fill='#fff'>6</text>
+<text x='1324.0' y='695.0' font-family='DejaVu Sans, Arial, Helvetica, sans-serif' font-size='11.5' text-anchor='start' font-weight='normal' fill='#111'>Pull Rs out: SENSOR OPEN. Wire b21–b25: SENSOR SHORT.</text>
+<circle cx='1308.0' cy='709.0' r='9' fill='#2c3e6b' stroke='none' stroke-width='1'/>
+<text x='1308.0' y='713.0' font-family='DejaVu Sans, Arial, Helvetica, sans-serif' font-size='10' text-anchor='middle' font-weight='bold' fill='#fff'>7</text>
+<text x='1324.0' y='713.0' font-family='DejaVu Sans, Arial, Helvetica, sans-serif' font-size='11.5' text-anchor='start' font-weight='normal' fill='#111'>Bond link j25 → GND becomes 10 Ω: reading unchanged.</text>
+<circle cx='1308.0' cy='727.0' r='9' fill='#2c3e6b' stroke='none' stroke-width='1'/>
+<text x='1308.0' y='731.0' font-family='DejaVu Sans, Arial, Helvetica, sans-serif' font-size='10' text-anchor='middle' font-weight='bold' fill='#fff'>8</text>
+<text x='1324.0' y='731.0' font-family='DejaVu Sans, Arial, Helvetica, sans-serif' font-size='11.5' text-anchor='start' font-weight='normal' fill='#111'>Bond link becomes 1 Ω; add the step 8 parts: AA cell</text>
+<text x='1324.0' y='749.0' font-family='DejaVu Sans, Arial, Helvetica, sans-serif' font-size='11.5' text-anchor='start' font-weight='normal' fill='#111'>− to h25, + to i27, 27 Ω from j27 to GND (inset). Expect</text>
+<text x='1324.0' y='767.0' font-family='DejaVu Sans, Arial, Helvetica, sans-serif' font-size='11.5' text-anchor='start' font-weight='normal' fill='#111'>ground_offset_v ≈ −0.05 V, no fault, reading within 0.2 %.</text>
+<text x='1324.0' y='785.0' font-family='DejaVu Sans, Arial, Helvetica, sans-serif' font-size='11.5' text-anchor='start' font-weight='normal' fill='#111'>12 Ω instead of 27 Ω: GROUND FAULT. Remove afterwards.</text>
+<circle cx='1308.0' cy='799.0' r='9' fill='#2c3e6b' stroke='none' stroke-width='1'/>
+<text x='1308.0' y='803.0' font-family='DejaVu Sans, Arial, Helvetica, sans-serif' font-size='10' text-anchor='middle' font-weight='bold' fill='#fff'>9</text>
+<text x='1324.0' y='803.0' font-family='DejaVu Sans, Arial, Helvetica, sans-serif' font-size='11.5' text-anchor='start' font-weight='normal' fill='#111'>Swap Rs: 44 Ω, 470 Ω, ~1.2 kΩ (and 4.7 kΩ for #24).</text>
+<circle cx='1308.0' cy='817.0' r='9' fill='#2c3e6b' stroke='none' stroke-width='1'/>
+<text x='1308.0' y='821.0' font-family='DejaVu Sans, Arial, Helvetica, sans-serif' font-size='10' text-anchor='middle' font-weight='bold' fill='#fff'>10</text>
+<text x='1324.0' y='821.0' font-family='DejaVu Sans, Arial, Helvetica, sans-serif' font-size='11.5' text-anchor='start' font-weight='normal' fill='#111'>Pull the ground-sense wire (a25): GROUND FAULT.</text>
 <text x='1300.0' y='848.0' font-family='DejaVu Sans, Arial, Helvetica, sans-serif' font-size='14' text-anchor='start' font-weight='bold' fill='#a35f00'>Step 8 only: around the tank column</text>
 <text x='1300.0' y='866.0' font-family='DejaVu Sans, Arial, Helvetica, sans-serif' font-size='11' text-anchor='start' font-weight='normal' fill='#a35f00' font-style='italic'>(same holes as the main board; everything else stays in place)</text>
 <g transform='translate(396.0,406.0)'>
