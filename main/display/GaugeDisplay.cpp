@@ -58,11 +58,7 @@ bool GaugeDisplay::takeLayoutChange(gauge::Layout& out) {
 void GaugeDisplay::render(const gauge::Reading& r, float max_temp_c, bool max_above_range, bool demo) {
   if (!built_ || bsp_display_lock(100) != ESP_OK) return;
   DisplayFrame f;
-  f.colour = kGreen;
-  if (gauge::isFault(r.status) || r.status == gauge::Status::AboveRange) f.colour = kAmber;
-  else if (r.status == gauge::Status::BelowRange) f.colour = kMute;
-  if (r.alarm == gauge::Status::Amber) f.colour = kAmber;
-  if (r.alarm == gauge::Status::Red) f.colour = kRed;
+  f.colour = gauge::readingColour(r);  // graduated, never less severe than the latched alarm
   if (r.has_temperature) {
     f.classic_arc = static_cast<int>(fmaxf(0.0f,fminf(160.0f,r.temperature_c)));
   } else if (r.status == gauge::Status::AboveRange) {

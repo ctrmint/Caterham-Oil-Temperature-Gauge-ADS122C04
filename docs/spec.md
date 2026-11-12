@@ -76,13 +76,14 @@ Evidence key: **H** = host test in `tests/`, **B** = firmware build, **HW** = be
     - `>max` or `<min` beyond the table, with the limits converted to the selected unit;
     - the resistance in whole ohms when uncalibrated;
     - `--` on a fault.
-  - Digit layout: fixed-width characters, right-aligned, so the ones digit never moves.
+  - Digit layout: fixed-width characters, right-aligned, so the ones digit never moves while the reading has up to three characters. In Classic the right three cells are centred on the screen, so a 3-digit reading is centred; a four-character reading (such as `>284`, or 4-digit ohms) uses all four cells, centred, and its ones digit sits half a cell further right. Sweep centres all four cells.
+  - Sweep dial: 40 segments over 30–130 °C (86–266 °F when °F is selected), with scale numbers every 20 °C (36 °F), so they read 30…130 (86…266). Each lit segment shows the graduated colour (below) of its own place on the scale, and unlit segments stay dim. The ghost digits behind Sweep's reading are fainter than the unlit segments, close to the background.
   - Sweep segments: they light only for a temperature inside the table. Beyond the top of the table they light up to the table's maximum. Below range, on a fault or when uncalibrated, none are lit. Scale numbers are hidden when uncalibrated.
   - Shown in both layouts:
     - the status text;
     - the bottom line: the `MAX` value (whole degrees of the selected unit, no unit symbol) while calibrated with a reading in or beyond the table; otherwise `TEMPERATURE NOT VERIFIED` (uncalibrated) or `CHECK SENSOR AND WIRING` (fault);
     - in a demo build, `DEMO ONLY - NOT REAL`.
-  - Colour precedence (unchanged; it applies to the digits and the lit segments): Red alarm, then Amber alarm, then fault or AboveRange in amber, then BelowRange muted, otherwise green. It is checked on hardware only, not by a host test.
+  - Colour: the digits, the status text and Classic's arc take the graduated colour of the reading. The bands are dark blue below 50 °C, light blue 50–69 °C, green 70–95 °C, yellow 96–105 °C, amber 106–119 °C and red from 120 °C, blending smoothly from one to the next (the same temperatures in °F). Beyond the table the colour is that of the table limit shown. The colour is never less severe than the latched alarm: an Amber alarm shows at least amber, and a Red alarm shows red. The alarm thresholds (REQ-T2) are unchanged, so red can show from 120 °C before the Red alarm at 130 °C. A fault, or any reading without a verified calibration, is amber (red while a Red alarm is latched). The colour rules are host-tested; how they look is checked on hardware.
   - Choosing a layout: a long-press changes the layout. The choice is stored and restored at power-up.
 
   *Evidence:* H (`display_text_test.cpp`, `sweep_model_test.cpp`, `layout_choice_test.cpp`); B; HW.
