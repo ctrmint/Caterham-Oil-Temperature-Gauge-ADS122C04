@@ -6,7 +6,7 @@
                 ├─────────── 1k ──► A0    ┌─────┴──────────┐
                 │                         │    ADS1115     ├── SDA ◄──► GPIO17 (H2-6)
            [Rp 470 Ω]                     │  16-bit, 0x48  ├── SCL ◄─── GPIO18 (H2-7)
-                │                         │  ±4.096 V PGA  ├── ALRT ──► GPIO16 (H2-8, optional)
+                │                         │  ±4.096 V PGA  ├── ALRT   (not used; leave open)
    SENDER_NODE  ├─────────── 1k ──► A3    │                │
                 │                         └─────┬──────────┘
                 │ signal wire                   │ GND ── H2-2

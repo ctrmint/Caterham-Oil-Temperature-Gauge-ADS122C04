@@ -13,7 +13,7 @@ The sensor core deliberately has no ESP-IDF/LVGL dependency. Porting consists of
 
 | Element | File |
 |---|---|
-| I²C port 0, SDA GPIO17, SCL GPIO18 (ALERT/RDY GPIO16 wired but unused) | `main/hal/Ads1115Source.cpp` |
+| I²C port 0, SDA GPIO17, SCL GPIO18 (ALERT/RDY not used; GPIO16 left open) | `main/hal/Ads1115Source.cpp` |
 | LCD CO5300, power/touch init | Waveshare managed BSP, `main/display/GaugeDisplay.cpp` |
 | 466×466 ring/typography | `main/display/GaugeDisplay.cpp` |
 | Panel, PSRAM, flash settings | `sdkconfig.defaults` |
