@@ -11,14 +11,14 @@ Required electronics for one prototype; prices and quantities are deliberately n
 | 3 | 1 kΩ 1 % resistors, 0.25 W | Series resistor on ADS1115 A0, A1 and A3 for current limiting and filtering |
 | 3 | 100 nF ceramic capacitors (C0G or X7R) | From A0, A1 and A3 to GND at the ADS1115 |
 | 1 | 100 kΩ 1 % resistor | Bias from 3V3 to the ground-sense wire at the connector, so a broken sense wire is detected |
-| 1 set | Automotive-qualified low-leakage ESD/overvoltage input protection | For the signal and ground-sense wires, e.g. dual Schottky clamps to 3V3/GND after each 1 kΩ plus a harness TVS. Choose for the input transient profile and the ADS1115 absolute maximum (GND − 0.3 V to VDD + 0.3 V); **not fully specified by this prototype**. Verify leakage at hot temperatures and that the 3.3 V rail can absorb clamp current. |
+| 1 set | Automotive-qualified low-leakage ESD/overvoltage input protection | For the signal and ground-sense wires, e.g. dual Schottky clamps to 3V3/GND after each 1 kΩ plus a harness TVS. Choose for the input transient profile and the ADS1115 absolute maximum (GND − 0.3 V to VDD + 0.3 V); **not fully specified by this prototype**. Verify leakage at hot temperatures and that the 3.3 V rail can absorb clamp current. The signal wire also reaches the 3.3 V rail directly through the 470 Ω pull-up, so its protection must cover that path too (see WIRING.md, Input protection). |
 | 1 | Automotive-rated input protection + 12 V to stable **5 V** converter | Ignition supply; fused feed, load-dump/cranking and reverse-polarity rated; do not feed 12 V to display |
 | 1 | 2-core twisted or screened cable | Signal wire to the sender spade and dedicated **ground-sense** wire to the tank bond stud |
 | 1 | Tank bond strap / ground lead and ring terminal | Low-resistance bond from tank to chassis; the ground-sense wire lands on the same stud |
 | 1 | Proper cable/fuse/loom parts | Fused near pickup, strain relief, protective conduit, connector seals |
 | 1 | Sender spade connector | Validate terminal fits sender; avoid loose or corroded connections |
 | 1 | Insulated moisture-resistant enclosure and cockpit mount | Holds the Waveshare board and the ADS1115 together (short I²C leads); exposed electronics cannot be left loose |
-| - | Multimeter; thermocouple/thermometer; known resistors (44 Ω–1.2 kΩ, plus 10 Ω for the ground-offset test) | Bench validation and calibration |
+| - | Multimeter; thermocouple/thermometer; known resistors (44 Ω–1.2 kΩ, plus 10 Ω for the ground-offset test, and 1 Ω, 27 Ω and 12 Ω with a 1.5 V AA cell for the negative-offset test) | Bench validation and calibration |
 
 No longer needed compared with the original internal-ADC circuit: the 10 kΩ / 10 kΩ supply-reference divider and the 10 kΩ series resistors.
 

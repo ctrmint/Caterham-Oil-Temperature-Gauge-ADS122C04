@@ -30,6 +30,7 @@ Run: `./scripts/test_host.sh`.
 | Bench known 120 Ω | Vs ≈0.671 V, Vp ≈2.629 V and R ≈120 Ω within measured system error | Vs, Vp and R |
 | Bench 44 Ω / 470 Ω / 1,158 Ω | Correct resistance tracking | % error |
 | 10 Ω added in the bond wire only | Resistance reading unchanged (ground-sense cancellation works) | R before/after |
+| Ground point about 50 mV below board GND (1 Ω bond plus an AA cell through 27 Ω; WIRING.md bench step 8) | No fault; `ground_offset_v` about −0.05 V; resistance within about 0.2 % of the normal reading. With 12 Ω instead of 27 Ω (about −0.11 V), `GROUND FAULT`. | CSV log |
 | Sender open | `SENSOR OPEN`, no °C | photo/log |
 | Sender short | `SENSOR SHORT`, no °C | photo/log |
 | Ground-sense wire disconnected | `GROUND FAULT`, no °C | photo/log |

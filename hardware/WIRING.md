@@ -17,7 +17,7 @@ The sender is measured by an external **ADS1115 16-bit I²C ADC**, not by the ES
 | 5 | GPIO43 / UART TX | Not used |
 | 6 | GPIO17 | **I²C SDA** to ADS1115 SDA |
 | 7 | GPIO18 | **I²C SCL** to ADS1115 SCL (on the `-G` model this pin may be used by GNSS; that model is not supported) |
-| 8 | GPIO16 | Optional: ADS1115 ALERT/RDY (conversion-ready interrupt). Leave unconnected if unused |
+| 8 | GPIO16 | Not used. The firmware polls the ADS1115 for each result and turns its ALERT/RDY output off, so leave this pin and the module's ALRT unconnected. |
 
 The firmware uses I²C port 0; the Waveshare BSP already uses port 1 (GPIO14/15) for the touch panel and on-board peripherals. The recommended Adafruit ADS1115 module already has 10 kΩ pull-ups on SDA/SCL to its VDD, so no extra pull-ups are needed at 3.3 V. Keep the I²C leads short (ideally < 20 cm) and mount the ADS1115 next to the Waveshare board; **run the analogue sender wires to the tank, never the I²C bus**.
 
@@ -29,7 +29,7 @@ The firmware uses I²C port 0; the Waveshare BSP already uses port 1 (GPIO14/15)
 | GND | H2-2 GND | |
 | SDA / SCL | H2-6 / H2-7 | I²C, 100–400 kHz |
 | ADDR | GND | I²C address **0x48** (check whether your module ties it already) |
-| ALRT | H2-8 GPIO16 (optional) | Conversion-ready signal |
+| ALRT | Leave unconnected | Not used: the firmware polls for results and turns ALERT/RDY off |
 | **A0** | 1 kΩ → top of Rp (`3V3_EXC`), Kelvin tap at the resistor lead | Pull-up high side |
 | **A3** | 1 kΩ → `SENDER_NODE` (bottom of Rp, signal wire to sender spade) | Sender high side |
 | **A1** | 1 kΩ → **dedicated ground-sense wire** to the tank bond stud, with a **100 kΩ bias resistor** from 3V3 to the sense wire at the gauge-end connector | Sender low side; the bias makes a broken wire read 3.3 V |
@@ -67,6 +67,8 @@ Diagnostics:
 * `V(A0)` vs GND (single-ended): the 3.3 V excitation rail (`SUPPLY FAULT` if outside 2.9–3.5 V).
 * Tank ground offset = `V(A0) − (Vp + Vs)`, which equals `V(A1)` relative to the gauge GND (`GROUND FAULT` outside −0.10…+0.20 V). Each ADS1115 input must stay between GND and VDD for an accurate conversion (absolute maximum GND − 0.3 V to VDD + 0.3 V), so keep this offset close to 0 V (aim for within ±100 mV) by bonding the gauge supply ground to a chassis point close to the tank bond.
 
+**Expect the offset to be negative in the car.** The board's own supply current (about 0.1–0.3 A) returns to chassis through the gauge's ground lead, so the gauge GND sits slightly above the chassis and the tank. A1 then sits slightly below GND. That is outside the ADS1115's specified input range (GND to VDD), although well inside its absolute maximum (GND − 0.3 V). The firmware accepts offsets down to −0.10 V (`kGroundOffsetMinV`), so bench step 8 checks that readings stay accurate with the ground point below GND. If they don't, tighten that limit (a fault threshold, so it needs approval) or lower the offset with a heavier or shorter gauge ground lead. Bench step 7 tests only the opposite direction.
+
 Fault detection no longer relies on the unreliable top of the ESP32 ADC range:
 
 * **Sender open**: no current, so `Vp ≈ 0`.
@@ -96,6 +98,8 @@ Excitation current is at most 3.3 V / (470 + 44) Ω ≈ 6.4 mA. The pull-up diss
 
 The 1 kΩ / 100 nF networks limit current and filter noise, but they are **not** load-dump or harness-fault protection. At the harness entry, add clamps on the signal and ground-sense wires (for example a low-leakage dual Schottky diode to 3V3 and GND on the ADS1115 side of each 1 kΩ resistor, plus a TVS rated for the harness). Check that the 3.3 V rail can absorb the clamp current without rising, and check diode leakage at hot under-bonnet temperatures. The part choice and topology must be engineered and tested for the vehicle; see [SAFETY.md](../docs/SAFETY.md).
 
+**The signal wire also connects straight to the 3.3 V rail through Rp**, bypassing the 1 kΩ resistors where those clamps sit. If the signal wire chafed onto +12 V, about (12 − 3.3) V / 470 Ω ≈ 18 mA would flow into the board's 3.3 V rail, which feeds the ESP32-S3 and the display. Another ≈ 8 mA would flow through A3's 1 kΩ into the ADS1115's input diodes. The board's normal load would probably absorb it, but nothing guarantees that. The protection must therefore also cover `SENDER_NODE` itself, for example with a clamp or TVS on the signal wire at the harness entry. Do not add a series resistor between `SENDER_NODE` and the harness: it would be measured as part of the sender.
+
 ## Bench steps
 
 1. With the interface board disconnected from the ESP32, check continuity for unintended shorts to battery+ / chassis.
@@ -105,8 +109,9 @@ The 1 kΩ / 100 nF networks limit current and filter noise, but they are **not**
 5. Check the firmware resistance reads close to 120 Ω (agreement here is not a temperature calibration).
 6. Remove the resistor: expect `SENSOR OPEN`. Short `SENDER_NODE` to the ground point through safe test leads: expect `SENSOR SHORT`.
 7. Add 10 Ω in the bond wire only (between the ground point and board GND). This lifts the ground point by about 55 mV; the resistance reading should not change, which proves the ground-sense cancellation works. (A single-ended measurement would read about 8 % high.)
-8. Vary known resistors across the expected range (44 Ω to 1,158 Ω and beyond); record readings and errors.
-9. Disconnect the ground-sense wire: expect `GROUND FAULT`. Reconnect it.
-10. With ignition OFF, connect the real sensor, ground-sense and bond wires. Confirm that no voltage above the ADS1115 input limits reaches any input before turning on gauge power.
+8. **Ground point below GND (the car's usual direction).** Replace the bond wire (or step 7's 10 Ω) with 1 Ω between the ground point and board GND. Then connect a 1.5 V AA cell in series with 27 Ω across that 1 Ω: cell + → 27 Ω → board GND, cell − → ground point. About 54 mA then flows from board GND to the ground point, holding it about 50 mV below board GND. Expect no fault, `ground_offset_v` about −0.05 V in the CSV log, and the resistance within about 0.2 % of the step 5 reading. Optionally use 12 Ω instead of 27 Ω (about −0.11 V): expect `GROUND FAULT`. Disconnect the cell afterwards and restore the bond wire.
+9. Vary known resistors across the expected range (44 Ω to 1,158 Ω and beyond); record readings and errors.
+10. Disconnect the ground-sense wire: expect `GROUND FAULT`. Reconnect it.
+11. With ignition OFF, connect the real sensor, ground-sense and bond wires. Confirm that no voltage above the ADS1115 input limits reaches any input before turning on gauge power.
 
 **Never** probe or splice a powered automobile circuit assuming it is grounded at the same potential as a USB-connected development laptop. Keep the car and laptop disconnected from each other while validating grounds.
