@@ -8,14 +8,14 @@ namespace layout {
 constexpr uint32_t kBg = 0x080E15;
 constexpr uint32_t kWhite = 0xF2F6F8;
 constexpr uint32_t kMute = 0x8597A3;
-constexpr uint32_t kGreen = 0x24CA89;
-constexpr uint32_t kAmber = 0xF4B246;
-constexpr uint32_t kRed = 0xF04B4B;
+constexpr uint32_t kGreen = gauge::kColourGreen;  // the graduated palette (core/SweepModel.h)
+constexpr uint32_t kAmber = gauge::kColourAmber;
+constexpr uint32_t kRed = gauge::kColourRed;
 } // namespace layout
 
 // Everything a layout needs for one update. All pointers are static or owned by GaugeDisplay.
 struct DisplayFrame {
-  uint32_t colour = layout::kGreen;
+  uint32_t colour = layout::kAmber;
   char cells[gauge::kReadingCells + 1] = {};
   const char* title = "";
   const char* unit = "";
@@ -48,8 +48,11 @@ class ClassicLayout : public LayoutView {
   void build(lv_obj_t* screen, gauge::Unit unit) override;
   void render(const DisplayFrame& f) override;
  private:
+  void placeCells(bool wide);
   lv_obj_t* arc_ = nullptr;
   lv_obj_t* cells_[gauge::kReadingCells] = {};
+  int32_t cell_w_ = 0;
+  bool wide_ = false;  // true: all four cells centred; false: the right three centred
   lv_obj_t* title_ = nullptr;
   lv_obj_t* subtitle_ = nullptr;
   lv_obj_t* footer_ = nullptr;
@@ -61,7 +64,7 @@ namespace sweep {
 constexpr int kCentre = 233;
 constexpr int kDigitW = 224, kDigitH = 96;       // 4 cells of 56 px; digit height 96 px
 constexpr int kDigitCx = 233, kDigitCy = 205;
-constexpr int kMaxLabels = 11;  // 100..300 step 20 in Fahrenheit
+constexpr int kMaxLabels = 6;  // 30..130 step 20 degC, 86..266 step 36 degF
 } // namespace sweep
 
 class SweepLayout : public LayoutView {

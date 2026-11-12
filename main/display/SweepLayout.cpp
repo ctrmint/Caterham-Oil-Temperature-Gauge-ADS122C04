@@ -6,7 +6,8 @@
 using namespace layout;
 
 namespace {
-constexpr uint32_t kDim = 0x22313A;  // unlit segment, same as the Classic track
+constexpr uint32_t kDim = 0x22313A;    // unlit ring segment, same as the Classic track
+constexpr uint32_t kGhost = 0x111A22;  // unlit digit segment: about a third of the way from kBg to kDim
 constexpr float kPi = 3.14159265f;
 constexpr float kStartDeg = 135.0f, kSweepDeg = 270.0f;  // as the Classic arc: start lower left, open at the bottom
 constexpr int kRingInner = 198, kRingOuter = 226, kSegWidth = 16;
@@ -19,6 +20,7 @@ constexpr int kDigitBottom = sweep::kDigitCy + sweep::kDigitH / 2;
 lv_point_precise_t pts[gauge::kSweepSegments][2];
 lv_obj_t* seg[gauge::kSweepSegments];
 uint32_t seg_colour[gauge::kSweepSegments];
+uint32_t seg_lit_colour[gauge::kSweepSegments];  // graduated colour at each segment's place on the scale
 lv_obj_t* label[sweep::kMaxLabels];
 char label_text[sweep::kMaxLabels][8];
 char footer_text[gauge::kFooterTextSize];
@@ -72,6 +74,7 @@ void SweepLayout::build(lv_obj_t* screen, gauge::Unit unit) {
     lv_obj_set_style_line_color(s, lv_color_hex(kDim), 0);
     seg[i] = s;
     seg_colour[i] = kDim;
+    seg_lit_colour[i] = gauge::segmentColour(i, unit);
   }
 
   // Scale numbers inside the ring, at the angle of their value. Hidden until calibrated.
@@ -116,9 +119,9 @@ void SweepLayout::build(lv_obj_t* screen, gauge::Unit unit) {
         lv_obj_set_style_border_width(o, 0, 0);
         lv_obj_set_style_pad_all(o, 0, 0);
         lv_obj_set_style_bg_opa(o, LV_OPA_COVER, 0);
-        lv_obj_set_style_bg_color(o, lv_color_hex(kDim), 0);
+        lv_obj_set_style_bg_color(o, lv_color_hex(kGhost), 0);
         digit_seg[i][k] = o;
-        digit_colour[i][k] = kDim;
+        digit_colour[i][k] = kGhost;
       }
       lv_obj_t* l = lv_label_create(root_);
       lv_label_set_long_mode(l, LV_LABEL_LONG_CLIP);
@@ -173,7 +176,7 @@ void SweepLayout::render(const DisplayFrame& f) {
     const bool arrow = ch[i] == '<' || ch[i] == '>';
     const uint8_t mask = arrow ? 0 : gauge::sevenSegmentMask(ch[i]);
     for (int k = 0; k < 7; ++k) {
-      const uint32_t c = arrow ? kHidden : ((mask >> k) & 1 ? f.colour : kDim);
+      const uint32_t c = arrow ? kHidden : ((mask >> k) & 1 ? f.colour : kGhost);
       if (c == digit_colour[i][k]) continue;
       if (c == kHidden) lv_obj_add_flag(digit_seg[i][k], LV_OBJ_FLAG_HIDDEN);
       else {
@@ -197,7 +200,7 @@ void SweepLayout::render(const DisplayFrame& f) {
     }
   }
   for (int i = 0; i < gauge::kSweepSegments; ++i) {
-    const uint32_t c = i < f.lit_segments ? f.colour : kDim;
+    const uint32_t c = i < f.lit_segments ? seg_lit_colour[i] : kDim;
     if (c == seg_colour[i]) continue;
     seg_colour[i] = c;
     lv_obj_set_style_line_color(seg[i], lv_color_hex(c), 0);

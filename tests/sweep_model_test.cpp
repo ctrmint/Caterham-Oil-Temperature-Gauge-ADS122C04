@@ -4,6 +4,7 @@
 #include <cassert>
 #include <cmath>
 #include <cstdio>
+#include <cstdlib>
 #include <initializer_list>
 
 static gauge::Reading make(gauge::Status s, bool has_t=false, float t_c=0) {
@@ -12,6 +13,22 @@ static gauge::Reading make(gauge::Status s, bool has_t=false, float t_c=0) {
   return r;
 }
 static int lit(float t_c, gauge::Unit u) { return gauge::litSegments(make(gauge::Status::Normal,true,t_c),u); }
+static int channel(uint32_t rgb, int shift) { return static_cast<int>((rgb>>shift)&0xFF); }
+// Half-way mix, rounded half away from zero per channel, as the gradient does at f = 0.5.
+static uint32_t half(uint32_t a, uint32_t b) {
+  uint32_t out=0;
+  for(int s=16;s>=0;s-=8) out|=static_cast<uint32_t>((channel(a,s)+channel(b,s)+1)/2)<<s;
+  return out;
+}
+static int maxChannelStep(uint32_t a, uint32_t b) {
+  int m=0;
+  for(int s=16;s>=0;s-=8) { const int d=std::abs(channel(a,s)-channel(b,s)); if(d>m) m=d; }
+  return m;
+}
+static uint32_t colourOf(gauge::Status s, gauge::Status alarm, bool has_t=false, float t_c=0) {
+  gauge::Reading r=make(s,has_t,t_c); r.alarm=alarm;
+  return gauge::readingColour(r);
+}
 
 int main() {
   using gauge::Status; using gauge::Unit;
@@ -24,12 +41,55 @@ int main() {
 
   // Scale.
   assert(gauge::kSweepSegments==40);
-  assert(gauge::sweepScale(Unit::Celsius).min==40.f && gauge::sweepScale(Unit::Celsius).max==150.f);
-  assert(gauge::sweepScale(Unit::Fahrenheit).min==100.f && gauge::sweepScale(Unit::Fahrenheit).max==300.f);
+  assert(gauge::sweepScale(Unit::Celsius).min==30.f && gauge::sweepScale(Unit::Celsius).max==130.f);
+  assert(gauge::sweepScale(Unit::Fahrenheit).min==86.f && gauge::sweepScale(Unit::Fahrenheit).max==266.f);
   assert(gauge::scaleLabelCount(Unit::Celsius)==6);
-  assert(gauge::scaleLabelCount(Unit::Fahrenheit)==11);
-  for(int i=0;i<6;i++) assert(gauge::scaleLabel(Unit::Celsius,i)==40+20*i);
-  for(int i=0;i<11;i++) assert(gauge::scaleLabel(Unit::Fahrenheit,i)==100+20*i);
+  assert(gauge::scaleLabelCount(Unit::Fahrenheit)==6);
+  for(int i=0;i<6;i++) assert(gauge::scaleLabel(Unit::Celsius,i)==30+20*i);
+  for(int i=0;i<6;i++) assert(gauge::scaleLabel(Unit::Fahrenheit,i)==86+36*i);
+  assert(gauge::scaleLabel(Unit::Celsius,5)==130 && gauge::scaleLabel(Unit::Fahrenheit,5)==266);
+
+  // Gradient: pure at each stop, a half-way mix at each band boundary, clamped at the ends.
+  using gauge::gradientColour;
+  assert(gradientColour(-40.f)==gauge::kColourDarkBlue && gradientColour(40.f)==gauge::kColourDarkBlue);
+  assert(gradientColour(-INFINITY)==gauge::kColourDarkBlue);
+  assert(gradientColour(60.f)==gauge::kColourLightBlue);
+  assert(gradientColour(75.f)==gauge::kColourGreen && gradientColour(82.f)==gauge::kColourGreen);
+  assert(gradientColour(90.f)==gauge::kColourGreen);
+  assert(gradientColour(100.f)==gauge::kColourYellow);
+  assert(gradientColour(112.f)==gauge::kColourAmber);
+  assert(gradientColour(120.f)==gauge::kColourRed && gradientColour(200.f)==gauge::kColourRed);
+  assert(gradientColour(INFINITY)==gauge::kColourRed);
+  assert(gradientColour(NAN)==gauge::kColourAmber);
+  assert(gradientColour(50.f)==half(gauge::kColourDarkBlue,gauge::kColourLightBlue));   // cold | cool
+  assert(gradientColour(95.f)==half(gauge::kColourGreen,gauge::kColourYellow));         // optimum | slightly warm
+  assert(gradientColour(106.f)==half(gauge::kColourYellow,gauge::kColourAmber));        // slightly warm | hot
+  assert(gradientColour(116.f)==half(gauge::kColourAmber,gauge::kColourRed));           // inside hot, towards danger
+  assert(gradientColour(119.f)!=gauge::kColourRed);   // still blending 1 degC below the red stop
+  assert(gradientColour(41.f)!=gauge::kColourDarkBlue && gradientColour(111.f)!=gauge::kColourAmber);
+  // No hard steps: 0.1 degC never moves a channel by more than 4.
+  for(int i=0;i<2000;i++) {
+    const float t=i*0.1f;
+    assert(maxChannelStep(gradientColour(t),gradientColour(t+0.1f))<=4);
+  }
+  // Segment colours: the gradient at each segment's centre, the same in both units.
+  assert(gauge::segmentColour(0,Unit::Celsius)==gauge::kColourDarkBlue);    // 31.25 degC
+  assert(gauge::segmentColour(18,Unit::Celsius)==gauge::kColourGreen);      // 76.25 degC
+  assert(gauge::segmentColour(28,Unit::Celsius)==gradientColour(101.25f));
+  assert(gauge::segmentColour(39,Unit::Celsius)==gauge::kColourRed);        // 128.75 degC
+  for(int i=0;i<gauge::kSweepSegments;i++) {
+    assert(gauge::segmentColour(i,Unit::Celsius)==gradientColour(30.f+(i+0.5f)*2.5f));
+    assert(maxChannelStep(gauge::segmentColour(i,Unit::Celsius),gauge::segmentColour(i,Unit::Fahrenheit))<=1);
+  }
+
+  // Reading colour in every build: a Red alarm is red, a fault is amber (red with a Red alarm).
+  for(int i=static_cast<int>(Status::NoAdc);i<=static_cast<int>(Status::NeedsCalibration);i++) {
+    const Status s=static_cast<Status>(i);
+    assert(colourOf(s,Status::Normal)==gauge::kColourAmber);
+    assert(colourOf(s,Status::Amber)==gauge::kColourAmber);
+    assert(colourOf(s,Status::Red)==gauge::kColourRed);
+    assert(colourOf(s,Status::Normal,true,80.f)==gauge::kColourAmber);  // a fault never takes a temperature colour
+  }
 
   // Seven-segment table: bits 0-6 are segments a-g.
   const char digits[]="0123456789- ";
@@ -54,21 +114,21 @@ int main() {
 #ifdef GAUGE_DEMO
   assert(gauge::scaleLabelsVisible());
   // Lit count: floor((T-min)/(max-min)*40), clamped.
-  assert(lit(40.f,Unit::Celsius)==0);
-  assert(lit(150.f,Unit::Celsius)==40);
-  assert(lit(67.5f,Unit::Celsius)==10);   // exact boundary: 27.5/110 = 0.25
-  assert(lit(67.49f,Unit::Celsius)==9);
-  assert(lit(67.51f,Unit::Celsius)==10);
   assert(lit(30.f,Unit::Celsius)==0);
-  assert(lit(160.f,Unit::Celsius)==40);
-  assert(lit(60.f,Unit::Fahrenheit)==8);  // 60 degC = 140 degF, exact boundary
-  assert(lit(59.99f,Unit::Fahrenheit)==7);
-  assert(lit(60.01f,Unit::Fahrenheit)==8);
-  assert(lit(37.f,Unit::Fahrenheit)==0);
-  assert(lit(150.f,Unit::Fahrenheit)==40);
+  assert(lit(130.f,Unit::Celsius)==40);
+  assert(lit(67.5f,Unit::Celsius)==15);   // exact boundary: 37.5/100 = 0.375
+  assert(lit(67.49f,Unit::Celsius)==14);
+  assert(lit(67.51f,Unit::Celsius)==15);
+  assert(lit(20.f,Unit::Celsius)==0);
+  assert(lit(140.f,Unit::Celsius)==40);
+  assert(lit(60.f,Unit::Fahrenheit)==12); // 60 degC = 140 degF, exact boundary: 54/180 = 0.3
+  assert(lit(59.99f,Unit::Fahrenheit)==11);
+  assert(lit(60.01f,Unit::Fahrenheit)==12);
+  assert(lit(25.f,Unit::Fahrenheit)==0);
+  assert(lit(140.f,Unit::Fahrenheit)==40);
   // Statuses the ring really gets: Cold, Amber and Red carry a temperature too.
   const struct { Status s; float t_c; int c; int f; } carry[]={
-    {Status::Cold,50.f,3,4}, {Status::Amber,120.f,29,29}, {Status::Red,130.f,32,33}};
+    {Status::Cold,51.f,8,8}, {Status::Amber,117.f,34,34}, {Status::Red,131.f,40,40}};
   for(const auto &k:carry) {
     assert(gauge::litSegments(make(k.s,true,k.t_c),Unit::Celsius)==k.c);
     assert(gauge::litSegments(make(k.s,true,k.t_c),Unit::Fahrenheit)==k.f);
@@ -85,8 +145,36 @@ int main() {
       }
     }
   }
-  // Above range lights only up to the table maximum, never the full scale.
-  for(Unit u:units) assert(gauge::litSegments(make(Status::AboveRange),u)==36);
+  // Above range lights up to the table maximum (140 degC, beyond the 130 degC scale end, so the full ring).
+  for(Unit u:units) {
+    assert(gauge::litSegments(make(Status::AboveRange),u)==lit(gauge::calibrationMaxC(),u));
+    assert(gauge::litSegments(make(Status::AboveRange),u)==40);
+  }
+
+  // Reading colour follows the temperature with no alarm latched.
+  assert(colourOf(Status::Normal,Status::Normal,true,80.f)==gauge::kColourGreen);
+  assert(colourOf(Status::Cold,Status::Normal,true,45.f)==gradientColour(45.f));
+  assert(colourOf(Status::Normal,Status::Normal,true,106.f)==gradientColour(106.f));
+  assert(colourOf(Status::Normal,Status::Normal,true,116.f)==gradientColour(116.f));  // before the Amber debounce
+  assert(colourOf(Status::Normal,Status::Normal,true,125.f)==gauge::kColourRed);     // red band before the Red alarm
+  assert(colourOf(Status::Normal,Status::Normal,true,NAN)==gauge::kColourAmber);
+  assert(colourOf(Status::Normal,Status::Normal,true,INFINITY)==gauge::kColourAmber);   // not a temperature
+  assert(colourOf(Status::Normal,Status::Normal,true,-INFINITY)==gauge::kColourAmber);
+  assert(colourOf(Status::Normal,Status::Normal)==gauge::kColourAmber);              // no temperature flagged
+  // Never less severe than the alarm: an Amber alarm gives at least amber, a Red alarm gives red.
+  assert(colourOf(Status::Normal,Status::Amber,true,111.f)==gauge::kColourAmber);    // in the 5 degC hysteresis
+  assert(colourOf(Status::Normal,Status::Amber,true,60.f)==gauge::kColourAmber);
+  assert(colourOf(Status::Normal,Status::Amber,true,112.f)==gauge::kColourAmber);
+  assert(colourOf(Status::Amber,Status::Amber,true,118.f)==gradientColour(118.f));  // warmer than amber stays warmer
+  assert(colourOf(Status::Normal,Status::Red,true,126.f)==gauge::kColourRed);
+  assert(colourOf(Status::Normal,Status::Red,true,80.f)==gauge::kColourRed);
+  // Beyond the table: the colour of the table limit shown, unless an alarm demands more.
+  assert(colourOf(Status::AboveRange,Status::Normal)==gradientColour(gauge::calibrationMaxC()));
+  assert(colourOf(Status::AboveRange,Status::Normal)==gauge::kColourRed);
+  assert(colourOf(Status::BelowRange,Status::Normal)==gradientColour(gauge::calibrationMinC()));
+  assert(colourOf(Status::BelowRange,Status::Normal)==gauge::kColourDarkBlue);
+  assert(colourOf(Status::BelowRange,Status::Amber)==gauge::kColourAmber);   // REQ-T3 hold keeps the alarm colour
+  assert(colourOf(Status::BelowRange,Status::Red)==gauge::kColourRed);
   std::puts("Sweep model tests passed (demo)");
 #else
   assert(!gauge::scaleLabelsVisible());
@@ -97,6 +185,14 @@ int main() {
     }
     assert(lit(100.f,u)==0);
     assert(lit(150.f,u)==0);
+  }
+  // Fail closed: uncalibrated, nothing takes a temperature colour; only a Red alarm (never latched here) would be red.
+  for(int i=static_cast<int>(Status::NoAdc);i<=static_cast<int>(Status::Red);i++) {
+    const Status s=static_cast<Status>(i);
+    assert(colourOf(s,Status::Normal)==gauge::kColourAmber);
+    assert(colourOf(s,Status::Normal,true,80.f)==gauge::kColourAmber);
+    assert(colourOf(s,Status::Amber,true,40.f)==gauge::kColourAmber);
+    assert(colourOf(s,Status::Red,true,40.f)==gauge::kColourRed);
   }
   std::puts("Sweep model tests passed (uncalibrated)");
 #endif

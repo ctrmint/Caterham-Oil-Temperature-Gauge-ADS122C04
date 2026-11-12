@@ -12,6 +12,7 @@ This is an **experimental supplemental display**. It is not automotive-certified
 - **Open-circuit reading:** an open sender stops current through the pull-up, so `Vp` falls to about 0 V and is reported as `SENSOR OPEN`. **No temperature** is shown.
 - **Calibration missing/wrong:** no invented table in live firmware. Only measured sender data can enable °C or °F, and no extrapolation is performed. Readings hotter than the table are shown as critical rather than as a fault.
 - **Warning limits:** defaults are *illustrations* and not a definition of safe Caterham oil operation. High-temperature alerts provide no guarantee against engine damage.
+- **Colour bands:** the reading's colour is graduated by temperature (red from 120 °C) and is never less severe than a latched alarm. The colour bands are a visual guide, separate from the alarm thresholds, which are unchanged (amber 115 °C, red 130 °C). The status text (`HIGH TEMPERATURE`, `CRITICAL TEMP`) is the alarm. A fault or an uncalibrated reading is always amber, never a temperature colour.
 - **Touch:** touch does one thing only: a press of at least 1 s (a long-press) switches the display layout. It cannot change the unit, the calibration or the alarms. Choose the layout before driving and do not change it while driving.
 - **Display/software faults:** board resets or LVGL bugs can result in a blank screen. The primary vehicle monitoring remains mandatory.
 
