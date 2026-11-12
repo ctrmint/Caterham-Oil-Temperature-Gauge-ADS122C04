@@ -5,6 +5,7 @@
 #include <cmath>
 #include <cstdio>
 #include <cstdlib>
+#include <cstring>
 #include <initializer_list>
 
 static gauge::Reading make(gauge::Status s, bool has_t=false, float t_c=0) {
@@ -97,6 +98,27 @@ int main() {
   for(int i=0;i<12;i++) assert(gauge::sevenSegmentMask(digits[i])==masks[i]);
   assert(gauge::sevenSegmentMask('<')==0 && gauge::sevenSegmentMask('>')==0);
   assert(gauge::sevenSegmentMask('A')==0 && gauge::sevenSegmentMask('\0')==0);
+
+  // Sweep's three cells: the sign is split off, the rest right-aligned; what does not fit is " --" with no sign.
+  assert(gauge::kSweepCells==3);
+  const struct { const char *in; char sign; const char *cells; } split[]={
+    {"123",0,"123"}, {"85",0," 85"}, {"5",0,"  5"}, {"-5",0," -5"}, {"-15",0,"-15"}, {"--",0," --"},
+    {">140",'>',"140"}, {"<20",'<'," 20"}, {">284",'>',"284"}, {"<68",'<'," 68"}, {"<-5",'<'," -5"},
+    {"1234",0," --"}, {"4999",0," --"}, {">1000",0," --"}, {">",0," --"}, {"<",0," --"}, {"",0," --"}};
+  for(const auto &k:split) {
+    char sign='x'; char cells[gauge::kSweepCells+1];
+    gauge::sweepReading(k.in,sign,cells,sizeof(cells));
+    assert(sign==k.sign);
+    assert(std::strcmp(cells,k.cells)==0);
+  }
+  {
+    char sign='x'; char cells[gauge::kSweepCells+1];
+    gauge::sweepReading(nullptr,sign,cells,sizeof(cells));
+    assert(sign==0 && std::strcmp(cells," --")==0);
+    char tiny[2]={'q','q'};
+    gauge::sweepReading(">140",sign,tiny,sizeof(tiny));  // too small: truncated, never overrun
+    assert(tiny[1]=='\0');
+  }
 
   // Nothing lit without a temperature, in any build.
   for(Unit u:units) {

@@ -1,6 +1,8 @@
 #include "SweepModel.h"
 #include "Calibration.h"
 #include <cmath>
+#include <cstdio>
+#include <cstring>
 namespace gauge {
 namespace {
 constexpr float kScaleMinC = 30.f, kScaleMaxC = 130.f;
@@ -53,6 +55,20 @@ uint8_t sevenSegmentMask(char c) {
   if (c >= '0' && c <= '9') return kDigits[c - '0'];
   if (c == '-') return 0x40;
   return 0x00;
+}
+void sweepReading(const char *text, char &sign, char *out, size_t size) {
+  sign = 0;
+  if (!out || size == 0) return;
+  const char *rest = text ? text : "";
+  const char s = (*rest == '<' || *rest == '>') ? *rest : 0;
+  if (s) ++rest;
+  const size_t len = std::strlen(rest);
+  if (len == 0 || len > kSweepCells) {
+    std::snprintf(out, size, "%*s", static_cast<int>(kSweepCells), "--");
+    return;
+  }
+  std::snprintf(out, size, "%*s", static_cast<int>(kSweepCells), rest);
+  sign = s;
 }
 uint32_t gradientColour(float celsius) {
   if (std::isnan(celsius)) return kColourAmber;
