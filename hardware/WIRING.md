@@ -119,3 +119,24 @@ The 1 kΩ / 100 nF networks limit current and filter noise, but they are **not**
 11. With ignition OFF, connect the real sensor, ground-sense and bond wires. Confirm that no voltage above the ADS1115 input limits reaches any input before turning on gauge power.
 
 **Never** probe or splice a powered automobile circuit assuming it is grounded at the same potential as a USB-connected development laptop. Keep the car and laptop disconnected from each other while validating grounds.
+
+## Veroboard build
+
+[veroboard.svg](veroboard.svg) lays the circuit out on 0.1 in stripboard, 17 strips × 26 holes (about 66 × 43 mm). It's for the Adafruit ADS1115 STEMMA QT module, which has two 6-pin rows 0.5 in apart ([photo](ads1115-module.jpg)).
+
+- **Display header (J1):** an 8-way male header across strips 1–8 plugs into the display's sockets. Strip 1 is `18` and strip 8 is `5V`, in the case label's order. Offer the board up to the case and check strip 1 meets the socket labelled 18 before soldering anything else.
+- **Module:**
+  - It plugs into two 6-way female sockets upside down, chip side towards the veroboard, and lifts out.
+  - Upside down, its pins are mirrored. The analogue row (A+ A3 A2 A1 A0 A−) goes in the left socket (column 13) and the I²C row (VIN GND SCL SDA ADDR ALRT) in the right socket (column 18). A+ and VIN are both on strip 9.
+  - Its parts face the veroboard, so nothing sits under it.
+- **Track cuts:** six, all at column 15 on strips 9–14, between the two sockets. They're the only cuts; every other strip is one connection end to end. Without them, each strip would join a pin in one row to the pin opposite it (A3 to GND, A1 to SDA, and so on).
+- **Module pins:**
+  - The three capacitors return to A−, the ADC's own ground (GND through a ferrite on the module).
+  - A+ (the ADC's supply), A2, ADDR and ALRT connect to nothing else.
+  - The module defaults to address 0x48. Don't bridge the address jumper on its back, which faces up once it's fitted.
+- **Strips that belong to the display:** strips 3, 4, 5 (GPIO16, RX, TX) and 8 (5 V, live whenever USB is connected) carry nothing else.
+- **Measurement taps:** 3.3 V enters strip 17 at column 24, so R1's A0 tap (column 1) is past Rp (column 22), outside the excitation current. R2 and R3 likewise sit past Rp and R4 as seen from the harness connector (J2, column 26).
+- **J3 (optional, car only):** feeds the display from a 12 V → 5 V automotive converter through the 5V socket. Check the board's power path first, and never connect USB at the same time.
+- **Not on this layout yet:** the input protection described above. It must be added before the board goes in the car. Its clamps should go to the board's 3.3 V and GND, not to A+ or A−.
+
+![Veroboard layout: display header on strips 1-8, the ADS1115 module upside down on two 6-way sockets with six cuts between them, filters, pull-up, bias resistor and harness connector](veroboard.svg)
