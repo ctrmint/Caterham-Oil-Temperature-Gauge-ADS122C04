@@ -33,7 +33,7 @@ The firmware uses I²C port 0; the Waveshare BSP already uses port 1 (GPIO14/15)
 | **A0** | 1 kΩ → top of Rp (`3V3_EXC`), Kelvin tap at the resistor lead | Pull-up high side |
 | **A3** | 1 kΩ → `SENDER_NODE` (bottom of Rp, signal wire to sender spade) | Sender high side |
 | **A1** | 1 kΩ → **dedicated ground-sense wire** to the tank bond stud, with a **100 kΩ bias resistor** from 3V3 to the sense wire at the gauge-end connector | Sender low side; the bias makes a broken wire read 3.3 V |
-| A2 | Spare | e.g. a second sender later |
+| A2 | Spare | e.g. a second sender later. The veroboard layout ties it to 3V3 (see Veroboard build) |
 
 The 100 kΩ bias goes on the **wire side** of A1's 1 kΩ resistor. When the wire is connected, its 33 µA flows only through the sense wire (a fraction of an ohm), so it adds no measurable error. If the wire breaks, it pulls A1 to 3.3 V and the firmware reports `GROUND FAULT`. Without it, the 100 nF capacitor would hold a broken sense wire near 0 V and the gauge would silently fall back to a ground-referenced measurement.
 
@@ -119,3 +119,17 @@ The 1 kΩ / 100 nF networks limit current and filter noise, but they are **not**
 11. With ignition OFF, connect the real sensor, ground-sense and bond wires. Confirm that no voltage above the ADS1115 input limits reaches any input before turning on gauge power.
 
 **Never** probe or splice a powered automobile circuit assuming it is grounded at the same potential as a USB-connected development laptop. Keep the car and laptop disconnected from each other while validating grounds.
+
+## Veroboard build
+
+[veroboard.svg](veroboard.svg) lays the same circuit out on 0.1 in stripboard with **no track cuts**: 20 strips × 24 holes, about 61 × 51 mm. Every strip is one connection along its whole length.
+
+- **Display header (J1):** an 8-way male header across strips 1–8 plugs straight into the display's sockets. Strip 1 is `18` and strip 8 is `5V`, matching the case label. Offer the board up to the case and check strip 1 meets the socket labelled 18 before soldering anything else.
+- **Strips that belong to the display:** strips 3, 4, 5 (GPIO16, RX, TX) and 8 (5 V, live whenever USB is connected) carry nothing else.
+- **ADS1115 module:** its pins sit across strips 9–18, and six wire links join its VDD, GND, SCL, SDA and ADDR strips to the header strips.
+- **A2 is tied to 3.3 V.** TI's guidance allows unused inputs at VDD. That lets its strip double as the 3.3 V strip for Rp, R1 and R4.
+- **Measurement taps:** 3.3 V enters strip 17 at the right-hand end, so R1's A0 tap sits beyond Rp, outside the excitation current. R2 and R3 likewise sit away from the harness connector (J2).
+- **J3 (optional, car only):** feeds the display from a 12 V → 5 V automotive converter through the 5V socket. Check the board's power path first, and never connect USB at the same time.
+- **Not on this layout yet:** the input protection described above. It must be added before the board goes in the car.
+
+![Veroboard layout: display header on strips 1–8, ADS1115 module on strips 9–18, filters, pull-up, bias resistor and harness connector, with no track cuts](veroboard.svg)

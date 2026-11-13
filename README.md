@@ -53,7 +53,7 @@ Beyond the calibration table the reading shows `<min` or `>max` (for example `<2
 │   │   └── fonts/                  # generated Classic digit font + its licence
 │   ├── Kconfig.projbuild           # explicitly opt-in simulation
 │   └── idf_component.yml          # Waveshare BSP / LVGL dependencies
-├── hardware/                       # wiring, schematic (wiring.svg), bench breadboard layout (breadboard.svg) and BOM
+├── hardware/                       # wiring, schematic (wiring.svg), bench breadboard (breadboard.svg) and veroboard (veroboard.svg) layouts, and BOM
 ├── docs/                           # architecture, Fedora setup, calibration,
 │                                   # installation, validation, safety, porting
 ├── tests/                          # native C++ and Python tests
