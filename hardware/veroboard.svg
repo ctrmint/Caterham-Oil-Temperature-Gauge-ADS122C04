@@ -1,7 +1,7 @@
 <svg xmlns='http://www.w3.org/2000/svg' width='1990' height='900' viewBox='0 0 1990 900'>
 <rect x='0.0' y='0.0' width='1990.0' height='900.0' rx='0' fill='#ffffff' stroke='none' stroke-width='0'/>
-<text x='40.0' y='44.0' font-family='DejaVu Sans, Arial, Helvetica, sans-serif' font-size='21' text-anchor='start' font-weight='bold' fill='#111'>Veroboard (stripboard) layout: Adafruit ADS1115 (STEMMA QT) on sockets, six track cuts</text>
-<text x='40.0' y='70.0' font-family='DejaVu Sans, Arial, Helvetica, sans-serif' font-size='13' text-anchor='start' font-weight='normal' fill='#444' font-style='italic'>Component side, copper strips shown through the board. 17 strips × 26 holes (about 66 × 43 mm). The module plugs into two 6-way sockets and lifts out. Checked against the schematic before drawing.</text>
+<text x='40.0' y='44.0' font-family='DejaVu Sans, Arial, Helvetica, sans-serif' font-size='21' text-anchor='start' font-weight='bold' fill='#111'>Veroboard (stripboard) layout: Adafruit ADS1115 (STEMMA QT) upside down on sockets, six track cuts</text>
+<text x='40.0' y='70.0' font-family='DejaVu Sans, Arial, Helvetica, sans-serif' font-size='13' text-anchor='start' font-weight='normal' fill='#444' font-style='italic'>Component side, copper strips shown through the board. 17 strips × 26 holes (about 66 × 43 mm). The module plugs into two 6-way sockets chip side down, so its pins are mirrored, and lifts out. Checked against the schematic before drawing.</text>
 <rect x='499.2' y='159.2' width='691.6' height='457.6' rx='6' fill='#e9dcc3' stroke='#b9a782' stroke-width='2'/>
 <rect x='503.2' y='170.6' width='683.6' height='18.7' rx='3' fill='#d9a066' stroke='none' stroke-width='0' opacity='0.6'/>
 <circle cx='520.0' cy='180.0' r='2.7' fill='#6b5a3e' stroke='none' stroke-width='1'/>
@@ -219,8 +219,8 @@
 <circle cx='1118.0' cy='362.0' r='2.7' fill='#6b5a3e' stroke='none' stroke-width='1'/>
 <circle cx='1144.0' cy='362.0' r='2.7' fill='#6b5a3e' stroke='none' stroke-width='1'/>
 <circle cx='1170.0' cy='362.0' r='2.7' fill='#6b5a3e' stroke='none' stroke-width='1'/>
-<rect x='503.2' y='378.6' width='291.9' height='18.7' rx='3' fill='#d9a066' stroke='none' stroke-width='0' opacity='0.6'/>
-<rect x='816.9' y='378.6' width='369.9' height='18.7' rx='3' fill='#cdbfa8' stroke='none' stroke-width='0' opacity='0.6'/>
+<rect x='503.2' y='378.6' width='369.9' height='18.7' rx='3' fill='#cdbfa8' stroke='none' stroke-width='0' opacity='0.6'/>
+<rect x='894.9' y='378.6' width='291.9' height='18.7' rx='3' fill='#d9a066' stroke='none' stroke-width='0' opacity='0.6'/>
 <circle cx='520.0' cy='388.0' r='2.7' fill='#6b5a3e' stroke='none' stroke-width='1'/>
 <circle cx='546.0' cy='388.0' r='2.7' fill='#6b5a3e' stroke='none' stroke-width='1'/>
 <circle cx='572.0' cy='388.0' r='2.7' fill='#6b5a3e' stroke='none' stroke-width='1'/>
@@ -232,9 +232,9 @@
 <circle cx='728.0' cy='388.0' r='2.7' fill='#6b5a3e' stroke='none' stroke-width='1'/>
 <circle cx='754.0' cy='388.0' r='2.7' fill='#6b5a3e' stroke='none' stroke-width='1'/>
 <circle cx='780.0' cy='388.0' r='2.7' fill='#6b5a3e' stroke='none' stroke-width='1'/>
+<circle cx='806.0' cy='388.0' r='2.7' fill='#6b5a3e' stroke='none' stroke-width='1'/>
 <circle cx='832.0' cy='388.0' r='2.7' fill='#6b5a3e' stroke='none' stroke-width='1'/>
 <circle cx='858.0' cy='388.0' r='2.7' fill='#6b5a3e' stroke='none' stroke-width='1'/>
-<circle cx='884.0' cy='388.0' r='2.7' fill='#6b5a3e' stroke='none' stroke-width='1'/>
 <circle cx='910.0' cy='388.0' r='2.7' fill='#6b5a3e' stroke='none' stroke-width='1'/>
 <circle cx='936.0' cy='388.0' r='2.7' fill='#6b5a3e' stroke='none' stroke-width='1'/>
 <circle cx='962.0' cy='388.0' r='2.7' fill='#6b5a3e' stroke='none' stroke-width='1'/>
@@ -246,8 +246,8 @@
 <circle cx='1118.0' cy='388.0' r='2.7' fill='#6b5a3e' stroke='none' stroke-width='1'/>
 <circle cx='1144.0' cy='388.0' r='2.7' fill='#6b5a3e' stroke='none' stroke-width='1'/>
 <circle cx='1170.0' cy='388.0' r='2.7' fill='#6b5a3e' stroke='none' stroke-width='1'/>
-<rect x='503.2' y='404.6' width='291.9' height='18.7' rx='3' fill='#d9a066' stroke='none' stroke-width='0' opacity='0.6'/>
-<rect x='816.9' y='404.6' width='369.9' height='18.7' rx='3' fill='#d9a066' stroke='none' stroke-width='0' opacity='0.6'/>
+<rect x='503.2' y='404.6' width='369.9' height='18.7' rx='3' fill='#d9a066' stroke='none' stroke-width='0' opacity='0.6'/>
+<rect x='894.9' y='404.6' width='291.9' height='18.7' rx='3' fill='#d9a066' stroke='none' stroke-width='0' opacity='0.6'/>
 <circle cx='520.0' cy='414.0' r='2.7' fill='#6b5a3e' stroke='none' stroke-width='1'/>
 <circle cx='546.0' cy='414.0' r='2.7' fill='#6b5a3e' stroke='none' stroke-width='1'/>
 <circle cx='572.0' cy='414.0' r='2.7' fill='#6b5a3e' stroke='none' stroke-width='1'/>
@@ -259,9 +259,9 @@
 <circle cx='728.0' cy='414.0' r='2.7' fill='#6b5a3e' stroke='none' stroke-width='1'/>
 <circle cx='754.0' cy='414.0' r='2.7' fill='#6b5a3e' stroke='none' stroke-width='1'/>
 <circle cx='780.0' cy='414.0' r='2.7' fill='#6b5a3e' stroke='none' stroke-width='1'/>
+<circle cx='806.0' cy='414.0' r='2.7' fill='#6b5a3e' stroke='none' stroke-width='1'/>
 <circle cx='832.0' cy='414.0' r='2.7' fill='#6b5a3e' stroke='none' stroke-width='1'/>
 <circle cx='858.0' cy='414.0' r='2.7' fill='#6b5a3e' stroke='none' stroke-width='1'/>
-<circle cx='884.0' cy='414.0' r='2.7' fill='#6b5a3e' stroke='none' stroke-width='1'/>
 <circle cx='910.0' cy='414.0' r='2.7' fill='#6b5a3e' stroke='none' stroke-width='1'/>
 <circle cx='936.0' cy='414.0' r='2.7' fill='#6b5a3e' stroke='none' stroke-width='1'/>
 <circle cx='962.0' cy='414.0' r='2.7' fill='#6b5a3e' stroke='none' stroke-width='1'/>
@@ -273,8 +273,8 @@
 <circle cx='1118.0' cy='414.0' r='2.7' fill='#6b5a3e' stroke='none' stroke-width='1'/>
 <circle cx='1144.0' cy='414.0' r='2.7' fill='#6b5a3e' stroke='none' stroke-width='1'/>
 <circle cx='1170.0' cy='414.0' r='2.7' fill='#6b5a3e' stroke='none' stroke-width='1'/>
-<rect x='503.2' y='430.6' width='291.9' height='18.7' rx='3' fill='#d9a066' stroke='none' stroke-width='0' opacity='0.6'/>
-<rect x='816.9' y='430.6' width='369.9' height='18.7' rx='3' fill='#cdbfa8' stroke='none' stroke-width='0' opacity='0.6'/>
+<rect x='503.2' y='430.6' width='369.9' height='18.7' rx='3' fill='#cdbfa8' stroke='none' stroke-width='0' opacity='0.6'/>
+<rect x='894.9' y='430.6' width='291.9' height='18.7' rx='3' fill='#d9a066' stroke='none' stroke-width='0' opacity='0.6'/>
 <circle cx='520.0' cy='440.0' r='2.7' fill='#6b5a3e' stroke='none' stroke-width='1'/>
 <circle cx='546.0' cy='440.0' r='2.7' fill='#6b5a3e' stroke='none' stroke-width='1'/>
 <circle cx='572.0' cy='440.0' r='2.7' fill='#6b5a3e' stroke='none' stroke-width='1'/>
@@ -286,9 +286,9 @@
 <circle cx='728.0' cy='440.0' r='2.7' fill='#6b5a3e' stroke='none' stroke-width='1'/>
 <circle cx='754.0' cy='440.0' r='2.7' fill='#6b5a3e' stroke='none' stroke-width='1'/>
 <circle cx='780.0' cy='440.0' r='2.7' fill='#6b5a3e' stroke='none' stroke-width='1'/>
+<circle cx='806.0' cy='440.0' r='2.7' fill='#6b5a3e' stroke='none' stroke-width='1'/>
 <circle cx='832.0' cy='440.0' r='2.7' fill='#6b5a3e' stroke='none' stroke-width='1'/>
 <circle cx='858.0' cy='440.0' r='2.7' fill='#6b5a3e' stroke='none' stroke-width='1'/>
-<circle cx='884.0' cy='440.0' r='2.7' fill='#6b5a3e' stroke='none' stroke-width='1'/>
 <circle cx='910.0' cy='440.0' r='2.7' fill='#6b5a3e' stroke='none' stroke-width='1'/>
 <circle cx='936.0' cy='440.0' r='2.7' fill='#6b5a3e' stroke='none' stroke-width='1'/>
 <circle cx='962.0' cy='440.0' r='2.7' fill='#6b5a3e' stroke='none' stroke-width='1'/>
@@ -300,8 +300,8 @@
 <circle cx='1118.0' cy='440.0' r='2.7' fill='#6b5a3e' stroke='none' stroke-width='1'/>
 <circle cx='1144.0' cy='440.0' r='2.7' fill='#6b5a3e' stroke='none' stroke-width='1'/>
 <circle cx='1170.0' cy='440.0' r='2.7' fill='#6b5a3e' stroke='none' stroke-width='1'/>
-<rect x='503.2' y='456.6' width='291.9' height='18.7' rx='3' fill='#d9a066' stroke='none' stroke-width='0' opacity='0.6'/>
-<rect x='816.9' y='456.6' width='369.9' height='18.7' rx='3' fill='#d9a066' stroke='none' stroke-width='0' opacity='0.6'/>
+<rect x='503.2' y='456.6' width='369.9' height='18.7' rx='3' fill='#d9a066' stroke='none' stroke-width='0' opacity='0.6'/>
+<rect x='894.9' y='456.6' width='291.9' height='18.7' rx='3' fill='#d9a066' stroke='none' stroke-width='0' opacity='0.6'/>
 <circle cx='520.0' cy='466.0' r='2.7' fill='#6b5a3e' stroke='none' stroke-width='1'/>
 <circle cx='546.0' cy='466.0' r='2.7' fill='#6b5a3e' stroke='none' stroke-width='1'/>
 <circle cx='572.0' cy='466.0' r='2.7' fill='#6b5a3e' stroke='none' stroke-width='1'/>
@@ -313,9 +313,9 @@
 <circle cx='728.0' cy='466.0' r='2.7' fill='#6b5a3e' stroke='none' stroke-width='1'/>
 <circle cx='754.0' cy='466.0' r='2.7' fill='#6b5a3e' stroke='none' stroke-width='1'/>
 <circle cx='780.0' cy='466.0' r='2.7' fill='#6b5a3e' stroke='none' stroke-width='1'/>
+<circle cx='806.0' cy='466.0' r='2.7' fill='#6b5a3e' stroke='none' stroke-width='1'/>
 <circle cx='832.0' cy='466.0' r='2.7' fill='#6b5a3e' stroke='none' stroke-width='1'/>
 <circle cx='858.0' cy='466.0' r='2.7' fill='#6b5a3e' stroke='none' stroke-width='1'/>
-<circle cx='884.0' cy='466.0' r='2.7' fill='#6b5a3e' stroke='none' stroke-width='1'/>
 <circle cx='910.0' cy='466.0' r='2.7' fill='#6b5a3e' stroke='none' stroke-width='1'/>
 <circle cx='936.0' cy='466.0' r='2.7' fill='#6b5a3e' stroke='none' stroke-width='1'/>
 <circle cx='962.0' cy='466.0' r='2.7' fill='#6b5a3e' stroke='none' stroke-width='1'/>
@@ -327,8 +327,8 @@
 <circle cx='1118.0' cy='466.0' r='2.7' fill='#6b5a3e' stroke='none' stroke-width='1'/>
 <circle cx='1144.0' cy='466.0' r='2.7' fill='#6b5a3e' stroke='none' stroke-width='1'/>
 <circle cx='1170.0' cy='466.0' r='2.7' fill='#6b5a3e' stroke='none' stroke-width='1'/>
-<rect x='503.2' y='482.6' width='291.9' height='18.7' rx='3' fill='#cdbfa8' stroke='none' stroke-width='0' opacity='0.6'/>
-<rect x='816.9' y='482.6' width='369.9' height='18.7' rx='3' fill='#d9a066' stroke='none' stroke-width='0' opacity='0.6'/>
+<rect x='503.2' y='482.6' width='369.9' height='18.7' rx='3' fill='#d9a066' stroke='none' stroke-width='0' opacity='0.6'/>
+<rect x='894.9' y='482.6' width='291.9' height='18.7' rx='3' fill='#cdbfa8' stroke='none' stroke-width='0' opacity='0.6'/>
 <circle cx='520.0' cy='492.0' r='2.7' fill='#6b5a3e' stroke='none' stroke-width='1'/>
 <circle cx='546.0' cy='492.0' r='2.7' fill='#6b5a3e' stroke='none' stroke-width='1'/>
 <circle cx='572.0' cy='492.0' r='2.7' fill='#6b5a3e' stroke='none' stroke-width='1'/>
@@ -340,9 +340,9 @@
 <circle cx='728.0' cy='492.0' r='2.7' fill='#6b5a3e' stroke='none' stroke-width='1'/>
 <circle cx='754.0' cy='492.0' r='2.7' fill='#6b5a3e' stroke='none' stroke-width='1'/>
 <circle cx='780.0' cy='492.0' r='2.7' fill='#6b5a3e' stroke='none' stroke-width='1'/>
+<circle cx='806.0' cy='492.0' r='2.7' fill='#6b5a3e' stroke='none' stroke-width='1'/>
 <circle cx='832.0' cy='492.0' r='2.7' fill='#6b5a3e' stroke='none' stroke-width='1'/>
 <circle cx='858.0' cy='492.0' r='2.7' fill='#6b5a3e' stroke='none' stroke-width='1'/>
-<circle cx='884.0' cy='492.0' r='2.7' fill='#6b5a3e' stroke='none' stroke-width='1'/>
 <circle cx='910.0' cy='492.0' r='2.7' fill='#6b5a3e' stroke='none' stroke-width='1'/>
 <circle cx='936.0' cy='492.0' r='2.7' fill='#6b5a3e' stroke='none' stroke-width='1'/>
 <circle cx='962.0' cy='492.0' r='2.7' fill='#6b5a3e' stroke='none' stroke-width='1'/>
@@ -354,8 +354,8 @@
 <circle cx='1118.0' cy='492.0' r='2.7' fill='#6b5a3e' stroke='none' stroke-width='1'/>
 <circle cx='1144.0' cy='492.0' r='2.7' fill='#6b5a3e' stroke='none' stroke-width='1'/>
 <circle cx='1170.0' cy='492.0' r='2.7' fill='#6b5a3e' stroke='none' stroke-width='1'/>
-<rect x='503.2' y='508.6' width='291.9' height='18.7' rx='3' fill='#cdbfa8' stroke='none' stroke-width='0' opacity='0.6'/>
-<rect x='816.9' y='508.6' width='369.9' height='18.7' rx='3' fill='#d9a066' stroke='none' stroke-width='0' opacity='0.6'/>
+<rect x='503.2' y='508.6' width='369.9' height='18.7' rx='3' fill='#d9a066' stroke='none' stroke-width='0' opacity='0.6'/>
+<rect x='894.9' y='508.6' width='291.9' height='18.7' rx='3' fill='#cdbfa8' stroke='none' stroke-width='0' opacity='0.6'/>
 <circle cx='520.0' cy='518.0' r='2.7' fill='#6b5a3e' stroke='none' stroke-width='1'/>
 <circle cx='546.0' cy='518.0' r='2.7' fill='#6b5a3e' stroke='none' stroke-width='1'/>
 <circle cx='572.0' cy='518.0' r='2.7' fill='#6b5a3e' stroke='none' stroke-width='1'/>
@@ -367,9 +367,9 @@
 <circle cx='728.0' cy='518.0' r='2.7' fill='#6b5a3e' stroke='none' stroke-width='1'/>
 <circle cx='754.0' cy='518.0' r='2.7' fill='#6b5a3e' stroke='none' stroke-width='1'/>
 <circle cx='780.0' cy='518.0' r='2.7' fill='#6b5a3e' stroke='none' stroke-width='1'/>
+<circle cx='806.0' cy='518.0' r='2.7' fill='#6b5a3e' stroke='none' stroke-width='1'/>
 <circle cx='832.0' cy='518.0' r='2.7' fill='#6b5a3e' stroke='none' stroke-width='1'/>
 <circle cx='858.0' cy='518.0' r='2.7' fill='#6b5a3e' stroke='none' stroke-width='1'/>
-<circle cx='884.0' cy='518.0' r='2.7' fill='#6b5a3e' stroke='none' stroke-width='1'/>
 <circle cx='910.0' cy='518.0' r='2.7' fill='#6b5a3e' stroke='none' stroke-width='1'/>
 <circle cx='936.0' cy='518.0' r='2.7' fill='#6b5a3e' stroke='none' stroke-width='1'/>
 <circle cx='962.0' cy='518.0' r='2.7' fill='#6b5a3e' stroke='none' stroke-width='1'/>
@@ -462,25 +462,25 @@
 <circle cx='1118.0' cy='596.0' r='2.7' fill='#6b5a3e' stroke='none' stroke-width='1'/>
 <circle cx='1144.0' cy='596.0' r='2.7' fill='#6b5a3e' stroke='none' stroke-width='1'/>
 <circle cx='1170.0' cy='596.0' r='2.7' fill='#6b5a3e' stroke='none' stroke-width='1'/>
-<circle cx='806.0' cy='388.0' r='7' fill='#fff' stroke='#c0392b' stroke-width='2'/>
-<line x1='801.0' y1='383.0' x2='811.0' y2='393.0' stroke='#c0392b' stroke-width='2.4' stroke-linecap='round'/>
-<line x1='801.0' y1='393.0' x2='811.0' y2='383.0' stroke='#c0392b' stroke-width='2.4' stroke-linecap='round'/>
-<circle cx='806.0' cy='414.0' r='7' fill='#fff' stroke='#c0392b' stroke-width='2'/>
-<line x1='801.0' y1='409.0' x2='811.0' y2='419.0' stroke='#c0392b' stroke-width='2.4' stroke-linecap='round'/>
-<line x1='801.0' y1='419.0' x2='811.0' y2='409.0' stroke='#c0392b' stroke-width='2.4' stroke-linecap='round'/>
-<circle cx='806.0' cy='440.0' r='7' fill='#fff' stroke='#c0392b' stroke-width='2'/>
-<line x1='801.0' y1='435.0' x2='811.0' y2='445.0' stroke='#c0392b' stroke-width='2.4' stroke-linecap='round'/>
-<line x1='801.0' y1='445.0' x2='811.0' y2='435.0' stroke='#c0392b' stroke-width='2.4' stroke-linecap='round'/>
-<circle cx='806.0' cy='466.0' r='7' fill='#fff' stroke='#c0392b' stroke-width='2'/>
-<line x1='801.0' y1='461.0' x2='811.0' y2='471.0' stroke='#c0392b' stroke-width='2.4' stroke-linecap='round'/>
-<line x1='801.0' y1='471.0' x2='811.0' y2='461.0' stroke='#c0392b' stroke-width='2.4' stroke-linecap='round'/>
-<circle cx='806.0' cy='492.0' r='7' fill='#fff' stroke='#c0392b' stroke-width='2'/>
-<line x1='801.0' y1='487.0' x2='811.0' y2='497.0' stroke='#c0392b' stroke-width='2.4' stroke-linecap='round'/>
-<line x1='801.0' y1='497.0' x2='811.0' y2='487.0' stroke='#c0392b' stroke-width='2.4' stroke-linecap='round'/>
-<circle cx='806.0' cy='518.0' r='7' fill='#fff' stroke='#c0392b' stroke-width='2'/>
-<line x1='801.0' y1='513.0' x2='811.0' y2='523.0' stroke='#c0392b' stroke-width='2.4' stroke-linecap='round'/>
-<line x1='801.0' y1='523.0' x2='811.0' y2='513.0' stroke='#c0392b' stroke-width='2.4' stroke-linecap='round'/>
-<text x='806.0' y='545.3' font-family='DejaVu Sans, Arial, Helvetica, sans-serif' font-size='11' text-anchor='middle' font-weight='bold' fill='#c0392b'>6 cuts</text>
+<circle cx='884.0' cy='388.0' r='7' fill='#fff' stroke='#c0392b' stroke-width='2'/>
+<line x1='879.0' y1='383.0' x2='889.0' y2='393.0' stroke='#c0392b' stroke-width='2.4' stroke-linecap='round'/>
+<line x1='879.0' y1='393.0' x2='889.0' y2='383.0' stroke='#c0392b' stroke-width='2.4' stroke-linecap='round'/>
+<circle cx='884.0' cy='414.0' r='7' fill='#fff' stroke='#c0392b' stroke-width='2'/>
+<line x1='879.0' y1='409.0' x2='889.0' y2='419.0' stroke='#c0392b' stroke-width='2.4' stroke-linecap='round'/>
+<line x1='879.0' y1='419.0' x2='889.0' y2='409.0' stroke='#c0392b' stroke-width='2.4' stroke-linecap='round'/>
+<circle cx='884.0' cy='440.0' r='7' fill='#fff' stroke='#c0392b' stroke-width='2'/>
+<line x1='879.0' y1='435.0' x2='889.0' y2='445.0' stroke='#c0392b' stroke-width='2.4' stroke-linecap='round'/>
+<line x1='879.0' y1='445.0' x2='889.0' y2='435.0' stroke='#c0392b' stroke-width='2.4' stroke-linecap='round'/>
+<circle cx='884.0' cy='466.0' r='7' fill='#fff' stroke='#c0392b' stroke-width='2'/>
+<line x1='879.0' y1='461.0' x2='889.0' y2='471.0' stroke='#c0392b' stroke-width='2.4' stroke-linecap='round'/>
+<line x1='879.0' y1='471.0' x2='889.0' y2='461.0' stroke='#c0392b' stroke-width='2.4' stroke-linecap='round'/>
+<circle cx='884.0' cy='492.0' r='7' fill='#fff' stroke='#c0392b' stroke-width='2'/>
+<line x1='879.0' y1='487.0' x2='889.0' y2='497.0' stroke='#c0392b' stroke-width='2.4' stroke-linecap='round'/>
+<line x1='879.0' y1='497.0' x2='889.0' y2='487.0' stroke='#c0392b' stroke-width='2.4' stroke-linecap='round'/>
+<circle cx='884.0' cy='518.0' r='7' fill='#fff' stroke='#c0392b' stroke-width='2'/>
+<line x1='879.0' y1='513.0' x2='889.0' y2='523.0' stroke='#c0392b' stroke-width='2.4' stroke-linecap='round'/>
+<line x1='879.0' y1='523.0' x2='889.0' y2='513.0' stroke='#c0392b' stroke-width='2.4' stroke-linecap='round'/>
+<text x='884.0' y='545.3' font-family='DejaVu Sans, Arial, Helvetica, sans-serif' font-size='11' text-anchor='middle' font-weight='bold' fill='#c0392b'>6 cuts</text>
 <text x='491.2' y='184.0' font-family='DejaVu Sans, Arial, Helvetica, sans-serif' font-size='11' text-anchor='end' font-weight='normal' fill='#777'>1</text>
 <text x='469.2' y='184.0' font-family='DejaVu Sans, Arial, Helvetica, sans-serif' font-size='11.5' text-anchor='end' font-weight='bold' fill='#c99a00'>SCL</text>
 <text x='491.2' y='210.0' font-family='DejaVu Sans, Arial, Helvetica, sans-serif' font-size='11' text-anchor='end' font-weight='normal' fill='#777'>2</text>
@@ -498,23 +498,23 @@
 <text x='491.2' y='366.0' font-family='DejaVu Sans, Arial, Helvetica, sans-serif' font-size='11' text-anchor='end' font-weight='normal' fill='#777'>8</text>
 <text x='469.2' y='366.0' font-family='DejaVu Sans, Arial, Helvetica, sans-serif' font-size='11.5' text-anchor='end' font-weight='normal' fill='#d22'>5 V: keep clear (live on USB)</text>
 <text x='491.2' y='392.0' font-family='DejaVu Sans, Arial, Helvetica, sans-serif' font-size='11' text-anchor='end' font-weight='normal' fill='#777'>9</text>
-<text x='469.2' y='392.0' font-family='DejaVu Sans, Arial, Helvetica, sans-serif' font-size='11.5' text-anchor='end' font-weight='bold' fill='#d22'>3.3 V</text>
-<text x='1200.8' y='392.0' font-family='DejaVu Sans, Arial, Helvetica, sans-serif' font-size='11.5' text-anchor='start' font-weight='normal' fill='#999'>right of cut: A+: unused</text>
+<text x='469.2' y='392.0' font-family='DejaVu Sans, Arial, Helvetica, sans-serif' font-size='11.5' text-anchor='end' font-weight='normal' fill='#999'>A+: unused</text>
+<text x='1200.8' y='392.0' font-family='DejaVu Sans, Arial, Helvetica, sans-serif' font-size='11.5' text-anchor='start' font-weight='bold' fill='#d22'>right of cut: 3.3 V</text>
 <text x='491.2' y='418.0' font-family='DejaVu Sans, Arial, Helvetica, sans-serif' font-size='11' text-anchor='end' font-weight='normal' fill='#777'>10</text>
-<text x='469.2' y='418.0' font-family='DejaVu Sans, Arial, Helvetica, sans-serif' font-size='11.5' text-anchor='end' font-weight='bold' fill='#222'>GND</text>
-<text x='1200.8' y='418.0' font-family='DejaVu Sans, Arial, Helvetica, sans-serif' font-size='11.5' text-anchor='start' font-weight='bold' fill='#1a9850'>right of cut: A3</text>
+<text x='469.2' y='418.0' font-family='DejaVu Sans, Arial, Helvetica, sans-serif' font-size='11.5' text-anchor='end' font-weight='bold' fill='#1a9850'>A3</text>
+<text x='1200.8' y='418.0' font-family='DejaVu Sans, Arial, Helvetica, sans-serif' font-size='11.5' text-anchor='start' font-weight='bold' fill='#222'>right of cut: GND</text>
 <text x='491.2' y='444.0' font-family='DejaVu Sans, Arial, Helvetica, sans-serif' font-size='11' text-anchor='end' font-weight='normal' fill='#777'>11</text>
-<text x='469.2' y='444.0' font-family='DejaVu Sans, Arial, Helvetica, sans-serif' font-size='11.5' text-anchor='end' font-weight='bold' fill='#c99a00'>SCL</text>
-<text x='1200.8' y='444.0' font-family='DejaVu Sans, Arial, Helvetica, sans-serif' font-size='11.5' text-anchor='start' font-weight='normal' fill='#999'>right of cut: A2: unused</text>
+<text x='469.2' y='444.0' font-family='DejaVu Sans, Arial, Helvetica, sans-serif' font-size='11.5' text-anchor='end' font-weight='normal' fill='#999'>A2: unused</text>
+<text x='1200.8' y='444.0' font-family='DejaVu Sans, Arial, Helvetica, sans-serif' font-size='11.5' text-anchor='start' font-weight='bold' fill='#c99a00'>right of cut: SCL</text>
 <text x='491.2' y='470.0' font-family='DejaVu Sans, Arial, Helvetica, sans-serif' font-size='11' text-anchor='end' font-weight='normal' fill='#777'>12</text>
-<text x='469.2' y='470.0' font-family='DejaVu Sans, Arial, Helvetica, sans-serif' font-size='11.5' text-anchor='end' font-weight='bold' fill='#1f6fd2'>SDA</text>
-<text x='1200.8' y='470.0' font-family='DejaVu Sans, Arial, Helvetica, sans-serif' font-size='11.5' text-anchor='start' font-weight='bold' fill='#7d3c98'>right of cut: A1</text>
+<text x='469.2' y='470.0' font-family='DejaVu Sans, Arial, Helvetica, sans-serif' font-size='11.5' text-anchor='end' font-weight='bold' fill='#7d3c98'>A1</text>
+<text x='1200.8' y='470.0' font-family='DejaVu Sans, Arial, Helvetica, sans-serif' font-size='11.5' text-anchor='start' font-weight='bold' fill='#1f6fd2'>right of cut: SDA</text>
 <text x='491.2' y='496.0' font-family='DejaVu Sans, Arial, Helvetica, sans-serif' font-size='11' text-anchor='end' font-weight='normal' fill='#777'>13</text>
-<text x='469.2' y='496.0' font-family='DejaVu Sans, Arial, Helvetica, sans-serif' font-size='11.5' text-anchor='end' font-weight='normal' fill='#999'>ADDR: open (0x48 default)</text>
-<text x='1200.8' y='496.0' font-family='DejaVu Sans, Arial, Helvetica, sans-serif' font-size='11.5' text-anchor='start' font-weight='bold' fill='#f07800'>right of cut: A0</text>
+<text x='469.2' y='496.0' font-family='DejaVu Sans, Arial, Helvetica, sans-serif' font-size='11.5' text-anchor='end' font-weight='bold' fill='#f07800'>A0</text>
+<text x='1200.8' y='496.0' font-family='DejaVu Sans, Arial, Helvetica, sans-serif' font-size='11.5' text-anchor='start' font-weight='normal' fill='#999'>right of cut: ADDR: open (0x48)</text>
 <text x='491.2' y='522.0' font-family='DejaVu Sans, Arial, Helvetica, sans-serif' font-size='11' text-anchor='end' font-weight='normal' fill='#777'>14</text>
-<text x='469.2' y='522.0' font-family='DejaVu Sans, Arial, Helvetica, sans-serif' font-size='11.5' text-anchor='end' font-weight='normal' fill='#999'>ALRT: unused</text>
-<text x='1200.8' y='522.0' font-family='DejaVu Sans, Arial, Helvetica, sans-serif' font-size='11.5' text-anchor='start' font-weight='bold' fill='#555'>right of cut: A− (ADC ground)</text>
+<text x='469.2' y='522.0' font-family='DejaVu Sans, Arial, Helvetica, sans-serif' font-size='11.5' text-anchor='end' font-weight='bold' fill='#555'>A− (ADC ground)</text>
+<text x='1200.8' y='522.0' font-family='DejaVu Sans, Arial, Helvetica, sans-serif' font-size='11.5' text-anchor='start' font-weight='normal' fill='#999'>right of cut: ALRT: unused</text>
 <text x='491.2' y='548.0' font-family='DejaVu Sans, Arial, Helvetica, sans-serif' font-size='11' text-anchor='end' font-weight='normal' fill='#777'>15</text>
 <text x='469.2' y='548.0' font-family='DejaVu Sans, Arial, Helvetica, sans-serif' font-size='11.5' text-anchor='end' font-weight='bold' fill='#7d3c98'>SENSE</text>
 <text x='491.2' y='574.0' font-family='DejaVu Sans, Arial, Helvetica, sans-serif' font-size='11' text-anchor='end' font-weight='normal' fill='#777'>16</text>
@@ -554,177 +554,180 @@
 <rect x='542.0' y='358.0' width='8.0' height='8.0' rx='1' fill='#d4af37' stroke='#7a5c00' stroke-width='1'/>
 <text x='557.0' y='366.0' font-family='DejaVu Sans, Arial, Helvetica, sans-serif' font-size='9.5' text-anchor='start' font-weight='bold' fill='#8a7a5c'>5V</text>
 <text x='546.0' y='162.0' font-family='DejaVu Sans, Arial, Helvetica, sans-serif' font-size='13' text-anchor='middle' font-weight='bold' fill='#111'>J1</text>
-<line x1='624.0' y1='570.0' x2='624.0' y2='596.0' stroke='#8a8a8a' stroke-width='2' stroke-linecap='round'/>
-<rect x='607.0' y='564.0' width='12.0' height='26.0' rx='5' fill='#e8d3a8' stroke='#7a6640' stroke-width='1.3'/>
-<path d='M613.0,564.0 Q613.0,556.0 624.0,560.0 L624.0,596.0' fill='none' stroke='#8a8a8a' stroke-width='2'/>
-<text x='616.0' y='577.0' font-family='DejaVu Sans, Arial, Helvetica, sans-serif' font-size='7.5' text-anchor='middle' font-weight='bold' fill='#3d2f12' transform='rotate(-90 616.0 577.0)'>470Ω</text>
+<line x1='1066.0' y1='570.0' x2='1066.0' y2='596.0' stroke='#8a8a8a' stroke-width='2' stroke-linecap='round'/>
+<rect x='1049.0' y='564.0' width='12.0' height='26.0' rx='5' fill='#e8d3a8' stroke='#7a6640' stroke-width='1.3'/>
+<path d='M1055.0,564.0 Q1055.0,556.0 1066.0,560.0 L1066.0,596.0' fill='none' stroke='#8a8a8a' stroke-width='2'/>
+<text x='1058.0' y='577.0' font-family='DejaVu Sans, Arial, Helvetica, sans-serif' font-size='7.5' text-anchor='middle' font-weight='bold' fill='#3d2f12' transform='rotate(-90 1058.0 577.0)'>470Ω</text>
+<circle cx='1066.0' cy='570.0' r='3' fill='#8a8a8a' stroke='none' stroke-width='1'/>
+<circle cx='1066.0' cy='596.0' r='3' fill='#8a8a8a' stroke='none' stroke-width='1'/>
+<line x1='1014.0' y1='544.0' x2='1014.0' y2='596.0' stroke='#8a8a8a' stroke-width='2' stroke-linecap='round'/>
+<rect x='1007.0' y='549.0' width='14.0' height='42.0' rx='5' fill='#e8d3a8' stroke='#7a6640' stroke-width='1.3'/>
+<text x='1017.2' y='570.0' font-family='DejaVu Sans, Arial, Helvetica, sans-serif' font-size='8.5' text-anchor='middle' font-weight='bold' fill='#3d2f12' transform='rotate(-90 1017.2 570.0)'>100k</text>
+<circle cx='1014.0' cy='544.0' r='3' fill='#8a8a8a' stroke='none' stroke-width='1'/>
+<circle cx='1014.0' cy='596.0' r='3' fill='#8a8a8a' stroke='none' stroke-width='1'/>
+<line x1='780.0' y1='492.0' x2='780.0' y2='518.0' stroke='#8a8a8a' stroke-width='2' stroke-linecap='round'/>
+<ellipse cx='780.0' cy='505.0' rx='9' ry='8' fill='#e8b33a' stroke='#8a6514' stroke-width='1.2'/>
+<text x='780.0' y='508.0' font-family='DejaVu Sans, Arial, Helvetica, sans-serif' font-size='7.5' text-anchor='middle' font-weight='bold' fill='#5a3f00'>104</text>
+<circle cx='780.0' cy='492.0' r='3' fill='#8a8a8a' stroke='none' stroke-width='1'/>
+<circle cx='780.0' cy='518.0' r='3' fill='#8a8a8a' stroke='none' stroke-width='1'/>
+<line x1='728.0' y1='466.0' x2='728.0' y2='518.0' stroke='#8a8a8a' stroke-width='2' stroke-linecap='round'/>
+<ellipse cx='728.0' cy='492.0' rx='9' ry='8' fill='#e8b33a' stroke='#8a6514' stroke-width='1.2'/>
+<text x='728.0' y='495.0' font-family='DejaVu Sans, Arial, Helvetica, sans-serif' font-size='7.5' text-anchor='middle' font-weight='bold' fill='#5a3f00'>104</text>
+<circle cx='728.0' cy='466.0' r='3' fill='#8a8a8a' stroke='none' stroke-width='1'/>
+<circle cx='728.0' cy='518.0' r='3' fill='#8a8a8a' stroke='none' stroke-width='1'/>
+<line x1='676.0' y1='414.0' x2='676.0' y2='518.0' stroke='#8a8a8a' stroke-width='2' stroke-linecap='round'/>
+<ellipse cx='676.0' cy='466.0' rx='9' ry='8' fill='#e8b33a' stroke='#8a6514' stroke-width='1.2'/>
+<text x='676.0' y='469.0' font-family='DejaVu Sans, Arial, Helvetica, sans-serif' font-size='7.5' text-anchor='middle' font-weight='bold' fill='#5a3f00'>104</text>
+<circle cx='676.0' cy='414.0' r='3' fill='#8a8a8a' stroke='none' stroke-width='1'/>
+<circle cx='676.0' cy='518.0' r='3' fill='#8a8a8a' stroke='none' stroke-width='1'/>
+<line x1='624.0' y1='414.0' x2='624.0' y2='570.0' stroke='#8a8a8a' stroke-width='2' stroke-linecap='round'/>
+<rect x='617.0' y='471.0' width='14.0' height='42.0' rx='5' fill='#e8d3a8' stroke='#7a6640' stroke-width='1.3'/>
+<text x='627.2' y='492.0' font-family='DejaVu Sans, Arial, Helvetica, sans-serif' font-size='8.5' text-anchor='middle' font-weight='bold' fill='#3d2f12' transform='rotate(-90 627.2 492.0)'>1k</text>
+<circle cx='624.0' cy='414.0' r='3' fill='#8a8a8a' stroke='none' stroke-width='1'/>
 <circle cx='624.0' cy='570.0' r='3' fill='#8a8a8a' stroke='none' stroke-width='1'/>
-<circle cx='624.0' cy='596.0' r='3' fill='#8a8a8a' stroke='none' stroke-width='1'/>
-<line x1='676.0' y1='544.0' x2='676.0' y2='596.0' stroke='#8a8a8a' stroke-width='2' stroke-linecap='round'/>
-<rect x='669.0' y='549.0' width='14.0' height='42.0' rx='5' fill='#e8d3a8' stroke='#7a6640' stroke-width='1.3'/>
-<text x='679.2' y='570.0' font-family='DejaVu Sans, Arial, Helvetica, sans-serif' font-size='8.5' text-anchor='middle' font-weight='bold' fill='#3d2f12' transform='rotate(-90 679.2 570.0)'>100k</text>
-<circle cx='676.0' cy='544.0' r='3' fill='#8a8a8a' stroke='none' stroke-width='1'/>
-<circle cx='676.0' cy='596.0' r='3' fill='#8a8a8a' stroke='none' stroke-width='1'/>
-<line x1='832.0' y1='492.0' x2='832.0' y2='518.0' stroke='#8a8a8a' stroke-width='2' stroke-linecap='round'/>
-<ellipse cx='832.0' cy='505.0' rx='9' ry='8' fill='#e8b33a' stroke='#8a6514' stroke-width='1.2'/>
-<text x='832.0' y='508.0' font-family='DejaVu Sans, Arial, Helvetica, sans-serif' font-size='7.5' text-anchor='middle' font-weight='bold' fill='#5a3f00'>104</text>
-<circle cx='832.0' cy='492.0' r='3' fill='#8a8a8a' stroke='none' stroke-width='1'/>
-<circle cx='832.0' cy='518.0' r='3' fill='#8a8a8a' stroke='none' stroke-width='1'/>
-<line x1='936.0' y1='466.0' x2='936.0' y2='518.0' stroke='#8a8a8a' stroke-width='2' stroke-linecap='round'/>
-<ellipse cx='936.0' cy='492.0' rx='9' ry='8' fill='#e8b33a' stroke='#8a6514' stroke-width='1.2'/>
-<text x='936.0' y='495.0' font-family='DejaVu Sans, Arial, Helvetica, sans-serif' font-size='7.5' text-anchor='middle' font-weight='bold' fill='#5a3f00'>104</text>
-<circle cx='936.0' cy='466.0' r='3' fill='#8a8a8a' stroke='none' stroke-width='1'/>
-<circle cx='936.0' cy='518.0' r='3' fill='#8a8a8a' stroke='none' stroke-width='1'/>
-<line x1='988.0' y1='414.0' x2='988.0' y2='518.0' stroke='#8a8a8a' stroke-width='2' stroke-linecap='round'/>
-<ellipse cx='988.0' cy='466.0' rx='9' ry='8' fill='#e8b33a' stroke='#8a6514' stroke-width='1.2'/>
-<text x='988.0' y='469.0' font-family='DejaVu Sans, Arial, Helvetica, sans-serif' font-size='7.5' text-anchor='middle' font-weight='bold' fill='#5a3f00'>104</text>
-<circle cx='988.0' cy='414.0' r='3' fill='#8a8a8a' stroke='none' stroke-width='1'/>
-<circle cx='988.0' cy='518.0' r='3' fill='#8a8a8a' stroke='none' stroke-width='1'/>
-<line x1='1040.0' y1='414.0' x2='1040.0' y2='570.0' stroke='#8a8a8a' stroke-width='2' stroke-linecap='round'/>
-<rect x='1033.0' y='471.0' width='14.0' height='42.0' rx='5' fill='#e8d3a8' stroke='#7a6640' stroke-width='1.3'/>
-<text x='1043.2' y='492.0' font-family='DejaVu Sans, Arial, Helvetica, sans-serif' font-size='8.5' text-anchor='middle' font-weight='bold' fill='#3d2f12' transform='rotate(-90 1043.2 492.0)'>1k</text>
-<circle cx='1040.0' cy='414.0' r='3' fill='#8a8a8a' stroke='none' stroke-width='1'/>
-<circle cx='1040.0' cy='570.0' r='3' fill='#8a8a8a' stroke='none' stroke-width='1'/>
-<line x1='1092.0' y1='466.0' x2='1092.0' y2='544.0' stroke='#8a8a8a' stroke-width='2' stroke-linecap='round'/>
-<rect x='1085.0' y='484.0' width='14.0' height='42.0' rx='5' fill='#e8d3a8' stroke='#7a6640' stroke-width='1.3'/>
-<text x='1095.2' y='505.0' font-family='DejaVu Sans, Arial, Helvetica, sans-serif' font-size='8.5' text-anchor='middle' font-weight='bold' fill='#3d2f12' transform='rotate(-90 1095.2 505.0)'>1k</text>
-<circle cx='1092.0' cy='466.0' r='3' fill='#8a8a8a' stroke='none' stroke-width='1'/>
-<circle cx='1092.0' cy='544.0' r='3' fill='#8a8a8a' stroke='none' stroke-width='1'/>
-<line x1='1144.0' y1='492.0' x2='1144.0' y2='596.0' stroke='#8a8a8a' stroke-width='2' stroke-linecap='round'/>
-<rect x='1137.0' y='523.0' width='14.0' height='42.0' rx='5' fill='#e8d3a8' stroke='#7a6640' stroke-width='1.3'/>
-<text x='1147.2' y='544.0' font-family='DejaVu Sans, Arial, Helvetica, sans-serif' font-size='8.5' text-anchor='middle' font-weight='bold' fill='#3d2f12' transform='rotate(-90 1147.2 544.0)'>1k</text>
-<circle cx='1144.0' cy='492.0' r='3' fill='#8a8a8a' stroke='none' stroke-width='1'/>
-<circle cx='1144.0' cy='596.0' r='3' fill='#8a8a8a' stroke='none' stroke-width='1'/>
-<line x1='598.0' y1='310.0' x2='598.0' y2='388.0' stroke='#fff' stroke-width='6.5' stroke-linecap='round'/>
-<line x1='598.0' y1='310.0' x2='598.0' y2='388.0' stroke='#d22' stroke-width='4' stroke-linecap='round'/>
-<circle cx='598.0' cy='310.0' r='3.8' fill='#d22' stroke='#fff' stroke-width='1.2'/>
-<circle cx='598.0' cy='388.0' r='3.8' fill='#d22' stroke='#fff' stroke-width='1.2'/>
-<line x1='624.0' y1='336.0' x2='624.0' y2='414.0' stroke='#fff' stroke-width='6.5' stroke-linecap='round'/>
-<line x1='624.0' y1='336.0' x2='624.0' y2='414.0' stroke='#222' stroke-width='4' stroke-linecap='round'/>
-<circle cx='624.0' cy='336.0' r='3.8' fill='#222' stroke='#fff' stroke-width='1.2'/>
-<circle cx='624.0' cy='414.0' r='3.8' fill='#222' stroke='#fff' stroke-width='1.2'/>
-<line x1='650.0' y1='180.0' x2='650.0' y2='440.0' stroke='#fff' stroke-width='6.5' stroke-linecap='round'/>
-<line x1='650.0' y1='180.0' x2='650.0' y2='440.0' stroke='#e0b000' stroke-width='4' stroke-linecap='round'/>
-<circle cx='650.0' cy='180.0' r='3.8' fill='#e0b000' stroke='#fff' stroke-width='1.2'/>
-<circle cx='650.0' cy='440.0' r='3.8' fill='#e0b000' stroke='#fff' stroke-width='1.2'/>
-<line x1='676.0' y1='206.0' x2='676.0' y2='466.0' stroke='#fff' stroke-width='6.5' stroke-linecap='round'/>
-<line x1='676.0' y1='206.0' x2='676.0' y2='466.0' stroke='#1f6fd2' stroke-width='4' stroke-linecap='round'/>
-<circle cx='676.0' cy='206.0' r='3.8' fill='#1f6fd2' stroke='#fff' stroke-width='1.2'/>
-<circle cx='676.0' cy='466.0' r='3.8' fill='#1f6fd2' stroke='#fff' stroke-width='1.2'/>
-<line x1='572.0' y1='310.0' x2='572.0' y2='596.0' stroke='#fff' stroke-width='6.5' stroke-linecap='round'/>
-<line x1='572.0' y1='310.0' x2='572.0' y2='596.0' stroke='#d22' stroke-width='4' stroke-linecap='round'/>
-<circle cx='572.0' cy='310.0' r='3.8' fill='#d22' stroke='#fff' stroke-width='1.2'/>
-<circle cx='572.0' cy='596.0' r='3.8' fill='#d22' stroke='#fff' stroke-width='1.2'/>
-<text x='598.0' y='408.0' font-family='DejaVu Sans, Arial, Helvetica, sans-serif' font-size='10' text-anchor='middle' font-weight='bold' fill='#d22'>L1</text>
-<text x='624.0' y='434.0' font-family='DejaVu Sans, Arial, Helvetica, sans-serif' font-size='10' text-anchor='middle' font-weight='bold' fill='#333'>L2</text>
-<text x='650.0' y='460.0' font-family='DejaVu Sans, Arial, Helvetica, sans-serif' font-size='10' text-anchor='middle' font-weight='bold' fill='#e0b000'>L3</text>
-<text x='676.0' y='486.0' font-family='DejaVu Sans, Arial, Helvetica, sans-serif' font-size='10' text-anchor='middle' font-weight='bold' fill='#1f6fd2'>L4</text>
-<text x='572.0' y='616.0' font-family='DejaVu Sans, Arial, Helvetica, sans-serif' font-size='10' text-anchor='middle' font-weight='bold' fill='#d22'>L5</text>
-<text x='624.0' y='616.0' font-family='DejaVu Sans, Arial, Helvetica, sans-serif' font-size='10' text-anchor='middle' font-weight='bold' fill='#333'>Rp</text>
-<text x='676.0' y='616.0' font-family='DejaVu Sans, Arial, Helvetica, sans-serif' font-size='10' text-anchor='middle' font-weight='bold' fill='#333'>R4</text>
-<text x='832.0' y='538.0' font-family='DejaVu Sans, Arial, Helvetica, sans-serif' font-size='10' text-anchor='middle' font-weight='bold' fill='#333'>C1</text>
-<text x='936.0' y='538.0' font-family='DejaVu Sans, Arial, Helvetica, sans-serif' font-size='10' text-anchor='middle' font-weight='bold' fill='#333'>C3</text>
-<text x='988.0' y='538.0' font-family='DejaVu Sans, Arial, Helvetica, sans-serif' font-size='10' text-anchor='middle' font-weight='bold' fill='#333'>C2</text>
-<text x='1040.0' y='590.0' font-family='DejaVu Sans, Arial, Helvetica, sans-serif' font-size='10' text-anchor='middle' font-weight='bold' fill='#333'>R2</text>
-<text x='1092.0' y='564.0' font-family='DejaVu Sans, Arial, Helvetica, sans-serif' font-size='10' text-anchor='middle' font-weight='bold' fill='#333'>R3</text>
-<text x='1144.0' y='616.0' font-family='DejaVu Sans, Arial, Helvetica, sans-serif' font-size='10' text-anchor='middle' font-weight='bold' fill='#333'>R1</text>
-<rect x='746.0' y='376.0' width='16.0' height='154.0' rx='2' fill='#1b1b1b' stroke='#444' stroke-width='1'/>
-<rect x='750.5' y='384.5' width='7.0' height='7.0' rx='1' fill='#777' stroke='#222' stroke-width='1'/>
-<rect x='750.5' y='410.5' width='7.0' height='7.0' rx='1' fill='#777' stroke='#222' stroke-width='1'/>
-<rect x='750.5' y='436.5' width='7.0' height='7.0' rx='1' fill='#777' stroke='#222' stroke-width='1'/>
-<rect x='750.5' y='462.5' width='7.0' height='7.0' rx='1' fill='#777' stroke='#222' stroke-width='1'/>
-<rect x='750.5' y='488.5' width='7.0' height='7.0' rx='1' fill='#777' stroke='#222' stroke-width='1'/>
-<rect x='750.5' y='514.5' width='7.0' height='7.0' rx='1' fill='#777' stroke='#222' stroke-width='1'/>
-<rect x='876.0' y='376.0' width='16.0' height='154.0' rx='2' fill='#1b1b1b' stroke='#444' stroke-width='1'/>
-<rect x='880.5' y='384.5' width='7.0' height='7.0' rx='1' fill='#777' stroke='#222' stroke-width='1'/>
-<rect x='880.5' y='410.5' width='7.0' height='7.0' rx='1' fill='#777' stroke='#222' stroke-width='1'/>
-<rect x='880.5' y='436.5' width='7.0' height='7.0' rx='1' fill='#777' stroke='#222' stroke-width='1'/>
-<rect x='880.5' y='462.5' width='7.0' height='7.0' rx='1' fill='#777' stroke='#222' stroke-width='1'/>
-<rect x='880.5' y='488.5' width='7.0' height='7.0' rx='1' fill='#777' stroke='#222' stroke-width='1'/>
-<rect x='880.5' y='514.5' width='7.0' height='7.0' rx='1' fill='#777' stroke='#222' stroke-width='1'/>
-<rect x='729.3' y='325.6' width='179.4' height='254.8' rx='8' fill='#1f2a44' stroke='#16213d' stroke-width='2' stroke-dasharray='7,4' opacity='0.45'/>
-<text x='766.0' y='392.0' font-family='DejaVu Sans, Arial, Helvetica, sans-serif' font-size='10.5' text-anchor='start' font-weight='bold' fill='#fff'>VIN</text>
-<text x='872.0' y='392.0' font-family='DejaVu Sans, Arial, Helvetica, sans-serif' font-size='10.5' text-anchor='end' font-weight='bold' fill='#fff'>A+</text>
-<text x='766.0' y='418.0' font-family='DejaVu Sans, Arial, Helvetica, sans-serif' font-size='10.5' text-anchor='start' font-weight='bold' fill='#fff'>GND</text>
-<text x='872.0' y='418.0' font-family='DejaVu Sans, Arial, Helvetica, sans-serif' font-size='10.5' text-anchor='end' font-weight='bold' fill='#fff'>A3</text>
-<text x='766.0' y='444.0' font-family='DejaVu Sans, Arial, Helvetica, sans-serif' font-size='10.5' text-anchor='start' font-weight='bold' fill='#fff'>SCL</text>
-<text x='872.0' y='444.0' font-family='DejaVu Sans, Arial, Helvetica, sans-serif' font-size='10.5' text-anchor='end' font-weight='bold' fill='#fff'>A2</text>
-<text x='766.0' y='470.0' font-family='DejaVu Sans, Arial, Helvetica, sans-serif' font-size='10.5' text-anchor='start' font-weight='bold' fill='#fff'>SDA</text>
-<text x='872.0' y='470.0' font-family='DejaVu Sans, Arial, Helvetica, sans-serif' font-size='10.5' text-anchor='end' font-weight='bold' fill='#fff'>A1</text>
-<text x='766.0' y='496.0' font-family='DejaVu Sans, Arial, Helvetica, sans-serif' font-size='10.5' text-anchor='start' font-weight='bold' fill='#fff'>ADDR</text>
-<text x='872.0' y='496.0' font-family='DejaVu Sans, Arial, Helvetica, sans-serif' font-size='10.5' text-anchor='end' font-weight='bold' fill='#fff'>A0</text>
-<text x='766.0' y='522.0' font-family='DejaVu Sans, Arial, Helvetica, sans-serif' font-size='10.5' text-anchor='start' font-weight='bold' fill='#fff'>ALRT</text>
-<text x='872.0' y='522.0' font-family='DejaVu Sans, Arial, Helvetica, sans-serif' font-size='10.5' text-anchor='end' font-weight='bold' fill='#fff'>A−</text>
-<text x='819.0' y='342.6' font-family='DejaVu Sans, Arial, Helvetica, sans-serif' font-size='12.5' text-anchor='middle' font-weight='bold' fill='#fff'>ADS1115 module</text>
-<text x='819.0' y='356.6' font-family='DejaVu Sans, Arial, Helvetica, sans-serif' font-size='10.5' text-anchor='middle' font-weight='normal' fill='#eef'>on two 6-way sockets</text>
-<text x='819.0' y='570.4' font-family='DejaVu Sans, Arial, Helvetica, sans-serif' font-size='10.5' text-anchor='middle' font-weight='normal' fill='#eef'>lifts out</text>
-<rect x='510.0' y='532.0' width='20.0' height='50.0' rx='3' fill='#f0f0f0' stroke='#555' stroke-width='1.6'/>
-<rect x='516.0' y='540.0' width='8.0' height='8.0' rx='1' fill='#d4af37' stroke='#7a5c00' stroke-width='1'/>
-<rect x='516.0' y='566.0' width='8.0' height='8.0' rx='1' fill='#d4af37' stroke='#7a5c00' stroke-width='1'/>
-<text x='520.0' y='596.0' font-family='DejaVu Sans, Arial, Helvetica, sans-serif' font-size='12' text-anchor='middle' font-weight='bold' fill='#111'>J2</text>
+<line x1='572.0' y1='466.0' x2='572.0' y2='544.0' stroke='#8a8a8a' stroke-width='2' stroke-linecap='round'/>
+<rect x='565.0' y='484.0' width='14.0' height='42.0' rx='5' fill='#e8d3a8' stroke='#7a6640' stroke-width='1.3'/>
+<text x='575.2' y='505.0' font-family='DejaVu Sans, Arial, Helvetica, sans-serif' font-size='8.5' text-anchor='middle' font-weight='bold' fill='#3d2f12' transform='rotate(-90 575.2 505.0)'>1k</text>
+<circle cx='572.0' cy='466.0' r='3' fill='#8a8a8a' stroke='none' stroke-width='1'/>
+<circle cx='572.0' cy='544.0' r='3' fill='#8a8a8a' stroke='none' stroke-width='1'/>
+<line x1='520.0' y1='492.0' x2='520.0' y2='596.0' stroke='#8a8a8a' stroke-width='2' stroke-linecap='round'/>
+<rect x='513.0' y='523.0' width='14.0' height='42.0' rx='5' fill='#e8d3a8' stroke='#7a6640' stroke-width='1.3'/>
+<text x='523.2' y='544.0' font-family='DejaVu Sans, Arial, Helvetica, sans-serif' font-size='8.5' text-anchor='middle' font-weight='bold' fill='#3d2f12' transform='rotate(-90 523.2 544.0)'>1k</text>
+<circle cx='520.0' cy='492.0' r='3' fill='#8a8a8a' stroke='none' stroke-width='1'/>
+<circle cx='520.0' cy='596.0' r='3' fill='#8a8a8a' stroke='none' stroke-width='1'/>
+<line x1='1014.0' y1='310.0' x2='1014.0' y2='388.0' stroke='#fff' stroke-width='6.5' stroke-linecap='round'/>
+<line x1='1014.0' y1='310.0' x2='1014.0' y2='388.0' stroke='#d22' stroke-width='4' stroke-linecap='round'/>
+<circle cx='1014.0' cy='310.0' r='3.8' fill='#d22' stroke='#fff' stroke-width='1.2'/>
+<circle cx='1014.0' cy='388.0' r='3.8' fill='#d22' stroke='#fff' stroke-width='1.2'/>
+<line x1='1040.0' y1='336.0' x2='1040.0' y2='414.0' stroke='#fff' stroke-width='6.5' stroke-linecap='round'/>
+<line x1='1040.0' y1='336.0' x2='1040.0' y2='414.0' stroke='#222' stroke-width='4' stroke-linecap='round'/>
+<circle cx='1040.0' cy='336.0' r='3.8' fill='#222' stroke='#fff' stroke-width='1.2'/>
+<circle cx='1040.0' cy='414.0' r='3.8' fill='#222' stroke='#fff' stroke-width='1.2'/>
+<line x1='1066.0' y1='180.0' x2='1066.0' y2='440.0' stroke='#fff' stroke-width='6.5' stroke-linecap='round'/>
+<line x1='1066.0' y1='180.0' x2='1066.0' y2='440.0' stroke='#e0b000' stroke-width='4' stroke-linecap='round'/>
+<circle cx='1066.0' cy='180.0' r='3.8' fill='#e0b000' stroke='#fff' stroke-width='1.2'/>
+<circle cx='1066.0' cy='440.0' r='3.8' fill='#e0b000' stroke='#fff' stroke-width='1.2'/>
+<line x1='1092.0' y1='206.0' x2='1092.0' y2='466.0' stroke='#fff' stroke-width='6.5' stroke-linecap='round'/>
+<line x1='1092.0' y1='206.0' x2='1092.0' y2='466.0' stroke='#1f6fd2' stroke-width='4' stroke-linecap='round'/>
+<circle cx='1092.0' cy='206.0' r='3.8' fill='#1f6fd2' stroke='#fff' stroke-width='1.2'/>
+<circle cx='1092.0' cy='466.0' r='3.8' fill='#1f6fd2' stroke='#fff' stroke-width='1.2'/>
+<line x1='1118.0' y1='310.0' x2='1118.0' y2='596.0' stroke='#fff' stroke-width='6.5' stroke-linecap='round'/>
+<line x1='1118.0' y1='310.0' x2='1118.0' y2='596.0' stroke='#d22' stroke-width='4' stroke-linecap='round'/>
+<circle cx='1118.0' cy='310.0' r='3.8' fill='#d22' stroke='#fff' stroke-width='1.2'/>
+<circle cx='1118.0' cy='596.0' r='3.8' fill='#d22' stroke='#fff' stroke-width='1.2'/>
+<text x='1014.0' y='408.0' font-family='DejaVu Sans, Arial, Helvetica, sans-serif' font-size='10' text-anchor='middle' font-weight='bold' fill='#d22' stroke='#fff' stroke-width='3' stroke-linejoin='round' paint-order='stroke'>L1</text>
+<text x='1040.0' y='434.0' font-family='DejaVu Sans, Arial, Helvetica, sans-serif' font-size='10' text-anchor='middle' font-weight='bold' fill='#333' stroke='#fff' stroke-width='3' stroke-linejoin='round' paint-order='stroke'>L2</text>
+<text x='1066.0' y='460.0' font-family='DejaVu Sans, Arial, Helvetica, sans-serif' font-size='10' text-anchor='middle' font-weight='bold' fill='#e0b000' stroke='#fff' stroke-width='3' stroke-linejoin='round' paint-order='stroke'>L3</text>
+<text x='1092.0' y='486.0' font-family='DejaVu Sans, Arial, Helvetica, sans-serif' font-size='10' text-anchor='middle' font-weight='bold' fill='#1f6fd2' stroke='#fff' stroke-width='3' stroke-linejoin='round' paint-order='stroke'>L4</text>
+<text x='1118.0' y='616.0' font-family='DejaVu Sans, Arial, Helvetica, sans-serif' font-size='10' text-anchor='middle' font-weight='bold' fill='#d22' stroke='#fff' stroke-width='3' stroke-linejoin='round' paint-order='stroke'>L5</text>
+<text x='1066.0' y='616.0' font-family='DejaVu Sans, Arial, Helvetica, sans-serif' font-size='10' text-anchor='middle' font-weight='bold' fill='#333' stroke='#fff' stroke-width='3' stroke-linejoin='round' paint-order='stroke'>Rp</text>
+<text x='1014.0' y='616.0' font-family='DejaVu Sans, Arial, Helvetica, sans-serif' font-size='10' text-anchor='middle' font-weight='bold' fill='#333' stroke='#fff' stroke-width='3' stroke-linejoin='round' paint-order='stroke'>R4</text>
+<text x='780.0' y='538.0' font-family='DejaVu Sans, Arial, Helvetica, sans-serif' font-size='10' text-anchor='middle' font-weight='bold' fill='#333' stroke='#fff' stroke-width='3' stroke-linejoin='round' paint-order='stroke'>C1</text>
+<text x='728.0' y='538.0' font-family='DejaVu Sans, Arial, Helvetica, sans-serif' font-size='10' text-anchor='middle' font-weight='bold' fill='#333' stroke='#fff' stroke-width='3' stroke-linejoin='round' paint-order='stroke'>C3</text>
+<text x='676.0' y='538.0' font-family='DejaVu Sans, Arial, Helvetica, sans-serif' font-size='10' text-anchor='middle' font-weight='bold' fill='#333' stroke='#fff' stroke-width='3' stroke-linejoin='round' paint-order='stroke'>C2</text>
+<text x='624.0' y='590.0' font-family='DejaVu Sans, Arial, Helvetica, sans-serif' font-size='10' text-anchor='middle' font-weight='bold' fill='#333' stroke='#fff' stroke-width='3' stroke-linejoin='round' paint-order='stroke'>R2</text>
+<text x='572.0' y='564.0' font-family='DejaVu Sans, Arial, Helvetica, sans-serif' font-size='10' text-anchor='middle' font-weight='bold' fill='#333' stroke='#fff' stroke-width='3' stroke-linejoin='round' paint-order='stroke'>R3</text>
+<text x='520.0' y='616.0' font-family='DejaVu Sans, Arial, Helvetica, sans-serif' font-size='10' text-anchor='middle' font-weight='bold' fill='#333' stroke='#fff' stroke-width='3' stroke-linejoin='round' paint-order='stroke'>R1</text>
+<rect x='824.0' y='376.0' width='16.0' height='154.0' rx='2' fill='#1b1b1b' stroke='#444' stroke-width='1'/>
+<rect x='828.5' y='384.5' width='7.0' height='7.0' rx='1' fill='#777' stroke='#222' stroke-width='1'/>
+<rect x='828.5' y='410.5' width='7.0' height='7.0' rx='1' fill='#777' stroke='#222' stroke-width='1'/>
+<rect x='828.5' y='436.5' width='7.0' height='7.0' rx='1' fill='#777' stroke='#222' stroke-width='1'/>
+<rect x='828.5' y='462.5' width='7.0' height='7.0' rx='1' fill='#777' stroke='#222' stroke-width='1'/>
+<rect x='828.5' y='488.5' width='7.0' height='7.0' rx='1' fill='#777' stroke='#222' stroke-width='1'/>
+<rect x='828.5' y='514.5' width='7.0' height='7.0' rx='1' fill='#777' stroke='#222' stroke-width='1'/>
+<rect x='954.0' y='376.0' width='16.0' height='154.0' rx='2' fill='#1b1b1b' stroke='#444' stroke-width='1'/>
+<rect x='958.5' y='384.5' width='7.0' height='7.0' rx='1' fill='#777' stroke='#222' stroke-width='1'/>
+<rect x='958.5' y='410.5' width='7.0' height='7.0' rx='1' fill='#777' stroke='#222' stroke-width='1'/>
+<rect x='958.5' y='436.5' width='7.0' height='7.0' rx='1' fill='#777' stroke='#222' stroke-width='1'/>
+<rect x='958.5' y='462.5' width='7.0' height='7.0' rx='1' fill='#777' stroke='#222' stroke-width='1'/>
+<rect x='958.5' y='488.5' width='7.0' height='7.0' rx='1' fill='#777' stroke='#222' stroke-width='1'/>
+<rect x='958.5' y='514.5' width='7.0' height='7.0' rx='1' fill='#777' stroke='#222' stroke-width='1'/>
+<rect x='804.7' y='325.6' width='184.6' height='254.8' rx='8' fill='#1f2a44' stroke='#16213d' stroke-width='2' stroke-dasharray='7,4' opacity='0.45'/>
+<text x='844.0' y='392.0' font-family='DejaVu Sans, Arial, Helvetica, sans-serif' font-size='10.5' text-anchor='start' font-weight='bold' fill='#fff'>A+</text>
+<text x='950.0' y='392.0' font-family='DejaVu Sans, Arial, Helvetica, sans-serif' font-size='10.5' text-anchor='end' font-weight='bold' fill='#fff'>VIN</text>
+<text x='844.0' y='418.0' font-family='DejaVu Sans, Arial, Helvetica, sans-serif' font-size='10.5' text-anchor='start' font-weight='bold' fill='#fff'>A3</text>
+<text x='950.0' y='418.0' font-family='DejaVu Sans, Arial, Helvetica, sans-serif' font-size='10.5' text-anchor='end' font-weight='bold' fill='#fff'>GND</text>
+<text x='844.0' y='444.0' font-family='DejaVu Sans, Arial, Helvetica, sans-serif' font-size='10.5' text-anchor='start' font-weight='bold' fill='#fff'>A2</text>
+<text x='950.0' y='444.0' font-family='DejaVu Sans, Arial, Helvetica, sans-serif' font-size='10.5' text-anchor='end' font-weight='bold' fill='#fff'>SCL</text>
+<text x='844.0' y='470.0' font-family='DejaVu Sans, Arial, Helvetica, sans-serif' font-size='10.5' text-anchor='start' font-weight='bold' fill='#fff'>A1</text>
+<text x='950.0' y='470.0' font-family='DejaVu Sans, Arial, Helvetica, sans-serif' font-size='10.5' text-anchor='end' font-weight='bold' fill='#fff'>SDA</text>
+<text x='844.0' y='496.0' font-family='DejaVu Sans, Arial, Helvetica, sans-serif' font-size='10.5' text-anchor='start' font-weight='bold' fill='#fff'>A0</text>
+<text x='950.0' y='496.0' font-family='DejaVu Sans, Arial, Helvetica, sans-serif' font-size='10.5' text-anchor='end' font-weight='bold' fill='#fff'>ADDR</text>
+<text x='844.0' y='522.0' font-family='DejaVu Sans, Arial, Helvetica, sans-serif' font-size='10.5' text-anchor='start' font-weight='bold' fill='#fff'>A−</text>
+<text x='950.0' y='522.0' font-family='DejaVu Sans, Arial, Helvetica, sans-serif' font-size='10.5' text-anchor='end' font-weight='bold' fill='#fff'>ALRT</text>
+<text x='897.0' y='342.6' font-family='DejaVu Sans, Arial, Helvetica, sans-serif' font-size='12.5' text-anchor='middle' font-weight='bold' fill='#fff'>ADS1115 module</text>
+<text x='897.0' y='356.6' font-family='DejaVu Sans, Arial, Helvetica, sans-serif' font-size='10.5' text-anchor='middle' font-weight='normal' fill='#eef'>upside down (chip down)</text>
+<text x='897.0' y='570.4' font-family='DejaVu Sans, Arial, Helvetica, sans-serif' font-size='10.5' text-anchor='middle' font-weight='normal' fill='#eef'>on sockets, lifts out</text>
+<rect x='1160.0' y='532.0' width='20.0' height='50.0' rx='3' fill='#f0f0f0' stroke='#555' stroke-width='1.6'/>
+<rect x='1166.0' y='540.0' width='8.0' height='8.0' rx='1' fill='#d4af37' stroke='#7a5c00' stroke-width='1'/>
+<rect x='1166.0' y='566.0' width='8.0' height='8.0' rx='1' fill='#d4af37' stroke='#7a5c00' stroke-width='1'/>
+<text x='1170.0' y='596.0' font-family='DejaVu Sans, Arial, Helvetica, sans-serif' font-size='12' text-anchor='middle' font-weight='bold' fill='#111' stroke='#fff' stroke-width='3' stroke-linejoin='round' paint-order='stroke'>J2</text>
 <rect x='1134.0' y='324.0' width='20.0' height='50.0' rx='3' fill='#fff8e6' stroke='#a35f00' stroke-width='1.6' stroke-dasharray='5,4'/>
 <rect x='1140.0' y='332.0' width='8.0' height='8.0' rx='1' fill='#d4af37' stroke='#7a5c00' stroke-width='1'/>
 <rect x='1140.0' y='358.0' width='8.0' height='8.0' rx='1' fill='#d4af37' stroke='#7a5c00' stroke-width='1'/>
-<text x='1144.0' y='388.0' font-family='DejaVu Sans, Arial, Helvetica, sans-serif' font-size='12' text-anchor='middle' font-weight='bold' fill='#a35f00'>J3</text>
+<text x='1144.0' y='388.0' font-family='DejaVu Sans, Arial, Helvetica, sans-serif' font-size='12' text-anchor='middle' font-weight='bold' fill='#a35f00' stroke='#fff' stroke-width='3' stroke-linejoin='round' paint-order='stroke'>J3</text>
 <text x='1200.8' y='340.0' font-family='DejaVu Sans, Arial, Helvetica, sans-serif' font-size='11.5' text-anchor='start' font-weight='bold' fill='#a35f00'>J3 GND (car, later)</text>
 <text x='1200.8' y='366.0' font-family='DejaVu Sans, Arial, Helvetica, sans-serif' font-size='11.5' text-anchor='start' font-weight='bold' fill='#a35f00'>J3 5 V in (car, later)</text>
+<text x='1200.8' y='548.0' font-family='DejaVu Sans, Arial, Helvetica, sans-serif' font-size='11.5' text-anchor='start' font-weight='bold' fill='#7d3c98'>J2 ground sense (harness)</text>
+<text x='1200.8' y='574.0' font-family='DejaVu Sans, Arial, Helvetica, sans-serif' font-size='11.5' text-anchor='start' font-weight='bold' fill='#111'>J2 sender (harness)</text>
 <text x='1440.0' y='112.0' font-family='DejaVu Sans, Arial, Helvetica, sans-serif' font-size='15' text-anchor='start' font-weight='bold' fill='#111'>Placement (strip, column)</text>
 <text x='1440.0' y='136.0' font-family='DejaVu Sans, Arial, Helvetica, sans-serif' font-size='11.5' text-anchor='start' font-weight='bold' fill='#111'>J1 display header</text>
 <text x='1600.0' y='136.0' font-family='DejaVu Sans, Arial, Helvetica, sans-serif' font-size='11.5' text-anchor='start' font-weight='normal' fill='#111'>strips 1–8, col 2: 18, 17, 16, RX, TX, 3.3V, G, 5V</text>
-<text x='1440.0' y='154.0' font-family='DejaVu Sans, Arial, Helvetica, sans-serif' font-size='11.5' text-anchor='start' font-weight='bold' fill='#111'>Socket, I²C row</text>
-<text x='1600.0' y='154.0' font-family='DejaVu Sans, Arial, Helvetica, sans-serif' font-size='11.5' text-anchor='start' font-weight='normal' fill='#111'>col 10, strips 9–14: VIN GND SCL SDA ADDR ALRT</text>
-<text x='1440.0' y='172.0' font-family='DejaVu Sans, Arial, Helvetica, sans-serif' font-size='11.5' text-anchor='start' font-weight='bold' fill='#111'>Socket, analogue row</text>
-<text x='1600.0' y='172.0' font-family='DejaVu Sans, Arial, Helvetica, sans-serif' font-size='11.5' text-anchor='start' font-weight='normal' fill='#111'>col 15, strips 9–14: A+ A3 A2 A1 A0 A−</text>
+<text x='1440.0' y='154.0' font-family='DejaVu Sans, Arial, Helvetica, sans-serif' font-size='11.5' text-anchor='start' font-weight='bold' fill='#111'>Socket, analogue row</text>
+<text x='1600.0' y='154.0' font-family='DejaVu Sans, Arial, Helvetica, sans-serif' font-size='11.5' text-anchor='start' font-weight='normal' fill='#111'>col 13, strips 9–14: A+ A3 A2 A1 A0 A−</text>
+<text x='1440.0' y='172.0' font-family='DejaVu Sans, Arial, Helvetica, sans-serif' font-size='11.5' text-anchor='start' font-weight='bold' fill='#111'>Socket, I²C row</text>
+<text x='1600.0' y='172.0' font-family='DejaVu Sans, Arial, Helvetica, sans-serif' font-size='11.5' text-anchor='start' font-weight='normal' fill='#111'>col 18, strips 9–14: VIN GND SCL SDA ADDR ALRT</text>
 <text x='1440.0' y='190.0' font-family='DejaVu Sans, Arial, Helvetica, sans-serif' font-size='11.5' text-anchor='start' font-weight='bold' fill='#111'>Cuts × 6</text>
-<text x='1600.0' y='190.0' font-family='DejaVu Sans, Arial, Helvetica, sans-serif' font-size='11.5' text-anchor='start' font-weight='normal' fill='#111'>col 12, strips 9–14 (copper side)</text>
+<text x='1600.0' y='190.0' font-family='DejaVu Sans, Arial, Helvetica, sans-serif' font-size='11.5' text-anchor='start' font-weight='normal' fill='#111'>col 15, strips 9–14 (copper side)</text>
 <text x='1440.0' y='208.0' font-family='DejaVu Sans, Arial, Helvetica, sans-serif' font-size='11.5' text-anchor='start' font-weight='bold' fill='#111'>L1  3.3 V → VIN</text>
-<text x='1600.0' y='208.0' font-family='DejaVu Sans, Arial, Helvetica, sans-serif' font-size='11.5' text-anchor='start' font-weight='normal' fill='#111'>strip 6 → 9, col 4</text>
+<text x='1600.0' y='208.0' font-family='DejaVu Sans, Arial, Helvetica, sans-serif' font-size='11.5' text-anchor='start' font-weight='normal' fill='#111'>strip 6 → 9, col 20</text>
 <text x='1440.0' y='226.0' font-family='DejaVu Sans, Arial, Helvetica, sans-serif' font-size='11.5' text-anchor='start' font-weight='bold' fill='#111'>L2  GND</text>
-<text x='1600.0' y='226.0' font-family='DejaVu Sans, Arial, Helvetica, sans-serif' font-size='11.5' text-anchor='start' font-weight='normal' fill='#111'>strip 7 → 10, col 5</text>
+<text x='1600.0' y='226.0' font-family='DejaVu Sans, Arial, Helvetica, sans-serif' font-size='11.5' text-anchor='start' font-weight='normal' fill='#111'>strip 7 → 10, col 21</text>
 <text x='1440.0' y='244.0' font-family='DejaVu Sans, Arial, Helvetica, sans-serif' font-size='11.5' text-anchor='start' font-weight='bold' fill='#111'>L3  SCL</text>
-<text x='1600.0' y='244.0' font-family='DejaVu Sans, Arial, Helvetica, sans-serif' font-size='11.5' text-anchor='start' font-weight='normal' fill='#111'>strip 1 → 11, col 6</text>
+<text x='1600.0' y='244.0' font-family='DejaVu Sans, Arial, Helvetica, sans-serif' font-size='11.5' text-anchor='start' font-weight='normal' fill='#111'>strip 1 → 11, col 22</text>
 <text x='1440.0' y='262.0' font-family='DejaVu Sans, Arial, Helvetica, sans-serif' font-size='11.5' text-anchor='start' font-weight='bold' fill='#111'>L4  SDA</text>
-<text x='1600.0' y='262.0' font-family='DejaVu Sans, Arial, Helvetica, sans-serif' font-size='11.5' text-anchor='start' font-weight='normal' fill='#111'>strip 2 → 12, col 7</text>
+<text x='1600.0' y='262.0' font-family='DejaVu Sans, Arial, Helvetica, sans-serif' font-size='11.5' text-anchor='start' font-weight='normal' fill='#111'>strip 2 → 12, col 23</text>
 <text x='1440.0' y='280.0' font-family='DejaVu Sans, Arial, Helvetica, sans-serif' font-size='11.5' text-anchor='start' font-weight='bold' fill='#111'>L5  3.3 V feed</text>
-<text x='1600.0' y='280.0' font-family='DejaVu Sans, Arial, Helvetica, sans-serif' font-size='11.5' text-anchor='start' font-weight='normal' fill='#111'>strip 6 → 17, col 3</text>
+<text x='1600.0' y='280.0' font-family='DejaVu Sans, Arial, Helvetica, sans-serif' font-size='11.5' text-anchor='start' font-weight='normal' fill='#111'>strip 6 → 17, col 24</text>
 <text x='1440.0' y='298.0' font-family='DejaVu Sans, Arial, Helvetica, sans-serif' font-size='11.5' text-anchor='start' font-weight='bold' fill='#111'>Rp  470 Ω</text>
-<text x='1600.0' y='298.0' font-family='DejaVu Sans, Arial, Helvetica, sans-serif' font-size='11.5' text-anchor='start' font-weight='normal' fill='#111'>strips 16–17, col 5 (stand it up)</text>
+<text x='1600.0' y='298.0' font-family='DejaVu Sans, Arial, Helvetica, sans-serif' font-size='11.5' text-anchor='start' font-weight='normal' fill='#111'>strips 16–17, col 22 (stand it up)</text>
 <text x='1440.0' y='316.0' font-family='DejaVu Sans, Arial, Helvetica, sans-serif' font-size='11.5' text-anchor='start' font-weight='bold' fill='#111'>R4  100 kΩ</text>
-<text x='1600.0' y='316.0' font-family='DejaVu Sans, Arial, Helvetica, sans-serif' font-size='11.5' text-anchor='start' font-weight='normal' fill='#111'>strips 15–17, col 7</text>
+<text x='1600.0' y='316.0' font-family='DejaVu Sans, Arial, Helvetica, sans-serif' font-size='11.5' text-anchor='start' font-weight='normal' fill='#111'>strips 15–17, col 20</text>
 <text x='1440.0' y='334.0' font-family='DejaVu Sans, Arial, Helvetica, sans-serif' font-size='11.5' text-anchor='start' font-weight='bold' fill='#111'>C1  100 nF (A0)</text>
-<text x='1600.0' y='334.0' font-family='DejaVu Sans, Arial, Helvetica, sans-serif' font-size='11.5' text-anchor='start' font-weight='normal' fill='#111'>strips 13–14, col 13 (under the module)</text>
+<text x='1600.0' y='334.0' font-family='DejaVu Sans, Arial, Helvetica, sans-serif' font-size='11.5' text-anchor='start' font-weight='normal' fill='#111'>strips 13–14, col 11</text>
 <text x='1440.0' y='352.0' font-family='DejaVu Sans, Arial, Helvetica, sans-serif' font-size='11.5' text-anchor='start' font-weight='bold' fill='#111'>C3  100 nF (A1)</text>
-<text x='1600.0' y='352.0' font-family='DejaVu Sans, Arial, Helvetica, sans-serif' font-size='11.5' text-anchor='start' font-weight='normal' fill='#111'>strips 12–14, col 17</text>
+<text x='1600.0' y='352.0' font-family='DejaVu Sans, Arial, Helvetica, sans-serif' font-size='11.5' text-anchor='start' font-weight='normal' fill='#111'>strips 12–14, col 9</text>
 <text x='1440.0' y='370.0' font-family='DejaVu Sans, Arial, Helvetica, sans-serif' font-size='11.5' text-anchor='start' font-weight='bold' fill='#111'>C2  100 nF (A3)</text>
-<text x='1600.0' y='370.0' font-family='DejaVu Sans, Arial, Helvetica, sans-serif' font-size='11.5' text-anchor='start' font-weight='normal' fill='#111'>strips 10–14, col 19</text>
+<text x='1600.0' y='370.0' font-family='DejaVu Sans, Arial, Helvetica, sans-serif' font-size='11.5' text-anchor='start' font-weight='normal' fill='#111'>strips 10–14, col 7</text>
 <text x='1440.0' y='388.0' font-family='DejaVu Sans, Arial, Helvetica, sans-serif' font-size='11.5' text-anchor='start' font-weight='bold' fill='#111'>R2  1 kΩ (A3)</text>
-<text x='1600.0' y='388.0' font-family='DejaVu Sans, Arial, Helvetica, sans-serif' font-size='11.5' text-anchor='start' font-weight='normal' fill='#111'>strips 10–16, col 21</text>
+<text x='1600.0' y='388.0' font-family='DejaVu Sans, Arial, Helvetica, sans-serif' font-size='11.5' text-anchor='start' font-weight='normal' fill='#111'>strips 10–16, col 5</text>
 <text x='1440.0' y='406.0' font-family='DejaVu Sans, Arial, Helvetica, sans-serif' font-size='11.5' text-anchor='start' font-weight='bold' fill='#111'>R3  1 kΩ (A1)</text>
-<text x='1600.0' y='406.0' font-family='DejaVu Sans, Arial, Helvetica, sans-serif' font-size='11.5' text-anchor='start' font-weight='normal' fill='#111'>strips 12–15, col 23</text>
+<text x='1600.0' y='406.0' font-family='DejaVu Sans, Arial, Helvetica, sans-serif' font-size='11.5' text-anchor='start' font-weight='normal' fill='#111'>strips 12–15, col 3</text>
 <text x='1440.0' y='424.0' font-family='DejaVu Sans, Arial, Helvetica, sans-serif' font-size='11.5' text-anchor='start' font-weight='bold' fill='#111'>R1  1 kΩ (A0)</text>
-<text x='1600.0' y='424.0' font-family='DejaVu Sans, Arial, Helvetica, sans-serif' font-size='11.5' text-anchor='start' font-weight='normal' fill='#111'>strips 13–17, col 25</text>
+<text x='1600.0' y='424.0' font-family='DejaVu Sans, Arial, Helvetica, sans-serif' font-size='11.5' text-anchor='start' font-weight='normal' fill='#111'>strips 13–17, col 1</text>
 <text x='1440.0' y='442.0' font-family='DejaVu Sans, Arial, Helvetica, sans-serif' font-size='11.5' text-anchor='start' font-weight='bold' fill='#111'>J2  harness</text>
-<text x='1600.0' y='442.0' font-family='DejaVu Sans, Arial, Helvetica, sans-serif' font-size='11.5' text-anchor='start' font-weight='normal' fill='#111'>col 1: strip 15 ground sense, strip 16 sender</text>
+<text x='1600.0' y='442.0' font-family='DejaVu Sans, Arial, Helvetica, sans-serif' font-size='11.5' text-anchor='start' font-weight='normal' fill='#111'>col 26: strip 15 ground sense, strip 16 sender</text>
 <text x='1440.0' y='460.0' font-family='DejaVu Sans, Arial, Helvetica, sans-serif' font-size='11.5' text-anchor='start' font-weight='bold' fill='#111'>J3  (car, later)</text>
 <text x='1600.0' y='460.0' font-family='DejaVu Sans, Arial, Helvetica, sans-serif' font-size='11.5' text-anchor='start' font-weight='normal' fill='#111'>col 25: strip 7 GND, strip 8 5 V</text>
 <text x='1440.0' y='490.0' font-family='DejaVu Sans, Arial, Helvetica, sans-serif' font-size='15' text-anchor='start' font-weight='bold' fill='#111'>Notes</text>
-<text x='1440.0' y='512.0' font-family='DejaVu Sans, Arial, Helvetica, sans-serif' font-size='11.5' text-anchor='start' font-weight='normal' fill='#333'>Module: solder the supplied male headers to both 6-pin rows,</text>
-<text x='1440.0' y='528.0' font-family='DejaVu Sans, Arial, Helvetica, sans-serif' font-size='11.5' text-anchor='start' font-weight='normal' fill='#333'>pins down; it plugs into the sockets with its chip facing up.</text>
-<text x='1440.0' y='544.0' font-family='DejaVu Sans, Arial, Helvetica, sans-serif' font-size='11.5' text-anchor='start' font-weight='normal' fill='#333'>Turn it 90° clockwise from the photo: I²C row to the left.</text>
-<text x='1440.0' y='560.0' font-family='DejaVu Sans, Arial, Helvetica, sans-serif' font-size='11.5' text-anchor='start' font-weight='normal' fill='#333'>The 6 cuts give strips 9–14 an I²C half and an analogue half.</text>
-<text x='1440.0' y='576.0' font-family='DejaVu Sans, Arial, Helvetica, sans-serif' font-size='11.5' text-anchor='start' font-weight='normal' fill='#333'>Capacitors return to A− (the ADC&#x27;s own ground).</text>
-<text x='1440.0' y='592.0' font-family='DejaVu Sans, Arial, Helvetica, sans-serif' font-size='11.5' text-anchor='start' font-weight='normal' fill='#333'>ADDR, ALRT, A+ and A2: nothing else on their half-strips.</text>
-<text x='1440.0' y='608.0' font-family='DejaVu Sans, Arial, Helvetica, sans-serif' font-size='11.5' text-anchor='start' font-weight='normal' fill='#333'>Do not bridge the address jumper on the module&#x27;s back.</text>
-<text x='1440.0' y='624.0' font-family='DejaVu Sans, Arial, Helvetica, sans-serif' font-size='11.5' text-anchor='start' font-weight='normal' fill='#333'>Strips 3, 4, 5 and 8 belong to the display: keep clear.</text>
-<text x='1440.0' y='640.0' font-family='DejaVu Sans, Arial, Helvetica, sans-serif' font-size='11.5' text-anchor='start' font-weight='normal' fill='#333'>Taps beyond each load: 3.3 V enters strip 17 at col 3,</text>
-<text x='1440.0' y='656.0' font-family='DejaVu Sans, Arial, Helvetica, sans-serif' font-size='11.5' text-anchor='start' font-weight='normal' fill='#333'>so R1 (col 25) is past Rp; R2 and R3 are past Rp and R4</text>
-<text x='1440.0' y='672.0' font-family='DejaVu Sans, Arial, Helvetica, sans-serif' font-size='11.5' text-anchor='start' font-weight='normal' fill='#333'>as seen from J2.</text>
-<text x='1440.0' y='688.0' font-family='DejaVu Sans, Arial, Helvetica, sans-serif' font-size='11.5' text-anchor='start' font-weight='normal' fill='#333'>Input protection for the car is not shown yet (WIRING.md).</text>
+<text x='1440.0' y='512.0' font-family='DejaVu Sans, Arial, Helvetica, sans-serif' font-size='11.5' text-anchor='start' font-weight='normal' fill='#333'>Module: upside down, chip towards the board, so its pins</text>
+<text x='1440.0' y='528.0' font-family='DejaVu Sans, Arial, Helvetica, sans-serif' font-size='11.5' text-anchor='start' font-weight='normal' fill='#333'>are mirrored: analogue row (A+ … A−) in the left socket,</text>
+<text x='1440.0' y='544.0' font-family='DejaVu Sans, Arial, Helvetica, sans-serif' font-size='11.5' text-anchor='start' font-weight='normal' fill='#333'>I²C row (VIN … ALRT) in the right, A+ and VIN on strip 9.</text>
+<text x='1440.0' y='560.0' font-family='DejaVu Sans, Arial, Helvetica, sans-serif' font-size='11.5' text-anchor='start' font-weight='normal' fill='#333'>Nothing sits under the module: its parts face the board.</text>
+<text x='1440.0' y='576.0' font-family='DejaVu Sans, Arial, Helvetica, sans-serif' font-size='11.5' text-anchor='start' font-weight='normal' fill='#333'>The 6 cuts give strips 9–14 an analogue half and an I²C half.</text>
+<text x='1440.0' y='592.0' font-family='DejaVu Sans, Arial, Helvetica, sans-serif' font-size='11.5' text-anchor='start' font-weight='normal' fill='#333'>Capacitors return to A− (the ADC&#x27;s own ground).</text>
+<text x='1440.0' y='608.0' font-family='DejaVu Sans, Arial, Helvetica, sans-serif' font-size='11.5' text-anchor='start' font-weight='normal' fill='#333'>ADDR, ALRT, A+ and A2: nothing else on their half-strips.</text>
+<text x='1440.0' y='624.0' font-family='DejaVu Sans, Arial, Helvetica, sans-serif' font-size='11.5' text-anchor='start' font-weight='normal' fill='#333'>Do not bridge the address jumper (module&#x27;s back, now on top).</text>
+<text x='1440.0' y='640.0' font-family='DejaVu Sans, Arial, Helvetica, sans-serif' font-size='11.5' text-anchor='start' font-weight='normal' fill='#333'>Strips 3, 4, 5 and 8 belong to the display: keep clear.</text>
+<text x='1440.0' y='656.0' font-family='DejaVu Sans, Arial, Helvetica, sans-serif' font-size='11.5' text-anchor='start' font-weight='normal' fill='#333'>Taps beyond each load: 3.3 V enters strip 17 at col 24,</text>
+<text x='1440.0' y='672.0' font-family='DejaVu Sans, Arial, Helvetica, sans-serif' font-size='11.5' text-anchor='start' font-weight='normal' fill='#333'>so R1 (col 1) is past Rp (col 22); R2 and R3 are past</text>
+<text x='1440.0' y='688.0' font-family='DejaVu Sans, Arial, Helvetica, sans-serif' font-size='11.5' text-anchor='start' font-weight='normal' fill='#333'>Rp and R4 as seen from J2 (col 26).</text>
+<text x='1440.0' y='704.0' font-family='DejaVu Sans, Arial, Helvetica, sans-serif' font-size='11.5' text-anchor='start' font-weight='normal' fill='#333'>Input protection for the car is not shown yet (WIRING.md).</text>
 <text x='40.0' y='668.8' font-family='DejaVu Sans, Arial, Helvetica, sans-serif' font-size='14' text-anchor='start' font-weight='bold' fill='#a35f00'>Before plugging in the display or the module</text>
 <text x='40.0' y='690.8' font-family='DejaVu Sans, Arial, Helvetica, sans-serif' font-size='11.5' text-anchor='start' font-weight='normal' fill='#333'>1. Check each cut with a meter: no continuity between the left and right halves of strips 9–14.</text>
-<text x='40.0' y='708.8' font-family='DejaVu Sans, Arial, Helvetica, sans-serif' font-size='11.5' text-anchor='start' font-weight='normal' fill='#333'>2. Unpowered: no continuity between strips except the linked groups 6–9L–17 (3.3 V), 7–10L (GND), 1–11L (SCL), 2–12L (SDA).</text>
+<text x='40.0' y='708.8' font-family='DejaVu Sans, Arial, Helvetica, sans-serif' font-size='11.5' text-anchor='start' font-weight='normal' fill='#333'>2. Unpowered: no continuity between strips except the linked groups 6–9R–17 (3.3 V), 7–10R (GND), 1–11R (SCL), 2–12R (SDA), where R is the right-hand half.</text>
 <text x='40.0' y='726.8' font-family='DejaVu Sans, Arial, Helvetica, sans-serif' font-size='11.5' text-anchor='start' font-weight='normal' fill='#333'>3. Offer the board up to the case: strip 1 must meet the socket labelled 18, strip 8 the socket labelled 5V.</text>
-<text x='40.0' y='744.8' font-family='DejaVu Sans, Arial, Helvetica, sans-serif' font-size='11.5' text-anchor='start' font-weight='normal' fill='#333'>4. Display only, no module: strip 6 ≈ 3.3 V, strip 8 ≈ 5 V. Then fit the module (I²C row on the left) and power up.</text>
+<text x='40.0' y='744.8' font-family='DejaVu Sans, Arial, Helvetica, sans-serif' font-size='11.5' text-anchor='start' font-weight='normal' fill='#333'>4. Display only, no module: strip 6 ≈ 3.3 V, strip 8 ≈ 5 V. Then fit the module chip side down (A+ top left, VIN top right) and power up.</text>
 <text x='40.0' y='772.8' font-family='DejaVu Sans, Arial, Helvetica, sans-serif' font-size='11.5' text-anchor='start' font-weight='normal' fill='#333'>J1: male header into the display&#x27;s sockets; clip or screw the board to the case so it cannot work loose. J2: latching 2.54 mm connector (for example Molex KK 254).</text>
 <text x='40.0' y='790.8' font-family='DejaVu Sans, Arial, Helvetica, sans-serif' font-size='11.5' text-anchor='start' font-weight='normal' fill='#a35f00'>J3 (dashed): car only, to feed the display from a 12 V → 5 V converter through its 5V socket. Check the board&#x27;s power path first (WIRING.md), and never connect USB at the same time.</text>
 </svg>
