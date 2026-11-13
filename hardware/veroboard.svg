@@ -668,8 +668,27 @@
 <text x='1144.0' y='388.0' font-family='DejaVu Sans, Arial, Helvetica, sans-serif' font-size='12' text-anchor='middle' font-weight='bold' fill='#a35f00' stroke='#fff' stroke-width='3' stroke-linejoin='round' paint-order='stroke'>J3</text>
 <text x='1200.8' y='340.0' font-family='DejaVu Sans, Arial, Helvetica, sans-serif' font-size='11.5' text-anchor='start' font-weight='bold' fill='#a35f00'>J3 GND (car, later)</text>
 <text x='1200.8' y='366.0' font-family='DejaVu Sans, Arial, Helvetica, sans-serif' font-size='11.5' text-anchor='start' font-weight='bold' fill='#a35f00'>J3 5 V in (car, later)</text>
-<text x='1200.8' y='548.0' font-family='DejaVu Sans, Arial, Helvetica, sans-serif' font-size='11.5' text-anchor='start' font-weight='bold' fill='#7d3c98'>J2 ground sense (harness)</text>
-<text x='1200.8' y='574.0' font-family='DejaVu Sans, Arial, Helvetica, sans-serif' font-size='11.5' text-anchor='start' font-weight='bold' fill='#111'>J2 sender (harness)</text>
+<polyline points='1180,570 1300,570 1300,608' fill='none' stroke='#111' stroke-width='3' stroke-linejoin='round' stroke-linecap='round'/>
+<text x='1206.0' y='565.0' font-family='DejaVu Sans, Arial, Helvetica, sans-serif' font-size='10.5' text-anchor='start' font-weight='bold' fill='#111'>① signal wire</text>
+<polyline points='1180,544 1392,544 1392,710' fill='none' stroke='#7d3c98' stroke-width='2.6' stroke-dasharray='8,5' stroke-linejoin='round' stroke-linecap='round'/>
+<text x='1206.0' y='539.0' font-family='DejaVu Sans, Arial, Helvetica, sans-serif' font-size='10.5' text-anchor='start' font-weight='bold' fill='#7d3c98'>③ sense wire (no current)</text>
+<circle cx='1300.0' cy='614.0' r='5.5' fill='#fff' stroke='#111' stroke-width='2.2'/>
+<line x1='1300.0' y1='619.5' x2='1300.0' y2='630.0' stroke='#111' stroke-width='2.2' stroke-linecap='round'/>
+<rect x='1290.0' y='630.0' width='20.0' height='46.0' rx='1' fill='#fff' stroke='#111' stroke-width='2.2'/>
+<line x1='1300.0' y1='676.0' x2='1300.0' y2='710.0' stroke='#111' stroke-width='2.2' stroke-linecap='round'/>
+<rect x='1262.0' y='710.0' width='146.0' height='10.0' rx='2' fill='#9aa5b1' stroke='#566573' stroke-width='1.5'/>
+<text x='1284.0' y='650.0' font-family='DejaVu Sans, Arial, Helvetica, sans-serif' font-size='12' text-anchor='end' font-weight='bold' fill='#111'>sender</text>
+<text x='1284.0' y='665.0' font-family='DejaVu Sans, Arial, Helvetica, sans-serif' font-size='10.5' text-anchor='end' font-weight='normal' fill='#555'>(or test resistor)</text>
+<text x='1316.0' y='618.0' font-family='DejaVu Sans, Arial, Helvetica, sans-serif' font-size='10.5' text-anchor='start' font-weight='normal' fill='#555'>terminal</text>
+<text x='1335.0' y='735.0' font-family='DejaVu Sans, Arial, Helvetica, sans-serif' font-size='10.5' text-anchor='middle' font-weight='normal' fill='#555'>body / tank</text>
+<circle cx='1392.0' cy='715.0' r='4' fill='#7d3c98' stroke='none' stroke-width='1'/>
+<polyline points='1272,720 1272,748' fill='none' stroke='#222' stroke-width='3' stroke-linecap='round'/>
+<line x1='1261.0' y1='748.0' x2='1283.0' y2='748.0' stroke='#222' stroke-width='2.4' stroke-linecap='round'/>
+<line x1='1265.0' y1='753.0' x2='1279.0' y2='753.0' stroke='#222' stroke-width='2.4' stroke-linecap='round'/>
+<line x1='1269.0' y1='758.0' x2='1275.0' y2='758.0' stroke='#222' stroke-width='2.4' stroke-linecap='round'/>
+<text x='1292.0' y='756.0' font-family='DejaVu Sans, Arial, Helvetica, sans-serif' font-size='11' text-anchor='start' font-weight='bold' fill='#111'>② bond wire → GND</text>
+<text x='1292.0' y='771.0' font-family='DejaVu Sans, Arial, Helvetica, sans-serif' font-size='10.5' text-anchor='start' font-weight='normal' fill='#555'>bench: a wire to any free hole on strip 7</text>
+<text x='1292.0' y='785.0' font-family='DejaVu Sans, Arial, Helvetica, sans-serif' font-size='10.5' text-anchor='start' font-weight='normal' fill='#555'>car: tank bond strap to chassis</text>
 <text x='1440.0' y='112.0' font-family='DejaVu Sans, Arial, Helvetica, sans-serif' font-size='15' text-anchor='start' font-weight='bold' fill='#111'>Placement (strip, column)</text>
 <text x='1440.0' y='136.0' font-family='DejaVu Sans, Arial, Helvetica, sans-serif' font-size='11.5' text-anchor='start' font-weight='bold' fill='#111'>J1 display header</text>
 <text x='1600.0' y='136.0' font-family='DejaVu Sans, Arial, Helvetica, sans-serif' font-size='11.5' text-anchor='start' font-weight='normal' fill='#111'>strips 1–8, col 2: 18, 17, 16, RX, TX, 3.3V, G, 5V</text>
@@ -722,7 +741,9 @@
 <text x='1440.0' y='656.0' font-family='DejaVu Sans, Arial, Helvetica, sans-serif' font-size='11.5' text-anchor='start' font-weight='normal' fill='#333'>Taps beyond each load: 3.3 V enters strip 17 at col 24,</text>
 <text x='1440.0' y='672.0' font-family='DejaVu Sans, Arial, Helvetica, sans-serif' font-size='11.5' text-anchor='start' font-weight='normal' fill='#333'>so R1 (col 1) is past Rp (col 22); R2 and R3 are past</text>
 <text x='1440.0' y='688.0' font-family='DejaVu Sans, Arial, Helvetica, sans-serif' font-size='11.5' text-anchor='start' font-weight='normal' fill='#333'>Rp and R4 as seen from J2 (col 26).</text>
-<text x='1440.0' y='704.0' font-family='DejaVu Sans, Arial, Helvetica, sans-serif' font-size='11.5' text-anchor='start' font-weight='normal' fill='#333'>Input protection for the car is not shown yet (WIRING.md).</text>
+<text x='1440.0' y='704.0' font-family='DejaVu Sans, Arial, Helvetica, sans-serif' font-size='11.5' text-anchor='start' font-weight='normal' fill='#333'>Sender: ① signal to J2 strip 16, ③ sense to the sender</text>
+<text x='1440.0' y='720.0' font-family='DejaVu Sans, Arial, Helvetica, sans-serif' font-size='11.5' text-anchor='start' font-weight='normal' fill='#333'>body, ② body to GND. Without ③ the gauge shows GROUND FAULT.</text>
+<text x='1440.0' y='736.0' font-family='DejaVu Sans, Arial, Helvetica, sans-serif' font-size='11.5' text-anchor='start' font-weight='normal' fill='#333'>Input protection for the car is not shown yet (WIRING.md).</text>
 <text x='40.0' y='668.8' font-family='DejaVu Sans, Arial, Helvetica, sans-serif' font-size='14' text-anchor='start' font-weight='bold' fill='#a35f00'>Before plugging in the display or the module</text>
 <text x='40.0' y='690.8' font-family='DejaVu Sans, Arial, Helvetica, sans-serif' font-size='11.5' text-anchor='start' font-weight='normal' fill='#333'>1. Check each cut with a meter: no continuity between the left and right halves of strips 9–14.</text>
 <text x='40.0' y='708.8' font-family='DejaVu Sans, Arial, Helvetica, sans-serif' font-size='11.5' text-anchor='start' font-weight='normal' fill='#333'>2. Unpowered: no continuity between strips except the linked groups 6–9R–17 (3.3 V), 7–10R (GND), 1–11R (SCL), 2–12R (SDA), where R is the right-hand half.</text>
