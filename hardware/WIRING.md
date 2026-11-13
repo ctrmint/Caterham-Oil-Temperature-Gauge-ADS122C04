@@ -33,7 +33,7 @@ The firmware uses I²C port 0; the Waveshare BSP already uses port 1 (GPIO14/15)
 | **A0** | 1 kΩ → top of Rp (`3V3_EXC`), Kelvin tap at the resistor lead | Pull-up high side |
 | **A3** | 1 kΩ → `SENDER_NODE` (bottom of Rp, signal wire to sender spade) | Sender high side |
 | **A1** | 1 kΩ → **dedicated ground-sense wire** to the tank bond stud, with a **100 kΩ bias resistor** from 3V3 to the sense wire at the gauge-end connector | Sender low side; the bias makes a broken wire read 3.3 V |
-| A2 | Spare | e.g. a second sender later. The veroboard layout ties it to 3V3 (see Veroboard build) |
+| A2 | Spare | e.g. a second sender later |
 
 The 100 kΩ bias goes on the **wire side** of A1's 1 kΩ resistor. When the wire is connected, its 33 µA flows only through the sense wire (a fraction of an ohm), so it adds no measurable error. If the wire breaks, it pulls A1 to 3.3 V and the firmware reports `GROUND FAULT`. Without it, the 100 nF capacitor would hold a broken sense wire near 0 V and the gauge would silently fall back to a ground-referenced measurement.
 
@@ -122,14 +122,20 @@ The 1 kΩ / 100 nF networks limit current and filter noise, but they are **not**
 
 ## Veroboard build
 
-[veroboard.svg](veroboard.svg) lays the same circuit out on 0.1 in stripboard with **no track cuts**: 20 strips × 24 holes, about 61 × 51 mm. Every strip is one connection along its whole length.
+[veroboard.svg](veroboard.svg) lays the circuit out on 0.1 in stripboard, 17 strips × 26 holes (about 66 × 43 mm). It's for the Adafruit ADS1115 STEMMA QT module, which has two 6-pin rows 0.5 in apart.
 
-- **Display header (J1):** an 8-way male header across strips 1–8 plugs straight into the display's sockets. Strip 1 is `18` and strip 8 is `5V`, matching the case label. Offer the board up to the case and check strip 1 meets the socket labelled 18 before soldering anything else.
+- **Display header (J1):** an 8-way male header across strips 1–8 plugs into the display's sockets. Strip 1 is `18` and strip 8 is `5V`, in the case label's order. Offer the board up to the case and check strip 1 meets the socket labelled 18 before soldering anything else.
+- **Module:**
+  - Solder the supplied male headers to both rows, pins down. It plugs into two 6-way female sockets (columns 10 and 15) and lifts out.
+  - Turn it 90° clockwise from its printed text, so the I²C row (VIN GND SCL SDA ADDR ALRT) faces the display header.
+- **Track cuts:** six, all at column 12 on strips 9–14, between the two sockets. They're the only cuts; every other strip is one connection end to end. Without them, each strip would join a pin in one row to the pin opposite it (A3 to GND, A1 to SDA, and so on).
+- **Module pins:**
+  - The three capacitors return to A−, the ADC's own ground (GND through a ferrite on the module).
+  - A+ (the ADC's supply), A2, ADDR and ALRT connect to nothing else.
+  - The module defaults to address 0x48. Don't bridge the address jumper on its back.
 - **Strips that belong to the display:** strips 3, 4, 5 (GPIO16, RX, TX) and 8 (5 V, live whenever USB is connected) carry nothing else.
-- **ADS1115 module:** its pins sit across strips 9–18, and six wire links join its VDD, GND, SCL, SDA and ADDR strips to the header strips.
-- **A2 is tied to 3.3 V.** TI's guidance allows unused inputs at VDD. That lets its strip double as the 3.3 V strip for Rp, R1 and R4.
-- **Measurement taps:** 3.3 V enters strip 17 at the right-hand end, so R1's A0 tap sits beyond Rp, outside the excitation current. R2 and R3 likewise sit away from the harness connector (J2).
+- **Measurement taps:** 3.3 V enters strip 17 at column 3, so R1's A0 tap (column 25) is past Rp, outside the excitation current. R2 and R3 likewise sit past Rp and R4 as seen from the harness connector (J2).
 - **J3 (optional, car only):** feeds the display from a 12 V → 5 V automotive converter through the 5V socket. Check the board's power path first, and never connect USB at the same time.
-- **Not on this layout yet:** the input protection described above. It must be added before the board goes in the car.
+- **Not on this layout yet:** the input protection described above. It must be added before the board goes in the car. Its clamps should go to the board's 3.3 V and GND, not to A+ or A−.
 
-![Veroboard layout: display header on strips 1–8, ADS1115 module on strips 9–18, filters, pull-up, bias resistor and harness connector, with no track cuts](veroboard.svg)
+![Veroboard layout: display header on strips 1-8, the ADS1115 module on two 6-way sockets with six cuts between them, filters, pull-up, bias resistor and harness connector](veroboard.svg)
