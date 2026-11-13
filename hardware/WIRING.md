@@ -122,7 +122,7 @@ The 1 kΩ / 100 nF networks limit current and filter noise, but they are **not**
 
 ## Veroboard build
 
-[veroboard.svg](veroboard.svg) lays the circuit out on 0.1 in stripboard, 17 strips × 26 holes (about 66 × 43 mm). It's for the Adafruit ADS1115 STEMMA QT module, which has two 6-pin rows 0.5 in apart.
+[veroboard.svg](veroboard.svg) lays the circuit out on 0.1 in stripboard, 17 strips × 26 holes (about 66 × 43 mm). It's for the Adafruit ADS1115 STEMMA QT module, which has two 6-pin rows 0.5 in apart ([photo](ads1115-module.jpg)).
 
 - **Display header (J1):** an 8-way male header across strips 1–8 plugs into the display's sockets. Strip 1 is `18` and strip 8 is `5V`, in the case label's order. Offer the board up to the case and check strip 1 meets the socket labelled 18 before soldering anything else.
 - **Module:**
