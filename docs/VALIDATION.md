@@ -21,29 +21,32 @@ Run: `./scripts/test_host.sh`.
 | 2026-11-12 | Graduated colours, 30–130 °C dial, fainter ghost digits, centred Classic reading (#27): demo build, °C, both layouts | **Pass.** The digits, status text and Classic's arc blend from dark blue through light blue, green, yellow and amber to red as the reading rises, and back as it falls. They are at least amber while `HIGH TEMPERATURE` is shown and red while `CRITICAL TEMP` is shown. Each lit segment keeps the colour of its place on the dial, and the labels read 30…130. The ghost `8888` is faint, a 3-digit reading is centred in Classic, and dark blue is legible. | Observation by the user (#27). Firmware from `main` at `1a48813`. |
 | 2026-11-12 | The same (#27): demo build, °F | **Pass.** `OIL °F` / `°F` and labels 86…266. The colours change at the same temperatures as in °C (red from about 248). `HIGH TEMPERATURE` comes on at about 239 and `CRITICAL TEMP` at about 266, and the serial CSV still logs `temp_c` in °C. | Observation by the user (#27). Firmware from `main` at `1a48813`. |
 | 2026-11-12 | Sweep three-digit reading (#29): demo build, °C | **Pass.** Three seven-segment digits, larger than the earlier four, centred on the screen over a faint ghost `888`. Nothing touches the scale labels, the unit, `OIL TEMP` or the status line. The user's verdict: "the revised 7 segment looks brilliant". | Observation by the user (#29). Firmware from branch `sweep-three-digits` at `b330466`, the same code that #29 merged to `main`. |
+| 2026-11-13 | Normal uncalibrated build on the veroboard with the ADS1115 module fitted, nothing on J2 | **Pass.** The ADS1115 is found (no `ADC UNAVAILABLE`), the unit reads `ohm`, and the unconnected sense input shows `GROUND FAULT`: R4 pulls it to 3.3 V, as designed. | Observation by the user. Normal build, `main/` as at `b330466`. |
+| 2026-11-13 | First reading with the bench sensor (a Bosch 0 280 130 026, about 2.1 kΩ from the user's meter readings: 0.60 V across Rp, 2.69 V across the sensor) | **Fail (board wiring), fixed on 2026-11-14.** The gauge showed about 102–108 Ω **with no fault**. The A3 tap's 1 kΩ wasn't on the SENDER strip, so A3 floated at about 0.6 V. With the tap reconnected the gauge read about 2,353 Ω, and the reading followed the warmth of a hand. An open tap gives a plausible wrong reading with no fault (#39). | Observation and meter readings by the user. |
+| 2026-11-14 | Sender open, sender short and ground-sense wire disconnected: normal build, bench sensor | **Pass.** The status line read `SENSOR OPEN` (with `CHECK SENSOR AND WIRING`), `SENSOR SHORT` and `GROUND FAULT` respectively. | Observation by the user. |
+| 2026-11-14 | Local bench build with the Bosch 0 280 130 026 **datasheet** curve, never committed and approved by the user for bench use only (#37); bench sensor at room temperature | **Indicative only.** It reads 19 °C in a room the user estimates at 17–20 °C. This checks the display path and that this sensor sits close to Bosch's curve. It is **not a calibration**, and it says nothing about the car's sender (#42). | Observation by the user. `main/` as at `b330466` plus a local `CalibrationData.h`. |
 
 ## Tests that require physical hardware (not yet carried out)
 
 | Test | Expected outcome | Record |
 |---|---|---|
-| ADS1115 detected at 0x48 on GPIO17/18 | Driver initialises; no I²C errors over a 1-hour soak | log |
-| Bench known 120 Ω | Vs ≈0.671 V, Vp ≈2.629 V and R ≈120 Ω within measured system error | Vs, Vp and R |
-| Bench 44 Ω / 470 Ω / 1,158 Ω | Correct resistance tracking | % error |
-| 10 Ω added in the bond wire only | Resistance reading unchanged (ground-sense cancellation works) | R before/after |
-| Ground point about 50 mV below board GND (1 Ω bond plus an AA cell through 27 Ω; WIRING.md bench step 8) | No fault; `ground_offset_v` about −0.05 V; resistance within about 0.2 % of the normal reading. With 12 Ω instead of 27 Ω (about −0.11 V), `GROUND FAULT`. | CSV log |
-| Sender open | `SENSOR OPEN`, no °C | photo/log |
-| Sender short | `SENSOR SHORT`, no °C | photo/log |
-| Ground-sense wire disconnected | `GROUND FAULT`, no °C | photo/log |
-| Sender hotter than top calibration point (bench resistor) | `ABOVE CAL RANGE` and `>max` in red at once (the colour of the table maximum); the Red alarm latches after the debounce | photo/log |
-| Alarm latched, then sender colder than table (decade box) | `<min`, alarm colour kept for `kBelowRangeHoldMs` (10 s), never an in-table number, then clears | photo/log |
-| ADS1115 unplugged / I²C lines shorted | `ADC UNAVAILABLE`, no °C, firmware recovers when reconnected (the no-ADS1115 half passed on 2026-11-11; recovery and shorted lines are still owed) | photo/log |
-| 3.3 V rail outside 2.9–3.5 V (bench supply) | `SUPPLY FAULT`, no °C | photo/log |
-| Uncalibrated build | No degrees display, explicit calibration warning | screenshot |
+| ADS1115 detected at 0x48 on GPIO17/18 | Driver initialises; no I²C errors over a 1-hour soak (#38) | log |
+| Bench known 120 Ω | Vs ≈0.671 V, Vp ≈2.629 V and R ≈120 Ω within measured system error (#36) | Vs, Vp and R |
+| Bench 44 Ω / 470 Ω / 1,158 Ω | Correct resistance tracking (#36) | % error |
+| 10 Ω added in the bond wire only | Resistance reading unchanged (ground-sense cancellation works) (#38) | R before/after |
+| Ground point about 50 mV below board GND (1 Ω bond plus an AA cell through 27 Ω; WIRING.md bench step 8) | No fault; `ground_offset_v` about −0.05 V; resistance within about 0.2 % of the normal reading. With 12 Ω instead of 27 Ω (about −0.11 V), `GROUND FAULT`. (#38) | CSV log |
+| Sender hotter than top calibration point (bench resistor) | `ABOVE CAL RANGE` and `>max` in red at once (the colour of the table maximum); the Red alarm latches after the debounce (#37, #25) | photo/log |
+| Alarm latched, then sender colder than table (decade box) | `<min`, alarm colour kept for `kBelowRangeHoldMs` (10 s), never an in-table number, then clears (#10) | photo/log |
+| ADS1115 unplugged / I²C lines shorted | `ADC UNAVAILABLE`, no °C, firmware recovers when reconnected (the no-ADS1115 half passed on 2026-11-11; recovery and shorted lines are still owed; #38) | photo/log |
+| 3.3 V rail outside 2.9–3.5 V (bench supply) | `SUPPLY FAULT`, no °C (#38) | photo/log |
+| Uncalibrated build | No degrees display, explicit calibration warning (#38) | screenshot |
 | Normal uncalibrated build, both layouts, with an ADS1115 and a test resistor (1–4.7 kΩ) fitted | A 4-digit ohms reading fits, `CALIBRATION REQUIRED` and `TEMPERATURE NOT VERIFIED` are shown, and the unit reads `ohm` (#24). The no-ADS1115 half passed on 2026-11-12. | photos |
-| Calibrated bath at multiple points | Readings within verified error band | calibration report |
-| Alarm debounce and reset hysteresis | No oscillation at threshold | event log |
-| Engine cranking and alternator operation | No resets, surge damage or false readings | powered test |
-| Vibration/thermal | Wiring/enclosure hold, stable function | inspection |
+| A3 or A1 tap disconnected at the module | A fault, never a reading. **Currently fails:** on 2026-11-13 an open A3 tap gave a plausible 102–108 Ω with no fault (#39) | photo/log |
+| Sender colder than about 10 °C (resistance over 5 kΩ) | A reading or `BELOW CAL RANGE`, not a fault. **Currently** `SENSOR OPEN`, because `kOpenResistanceOhms` is 5 kΩ (#40) | photo/log |
+| Calibrated bath at multiple points | Readings within verified error band (#42) | calibration report |
+| Alarm debounce and reset hysteresis | No oscillation at threshold (#37) | event log |
+| Engine cranking and alternator operation | No resets, surge damage or false readings (#43) | powered test |
+| Vibration/thermal | Wiring/enclosure hold, stable function (#43) | inspection |
 | Sweep three-digit reading, demo build, °F | As in °C (passed on 2026-11-12): three centred digits over a faint `888`, with nothing touching the scale labels (86…266), the unit, `OIL TEMP` or the status line. The `<` / `>` sign beside the digits needs a reading beyond the table (#25). | photos |
 
 Until those tests are documented and passed, the project remains a **bench development prototype**.
