@@ -30,6 +30,18 @@ idf.py build
 
 This command requires an explicit acknowledgement, validates monotonic decrease and generates a compile-time table. The firmware **does not extrapolate** outside the measured table. Temperatures outside the measured range display `BELOW CAL RANGE` or `ABOVE CAL RANGE` (with `<min` / `>max` in the selected display unit) and no falsely precise number. `BELOW CAL RANGE` is not a fault and shows no number; if an alarm is already latched when the reading goes below the table (a probable wiring fault), the alarm colour is kept for `kBelowRangeHoldMs` (10 s) and then clears. **Above-range readings are treated as critical**, so calibrate up to at least the red threshold (130 °C by default) or the gauge will show red whenever the oil is hotter than your top point; the firmware logs a warning at boot if the table stops short. The demo setting uses its own **synthetic** table, independent of real sensor calibration.
 
+## Recording points and the sender graph
+
+Record each stable reading as a row of `docs/sender-measurements.csv`: `temperature_c`, `resistance_ohms`, `date`, `reference` (the temperature reference used) and `note`. The first two columns are the ones `scripts/build_calibration.py` reads.
+
+[`docs/sender-curve.svg`](sender-curve.svg) plots these points against:
+- the reference curves in `docs/sender-reference-curves.csv`. These are datasheet values for comparison only, in a format the calibration tool rejects;
+- the bench observations in `docs/sender-observations.csv`;
+- the fault and alarm thresholds in `main/Config.h`;
+- the calibration table, once one is verified.
+
+After changing any of these inputs, run `python3 scripts/plot_sender_curve.py` and commit the regenerated graph in the same change. The host tests fail while the committed graph is stale. To check without writing, run `python3 scripts/plot_sender_curve.py --check`.
+
 ## Expected tolerances
 
 With the ADS1115 the converter itself is rarely the limit (125 µV steps, about 0.02 °C near 130 °C). The ratiometric, ground-sensed measurement cancels rail voltage, ADC gain error and ground offset. What remains: the tolerance and temperature drift of the 470 Ω pull-up, contact resistance at the sender spade and tank stud, the temperature gradient within the tank, sensor self-heating (a few mW) and curve approximation between your calibration points. Do not claim a precision class without testing across the entire installed system. A match at room temperature does not prove 120°C accuracy.

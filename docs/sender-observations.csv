@@ -1,0 +1,5 @@
+# Bench observations, drawn as a highlight along a reference curve in docs/sender-curve.svg.
+# Indicative only, not calibration data. Regenerate the graph after any change
+# (python3 scripts/plot_sender_curve.py).
+curve,from_c,to_c,date,label
+bosch_0280130026_ohms,19,89,2026-11-14,Bench sender stamped 6811 agreed with a reference probe along this curve (indicative; #42)
