@@ -1,0 +1,30 @@
+# REFERENCE CURVES ONLY - NOT CALIBRATION DATA.
+# Never feed this file to scripts/build_calibration.py or copy it into main/CalibrationData.h
+# (CLAUDE.md invariant 1). Its columns are deliberately not the calibration tool's schema.
+# Plotted into docs/sender-curve.svg by scripts/plot_sender_curve.py: regenerate after any change.
+#
+# bosch_0280130026_ohms: Bosch Motorsport "Temperature Sensor NTC M12" data sheet, order number
+#   0 280 130 026, characteristic table (2009 and 2018 editions agree). -40 to 130 C.
+# tt6811_03_ohms: Caerbont (ex-Smiths) TT6811-03, pellet "Natural 205 / Euro Temp" curve, from the
+#   Howard Instruments temperature-transmitter cross-reference sheet. Published 40 to 150 C only.
+temperature_c,bosch_0280130026_ohms,tt6811_03_ohms
+-40,45313,
+-30,26114,
+-20,15462,
+-10,9397,
+0,5896,
+10,3792,
+20,2500,
+30,1707,
+40,1175,1158
+50,834,758
+60,596,510
+70,436,351.5
+80,323,247.5
+90,243,177.75
+100,187,130.15
+110,144,96.95
+120,113,73.5
+130,89,56.5
+140,,44
+150,,34.7

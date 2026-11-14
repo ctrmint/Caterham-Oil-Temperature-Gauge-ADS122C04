@@ -1,0 +1,6 @@
+# Measured sender points: one row per stable reading (docs/CALIBRATION.md). Plotted in
+# docs/sender-curve.svg; regenerate the graph after adding rows (python3 scripts/plot_sender_curve.py).
+# temperature_c and resistance_ohms are the columns scripts/build_calibration.py reads.
+# resistance_ohms: from a DMM with the gauge disconnected, or from the gauge once Rp is measured (#36).
+# reference: the temperature reference used (a calibrated probe, per docs/CALIBRATION.md).
+temperature_c,resistance_ohms,date,reference,note
