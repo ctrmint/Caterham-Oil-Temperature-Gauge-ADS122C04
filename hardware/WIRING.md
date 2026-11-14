@@ -136,6 +136,10 @@ The 1 kΩ / 100 nF networks limit current and filter noise, but they are **not**
   - The module defaults to address 0x48. Don't bridge the address jumper on its back, which faces up once it's fitted.
 - **Strips that belong to the display:** strips 3, 4, 5 (GPIO16, RX, TX) and 8 (5 V, live whenever USB is connected) carry nothing else.
 - **Measurement taps:** 3.3 V enters strip 17 at column 24, so R1's A0 tap (column 1) is past Rp (column 22), outside the excitation current. R2 and R3 likewise sit past Rp and R4 as seen from the harness connector (J2, column 26).
+- **Sender wiring:** three wires, drawn beside J2.
+  1. The signal wire runs from J2 strip 16 to the sender terminal.
+  2. A bond runs from the sender body to GND. On the bench it's a wire to any free hole on strip 7; in the car it's the tank bond strap to chassis, with the gauge's ground also to chassis.
+  3. The ground-sense wire runs from J2 strip 15 to the sender body. Without it, the 100 kΩ bias pulls A1 to 3.3 V and the gauge shows `GROUND FAULT`.
 - **J3 (optional, car only):** feeds the display from a 12 V → 5 V automotive converter through the 5V socket. Check the board's power path first, and never connect USB at the same time.
 - **Not on this layout yet:** the input protection described above. It must be added before the board goes in the car. Its clamps should go to the board's 3.3 V and GND, not to A+ or A−.
 
