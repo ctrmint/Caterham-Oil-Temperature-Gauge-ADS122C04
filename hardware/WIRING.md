@@ -101,7 +101,7 @@ The 1 kΩ / 100 nF networks limit current and filter noise, but they are **not**
 **The signal wire also connects straight to the 3.3 V rail through Rp**, bypassing the 1 kΩ resistors where those clamps sit. If the signal wire chafed onto +12 V, about (12 − 3.3) V / 470 Ω ≈ 18 mA would flow into the board's 3.3 V rail, which feeds the ESP32-S3 and the display. Another ≈ 8 mA would flow through A3's 1 kΩ into the ADS1115's input diodes. The board's normal load would probably absorb it, but nothing guarantees that. The protection must therefore also cover `SENDER_NODE` itself, for example with a clamp or TVS on the signal wire at the harness entry. Do not add a series resistor between `SENDER_NODE` and the harness: it would be measured as part of the sender.
 
 **Where it's built:**
-- **The interface PCB** ([pcb/README.md](pcb/README.md)) engineers this as PR #34 proposed:
+- **The surface-mount-v1 PCB** ([pcb/surface-mount-v1](pcb/surface-mount-v1/README.md)) engineers this as PR #34 proposed:
   - each harness tap is two stages: 1 kΩ (1206), then a BAV99 clamp to 3.3 V and GND (1N4148-class, nanoamp leakage), then the ADC's 1 kΩ;
   - an SMBJ15A TVS sits on the signal wire;
   - the 100 kΩ bias stays on the harness side.
@@ -154,9 +154,9 @@ The 1 kΩ / 100 nF networks limit current and filter noise, but they are **not**
 
 ![Veroboard layout: display header on strips 1-8, the ADS1115 module upside down on two 6-way sockets with six cuts between them, filters, pull-up, bias resistor and harness connector](veroboard.svg)
 
-## Interface PCB
+## surface-mount-v1 PCB
 
-[pcb/](pcb/README.md) is the production version of this circuit: one 39 × 23 mm two-layer board for 1–5 units, designed in KiCad 10 and rebuilt by `scripts/pcb_build.sh`.
+[surface-mount-v1](pcb/surface-mount-v1/README.md) is the production version of this circuit: one 39 × 23 mm two-layer board for 1–5 units. Its surface-mount parts are fitted by the board house. It was designed in KiCad 10, and its folder's `build.sh` rebuilds it.
 - **J1:** plugs straight into the display's 8-way socket.
 - **Retention:** the case's two bottom screws hold the board on.
 - **J2:** a 4-way Molex Micro-Fit harness connector with the pins 1 sender, 2 GND, 3 5 V in, 4 ground sense.
@@ -169,6 +169,6 @@ The 1 kΩ / 100 nF networks limit current and filter noise, but they are **not**
 - the input protection above is fitted;
 - a 5 V feed arrives through a reverse-blocking diode.
 
-[pcb/README.md](pcb/README.md) has the design decisions, the fit check to do before ordering, ordering and assembly, and the bench checks. [pcb/BOM.md](pcb/BOM.md) lists every part with its manufacturer part number, including the mating housing, terminals and crimp tool.
+[Its README](pcb/surface-mount-v1/README.md) has the design decisions, the fit check to do before ordering, ordering and assembly, and the bench checks. [Its parts list](pcb/surface-mount-v1/BOM.md) gives every part with its manufacturer part number, including the mating housing, terminals and crimp tool.
 
-![Interface PCB, 3D render](pcb/renders/iso.png)
+![surface-mount-v1 PCB, 3D render](pcb/surface-mount-v1/renders/iso.png)
