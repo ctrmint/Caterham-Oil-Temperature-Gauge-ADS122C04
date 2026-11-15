@@ -1,0 +1,35 @@
+References,Qty,Value,Package,Manufacturer,MPN,Digi-Key UK,Description
+J1,1,Power 12 V,Micro-Fit 1x3 right-angle,Molex,43650-0300,WM1861-ND,"Micro-Fit 3.0 1x3 right-angle header, tin, snap-in peg; power"
+J2,1,Sender harness,Micro-Fit 1x3 right-angle,Molex,43650-0300,WM1861-ND,"Micro-Fit 3.0 1x3 right-angle header, tin, snap-in peg; sender harness"
+J3,1,Display cable,Micro-Fit 2x4 right-angle,Molex,43045-0800,WM1816-ND,"Micro-Fit 3.0 2x4 right-angle header, tin, board lock; display cable"
+U1,1,Adafruit ADS1115,"Module, 2 x 6 pins",Adafruit,1085,,"ADS1115 breakout (STEMMA QT). Solder its header pins into the board, with 2.5 mm M2.5 nylon standoffs at its four holes"
+U2,1,TSR 1-2450,SIP-3,Traco Power,TSR 1-2450,1951-2747-ND,"12 V -> 5 V 1 A switching regulator, SIP-3; 6.5-36 V in"
+F1,1,MF-R075,"Radial disc, 5.1 mm",Bourns,MF-R075,,"Resettable fuse 0.75 A hold (0.47 A at 60 C), 60 V, 5.1 mm leads"
+R1,1,470R 0.1% 25ppm,"Axial 0207, 10.16 mm",Vishay,MBB0207VD4700BC100,56-MBB0207VD4700BC100CT-ND,"Rp: 470R 0.1% 25 ppm/K, 0207, 0.4 W; measure it before fitting (kPullUpOhms)"
+R2 R4 R6,3,1k,"Axial 0207, 7.62 mm",Vishay,MBB02070C1001FCT00,BC3566CT-ND,"1k 1% 0.6 W metal film, 0207"
+R3,1,1k 0.6W,"Axial 0207, 10.16 mm",Vishay,MBB02070C1001FCT00,BC3566CT-ND,"1k 1% 0.6 W metal film, 0207 (about 0.11 W if a harness wire reaches 14.4 V)"
+R5,1,1k 0.6W,"Axial 0207, 7.62 mm",Vishay,MBB02070C1001FCT00,BC3566CT-ND,"1k 1% 0.6 W metal film, 0207 (about 0.11 W if a harness wire reaches 14.4 V)"
+R7,1,100k,"Axial 0207, 7.62 mm",Vishay,MBB02070C1003FCT00,BC3571CT-ND,100k 1% 0.6 W; break-detect bias on the sense wire
+R8 R9,2,3k3,"Axial 0207, 7.62 mm",Vishay,MBB02070C3301FCT00,BC3743CT-ND,3k3 1% 0.6 W; I2C pull-up for the cable (the module adds 10k)
+C1 C2 C3 C4 C7,5,100n,"Radial, 5 mm",TDK,FG26C0G1H104JNT06,445-173396-1-ND,"100n 5% 50 V C0G, 5 mm leads"
+C5,1,220u 50V,"Radial 10 mm dia, 5 mm",Rubycon,50ZLH220MEFC10X16,,"220u 50 V 105 C low-ESR electrolytic, 10 x 16 mm"
+C6,1,100u 16V,"Radial 5 mm dia, 2 mm",Rubycon,16ZLH100MEFC5X11,,"100u 16 V 105 C low-ESR electrolytic, 5 x 11 mm"
+D1 D2 D4,3,1N4148,DO-35,Vishay,1N4148-TAP,1N4148-TAPCT-ND,"Small-signal diode, DO-35, 25 nA max leakage at 20 V, 25 C"
+D3,1,1N4148,"DO-35, 12.7 mm",Vishay,1N4148-TAP,1N4148-TAPCT-ND,"Small-signal diode, DO-35, 25 nA max leakage at 20 V, 25 C"
+D5,1,P6KE18A,DO-15,Vishay,P6KE18A-E3/54,P6KE18A-E3/54GICT-ND,"TVS 600 W, 15.3 V standoff, unidirectional, DO-15; signal wire"
+D6,1,1.5KE27A,DO-201,Littelfuse,1.5KE27A,1.5KE27ALFCT-ND,"TVS 1500 W, 23.1 V standoff, unidirectional, DO-201; stays off at a 24 V jump start"
+D7,1,1N5822,DO-201AD,Vishay,1N5822-E3/54,,"Schottky 40 V 3 A, DO-201AD; reverse-polarity protection"
+D8,1,1N5817,DO-41,Vishay,1N5817-E3/54,,"Schottky 20 V 1 A, DO-41; stops USB-C feeding back into U2"
+TP1 TP2,2,GND,Test loop,Keystone,5001,36-5001-ND,"Test point loop, black, 1.0 mm hole"
+TP3,1,+3V3,Test loop,Keystone,5001,36-5001-ND,"Test point loop, black, 1.0 mm hole"
+TP4,1,5V,Test loop,Keystone,5001,36-5001-ND,"Test point loop, black, 1.0 mm hole"
+,1,Power plug housing (mates with J1),,Molex,43645-0300,WM1846-ND,Micro-Fit 3.0 1x3 receptacle
+,1,Harness plug housing (mates with J2),,Molex,43645-0300,WM1846-ND,Micro-Fit 3.0 1x3 receptacle
+,1,Display-cable plug housing (mates with J3),,Molex,43025-0800,WM1786-ND,Micro-Fit 3.0 2x4 receptacle
+,14 (+spares),Crimp terminals,,Molex,43030-0007,WM1837-ND,"Tin, loose piece, for all three housings; 20-24 AWG (0.5-0.2 mm2), insulation 1.42-1.85 mm"
+,1,Crimp tool,,Molex,63819-0000,,Or a Micro-Fit ratchet crimper (as surface-mount-v1)
+,1,Display end of the cable,,Samtec,TSW-108-07-G-S,,"8-way 2.54 mm gold pin header, wired by hand (see README) and pushed into the display case socket"
+,30 cm or less,Display cable,,,"4 twisted pairs, 24 AWG stranded",,"Pairs: 5V+GND, 3.3V+GND, SDA+GND, SCL+GND. Keep it short: it carries the I2C bus"
+,4,Module standoffs,,,"M2.5 x 2.5 mm nylon spacer, M2.5 nylon screws and nuts",,Hold the ADS1115 module down in a vibrating car
+,4,Board mounting,,,M3 screws into the box's bosses,,See box/through-hole-v1-box.svg
+,as needed,Harness and power wire,,,0.5 mm2 (20 AWG),,"Signal and ground-sense twisted (or 2-core screened, screen to J2 pin 3 only); fused ignition 12 V to J1"

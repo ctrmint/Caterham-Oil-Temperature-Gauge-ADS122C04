@@ -49,6 +49,11 @@ Run: `./scripts/test_host.sh`.
 | surface-mount-v1 PCB readings, known resistors through J2 (WIRING.md bench steps 4–10) | The same results as the rows above, with the board in place of the module and veroboard (#48) | Vs, Vp, R and CSV log |
 | surface-mount-v1 PCB fault test: 14.4 V through a 50 mA limit, on J2 pin 1 and then pin 4 | No damage; a fault is shown, never a plausible reading; correct readings afterwards; Rp re-measured (#48) | photo/log, Rp |
 | surface-mount-v1 PCB retention | The board stays seated on the case socket under a shake test, held by the two screws and spacers (#48) | inspection |
+| through-hole-v1 power, current-limited bench supply ([hardware/pcb/through-hole-v1](../hardware/pcb/through-hole-v1/README.md)) | About 4.7 V on TP4 at 12 V in; reversed polarity draws no damaging current; D6 stays off at 24 V; the input voltage where 5 V drops out is recorded, expected about 7 V (#51) | measurements |
+| through-hole-v1 readings, known resistors through J2 (WIRING.md bench steps 4–10), over the real display cable | The same results as the rows above (#51) | Vs, Vp, R and CSV log |
+| through-hole-v1 fault test: 14.4 V through a 50 mA limit, on J2 pin 1 and then pin 4 | No damage; a fault is shown, never a plausible reading; correct readings afterwards; Rp re-measured (#51) | photo/log, Rp |
+| through-hole-v1 I²C over the display cable | No ADC errors over a one-hour soak with the cable as fitted, 30 cm or less (#51) | CSV log |
+| through-hole-v1 box | The board, cable openings and module standoffs fit; the board and module stay put under a shake test (#51) | inspection |
 | Engine cranking and alternator operation | No resets, surge damage or false readings (#43) | powered test |
 | Vibration/thermal | Wiring/enclosure hold, stable function (#43) | inspection |
 | Sweep three-digit reading, demo build, °F | As in °C (passed on 2026-11-12): three centred digits over a faint `888`, with nothing touching the scale labels (86…266), the unit, `OIL TEMP` or the status line. The `<` / `>` sign beside the digits needs a reading beyond the table (#25). | photos |

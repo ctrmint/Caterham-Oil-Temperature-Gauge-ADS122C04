@@ -101,6 +101,12 @@ The 1 kΩ / 100 nF networks limit current and filter noise, but they are **not**
 **The signal wire also connects straight to the 3.3 V rail through Rp**, bypassing the 1 kΩ resistors where those clamps sit. If the signal wire chafed onto +12 V, about (12 − 3.3) V / 470 Ω ≈ 18 mA would flow into the board's 3.3 V rail, which feeds the ESP32-S3 and the display. Another ≈ 8 mA would flow through A3's 1 kΩ into the ADS1115's input diodes. The board's normal load would probably absorb it, but nothing guarantees that. The protection must therefore also cover `SENDER_NODE` itself, for example with a clamp or TVS on the signal wire at the harness entry. Do not add a series resistor between `SENDER_NODE` and the harness: it would be measured as part of the sender.
 
 **Where it's built:**
+- **The through-hole-v1 PCB** ([pcb/through-hole-v1](pcb/through-hole-v1/README.md)) builds the same protection in through-hole parts:
+  - each tap is 1 kΩ, then a pair of 1N4148 clamps to 3.3 V and GND, then the ADC's 1 kΩ;
+  - a P6KE18A TVS sits on the signal wire;
+  - the bias stays on the harness side.
+
+  It too still has to pass its bench fault tests and the in-car tests.
 - **The surface-mount-v1 PCB** ([pcb/surface-mount-v1](pcb/surface-mount-v1/README.md)) engineers this as PR #34 proposed:
   - each harness tap is two stages: 1 kΩ (1206), then a BAV99 clamp to 3.3 V and GND (1N4148-class, nanoamp leakage), then the ADC's 1 kΩ;
   - an SMBJ15A TVS sits on the signal wire;
@@ -172,3 +178,15 @@ The 1 kΩ / 100 nF networks limit current and filter noise, but they are **not**
 [Its README](pcb/surface-mount-v1/README.md) has the design decisions, the fit check to do before ordering, ordering and assembly, and the bench checks. [Its parts list](pcb/surface-mount-v1/BOM.md) gives every part with its manufacturer part number, including the mating housing, terminals and crimp tool.
 
 ![surface-mount-v1 PCB, 3D render](pcb/surface-mount-v1/renders/iso.png)
+
+## through-hole-v1 PCB
+
+[through-hole-v1](pcb/through-hole-v1/README.md) is the same circuit on a 92 × 64 mm board with one copper layer and only through-hole parts, for hand soldering.
+- **It sits in its own 3D-printed box**, and a cable joins it to the display (J3, Micro-Fit 2×4, with a ground beside each signal).
+- **It takes the car's fused 12 V** on J1 and makes the display's 5 V with a Traco TSR 1-2450. On the way in are a resettable fuse, a 1.5KE27A TVS and a reverse-polarity diode.
+- **The ADC is the Adafruit ADS1115 module**, soldered in and held by standoffs. The firmware is unchanged.
+- **J2 carries the sender harness:** 1 sender, 2 ground sense, 3 screen.
+
+[Its README](pcb/through-hole-v1/README.md) covers the cable, the box, ordering, assembly and the checks owed. [Its parts list](pcb/through-hole-v1/BOM.md) gives every part with its manufacturer part number and Digi-Key UK code.
+
+![through-hole-v1 PCB, 3D render](pcb/through-hole-v1/renders/iso.png)

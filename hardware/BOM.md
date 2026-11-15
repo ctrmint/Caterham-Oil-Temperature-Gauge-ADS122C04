@@ -29,3 +29,12 @@ No longer needed compared with the original internal-ADC circuit: the 10 kΩ / 1
 The production build is a single PCB, [surface-mount-v1](pcb/surface-mount-v1/README.md). [Its parts list](pcb/surface-mount-v1/BOM.md) gives its parts and connectors, with manufacturer and LCSC part numbers; its README covers ordering, assembly and the checks. It combines everything above except the display, the sender, the harness, the converter, the enclosure and the test equipment. It has a bare ADS1115 instead of the module, a 1206 Rp (Vishay TNPW1206470RBEEA), and the input protection: SMBJ15A, BAV99 clamps and 1206 first-stage resistors.
 
 The protection still has to pass its bench fault tests and qualification in the car; do not assume it makes the circuit load-dump proof.
+
+### through-hole-v1 PCB
+
+[through-hole-v1](pcb/through-hole-v1/README.md) is the hand-soldered alternative:
+- one copper layer, through-hole parts only;
+- its own box and display cable;
+- a 12 V input with its own regulator, so no separate converter.
+
+[Its parts list](pcb/through-hole-v1/BOM.md) covers the board, the plugs and terminals, the display cable, the module standoffs and the box screws. It uses the Adafruit ADS1115 module (soldered in, never socketed), a 0.1 % 0207 Rp (Vishay MBB0207VD4700BC100), 1N4148 clamps and a P6KE18A on the signal wire.
