@@ -19,7 +19,7 @@ The sender is measured by an external **ADS1115 16-bit I²C ADC**, not by the ES
 | 7 | GPIO18 | **I²C SCL** to ADS1115 SCL (on the `-G` model this pin may be used by GNSS; that model is not supported) |
 | 8 | GPIO16 | Not used. The firmware polls the ADS1115 for each result and turns its ALERT/RDY output off, so leave this pin and the module's ALRT unconnected. |
 
-The firmware uses I²C port 0; the Waveshare BSP already uses port 1 (GPIO14/15) for the touch panel and on-board peripherals. The recommended Adafruit ADS1115 module already has 10 kΩ pull-ups on SDA/SCL to its VDD, so no extra pull-ups are needed at 3.3 V. Keep the I²C leads short (ideally < 20 cm) and mount the ADS1115 next to the Waveshare board; **run the analogue sender wires to the tank, never the I²C bus**. The exception is through-hole-v1, which sits in its own box: its display cable may be up to 30 cm, with a ground beside each signal and stronger 3.3 kΩ pull-ups on the board (see [its README](pcb/through-hole-v1/README.md)).
+The firmware uses I²C port 0; the Waveshare BSP already uses port 1 (GPIO14/15) for the touch panel and on-board peripherals. The recommended Adafruit ADS1115 module already has 10 kΩ pull-ups on SDA/SCL to its VDD, so no extra pull-ups are needed at 3.3 V. Keep the I²C leads short (ideally < 20 cm) and mount the ADS1115 next to the Waveshare board; **run the analogue sender wires to the tank, never the I²C bus**. The exceptions are through-hole-v1 and through-hole-usb-v1, which sit in their own boxes: their display cables may be up to 30 cm, with a ground beside each signal and stronger 3.3 kΩ pull-ups on the board (see [through-hole-v1's README](pcb/through-hole-v1/README.md)).
 
 ## ADS1115 connections
 
@@ -47,7 +47,9 @@ Run three conductors from the gauge to the tank:
 2. **Ground-sense wire**: ADS1115 A1 (via 1 kΩ) to the tank bond stud. It carries essentially no current, so it reads the true tank potential.
 3. **Bond strap / supply ground**: tank to chassis, and the gauge supply ground to chassis. This carries the excitation current (up to about 7 mA) plus whatever else flows in the chassis.
 
-Twist the signal and ground-sense wires together (or use a 2-core screened cable, screen grounded at the gauge end only) and route them away from ignition leads, the alternator and the exhaust.
+When the display runs from USB-C (through-hole-usb-v1), nothing guarantees the gauge's ground reaches the chassis: a power bank floats, and a USB charger's ground arrives through its own 12 V socket. The third conductor is then a **dedicated return wire** from the board's GND to the tank bond stud, run with the other two. It carries the excitation current; the ground-sense wire still measures the tank, so its resistance doesn't matter. If it breaks while the supply floats, the tank floats up to 3.3 V and the gauge shows `GROUND FAULT`.
+
+Twist the signal and ground-sense wires (and the return wire, where there is one) together (or use a screened cable, screen grounded at the gauge end only) and route them away from ignition leads, the alternator and the exhaust.
 
 ## Engineering calculations
 
@@ -107,6 +109,7 @@ The 1 kΩ / 100 nF networks limit current and filter noise, but they are **not**
   - the bias stays on the harness side.
 
   It too still has to pass its bench fault tests and the in-car tests.
+- **The through-hole-usb-v1 PCB** ([pcb/through-hole-usb-v1](pcb/through-hole-usb-v1/README.md)) has the same through-hole protection, with the same tests owed.
 - **The surface-mount-v1 PCB** ([pcb/surface-mount-v1](pcb/surface-mount-v1/README.md)) engineers this as PR #34 proposed:
   - each harness tap is two stages: 1 kΩ (1206), then a BAV99 clamp to 3.3 V and GND (1N4148-class, nanoamp leakage), then the ADC's 1 kΩ;
   - an SMBJ15A TVS sits on the signal wire;
@@ -190,3 +193,14 @@ The 1 kΩ / 100 nF networks limit current and filter noise, but they are **not**
 [Its README](pcb/through-hole-v1/README.md) covers the cable, the box, ordering, assembly and the checks owed. [Its parts list](pcb/through-hole-v1/BOM.md) gives every part with its manufacturer part number and Digi-Key UK code.
 
 ![through-hole-v1 PCB, 3D render](pcb/through-hole-v1/renders/iso.png)
+
+## through-hole-usb-v1 PCB
+
+[through-hole-usb-v1](pcb/through-hole-usb-v1/README.md) is through-hole-v1 without its 12 V input, on a 65 × 62 mm single-sided board.
+- **The display runs from its own USB-C socket.** The board takes the display's 3.3 V over the cable (J3, Micro-Fit 2×3: 3.3 V, SCL and SDA, each above a ground). There's no 5 V on the cable and no regulator.
+- **J2 carries the harness and its grounds:** 1 sender, 2 ground sense, 3 the dedicated return to the tank bond stud (see Wires to the tank, above), 4 the screen or a second return.
+- **The front end, the module and the protection** are through-hole-v1's. The firmware is unchanged.
+
+[Its README](pcb/through-hole-usb-v1/README.md) covers the grounds, the cable, the box, ordering, assembly and the checks owed. [Its parts list](pcb/through-hole-usb-v1/BOM.md) gives every part with its manufacturer part number.
+
+![through-hole-usb-v1 PCB, 3D render](pcb/through-hole-usb-v1/renders/iso.png)
