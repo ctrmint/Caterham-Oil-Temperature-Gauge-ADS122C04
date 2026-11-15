@@ -1,6 +1,6 @@
 # Hardware BOM
 
-Required electronics for one prototype; prices and quantities are deliberately not guessed. See [WIRING.md](WIRING.md) for the circuit.
+The table below is for the bench prototype, on a breadboard or the veroboard; prices and quantities are deliberately not guessed. See [WIRING.md](WIRING.md) for the circuit. For the car, build one of the two PCBs at the end of this page instead: each has its own complete parts list.
 
 | Qty | Item | Notes |
 |---|---|---|
@@ -26,7 +26,7 @@ No longer needed compared with the original internal-ADC circuit: the 10 kΩ / 1
 
 ### surface-mount-v1 PCB
 
-The production build is a single PCB, [surface-mount-v1](pcb/surface-mount-v1/README.md). [Its parts list](pcb/surface-mount-v1/BOM.md) gives its parts and connectors, with manufacturer and LCSC part numbers; its README covers ordering, assembly and the checks. It combines everything above except the display, the sender, the harness, the converter, the enclosure and the test equipment. It has a bare ADS1115 instead of the module, a 1206 Rp (Vishay TNPW1206470RBEEA), and the input protection: SMBJ15A, BAV99 clamps and 1206 first-stage resistors.
+There are two PCB builds for the car. The smaller is [surface-mount-v1](pcb/surface-mount-v1/README.md), which plugs onto the display. [Its parts list](pcb/surface-mount-v1/BOM.md) gives its parts and connectors, with manufacturer and LCSC part numbers; its README covers ordering, assembly and the checks. It combines everything above except the display, the sender, the harness, the converter, the enclosure and the test equipment. It has a bare ADS1115 instead of the module, a 1206 Rp (Vishay TNPW1206470RBEEA), and the input protection: SMBJ15A, BAV99 clamps and 1206 first-stage resistors.
 
 The protection still has to pass its bench fault tests and qualification in the car; do not assume it makes the circuit load-dump proof.
 

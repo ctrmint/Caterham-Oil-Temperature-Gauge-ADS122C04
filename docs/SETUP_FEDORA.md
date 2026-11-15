@@ -1,6 +1,6 @@
 # Building and flashing on Fedora
 
-The project uses **native ESP-IDF 5.5.5**, **LVGL 9.4.x**, and Waveshare's managed `esp32_s3_touch_amoled_1_75` **3.x BSP**. This avoids pin assumptions and incompatible display-driver forks. External components are downloaded during your **first** `idf.py build`; this ZIP does **not** contain those third-party libraries.
+The project uses **native ESP-IDF 5.5.5**, **LVGL 9.4.x**, and Waveshare's managed `esp32_s3_touch_amoled_1_75` **3.x BSP**. This avoids pin assumptions and incompatible display-driver forks. External components are downloaded during your **first** `idf.py build`; the repository does **not** contain those third-party libraries.
 
 ## Install IDF
 
@@ -19,13 +19,13 @@ If distribution package names differ, use Espressif's current Fedora/Linux setup
 ## Build the project
 
 ```bash
-cd ~/Downloads/caterham-oil-temp-gauge-waveshare # or where you extracted the ZIP
+cd Caterham-Oil-Temperature-Gauge   # your clone of this repository
 . "$HOME/esp/esp-idf/export.sh"
 idf.py set-target esp32s3
 idf.py build
 ```
 
-Do not ignore compilation warnings/errors. Compare component-manager resolved versions against the manifest and Waveshare's example if the BSP changes. For immutable dependency builds, commit the generated `dependencies.lock` after a successful hardware build.
+Do not ignore compilation warnings/errors. The component versions are pinned in the committed `dependencies.lock`, so a build should leave it unchanged. If the BSP is ever updated, compare the resolved versions against the manifest and Waveshare's example, and commit the new `dependencies.lock` only after a successful hardware test.
 
 ## Connect the board and flash
 
@@ -57,7 +57,7 @@ sudo dnf install -y gcc-c++ python3
 ./scripts/test_host.sh
 ```
 
-These tests require no ESP-IDF. The host tests pass and the firmware compiles cleanly with ESP-IDF 5.5.5. Flashing and display bring-up have been verified on a 31261 board (see [VALIDATION.md](VALIDATION.md)), but **ADS1115 communication remains unverified** until the ADS1115 is wired up on the bench.
+These tests require no ESP-IDF. The host tests pass and the firmware compiles cleanly with ESP-IDF 5.5.5. Flashing, display bring-up, ADS1115 communication on the veroboard and the sensor fault states have been verified on a 31261 board (see [VALIDATION.md](VALIDATION.md)). Resistance accuracy against known resistors and the one-hour I²C soak are still owed.
 
 ## Common faults
 
@@ -67,7 +67,8 @@ These tests require no ESP-IDF. The host tests pass and the firmware compiles cl
 | Chip not detected | Data USB cable, correct port, BOOT/recovery instructions |
 | ADC unavailable | ADS1115 not found at 0x48: SDA/SCL swapped (GPIO17 = SDA, GPIO18 = SCL), ADDR not tied to GND, missing 3.3 V/GND to the module, I²C leads too long |
 | Supply fault | ADS1115 A0 not connected to the top of the pull-up, 3.3 V rail out of range |
-| Sensor open | Sender spade disconnected, broken signal wire, actual high resistance outside design range |
+| Sensor open | Sender spade disconnected, broken signal wire, actual high resistance outside design range (a sender colder than about 10 °C reads over 5 kΩ and currently shows this, #40) |
+| Plausible but wrong resistance, no fault (for example about 100 Ω from a sender that measures about 2 kΩ) | The A3 or A1 tap is open: a lifted socket contact, a cracked joint or a missing link. The firmware can't detect this yet (#39). Check each 1 kΩ tap for continuity |
 | Ground fault | Ground-sense wire disconnected (its 100 kΩ bias pulls it to 3.3 V) or landed on chassis instead of the tank stud; poor tank bond; tank more than 0.1 V below or 0.2 V above gauge GND. The CSV log's last column shows the measured offset |
 | Temperature stays `CALIBRATION REQUIRED` | Deliberate safe default; measure the sender and generate calibrated header |
 | Gauge shows unrealistic temp | Wrong calibration table, thermal coupling, ADC saturation, ground offsets, wrong board firmware |

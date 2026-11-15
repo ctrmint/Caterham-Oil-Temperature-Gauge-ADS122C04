@@ -19,7 +19,7 @@ The sender is measured by an external **ADS1115 16-bit I²C ADC**, not by the ES
 | 7 | GPIO18 | **I²C SCL** to ADS1115 SCL (on the `-G` model this pin may be used by GNSS; that model is not supported) |
 | 8 | GPIO16 | Not used. The firmware polls the ADS1115 for each result and turns its ALERT/RDY output off, so leave this pin and the module's ALRT unconnected. |
 
-The firmware uses I²C port 0; the Waveshare BSP already uses port 1 (GPIO14/15) for the touch panel and on-board peripherals. The recommended Adafruit ADS1115 module already has 10 kΩ pull-ups on SDA/SCL to its VDD, so no extra pull-ups are needed at 3.3 V. Keep the I²C leads short (ideally < 20 cm) and mount the ADS1115 next to the Waveshare board; **run the analogue sender wires to the tank, never the I²C bus**.
+The firmware uses I²C port 0; the Waveshare BSP already uses port 1 (GPIO14/15) for the touch panel and on-board peripherals. The recommended Adafruit ADS1115 module already has 10 kΩ pull-ups on SDA/SCL to its VDD, so no extra pull-ups are needed at 3.3 V. Keep the I²C leads short (ideally < 20 cm) and mount the ADS1115 next to the Waveshare board; **run the analogue sender wires to the tank, never the I²C bus**. The exception is through-hole-v1, which sits in its own box: its display cable may be up to 30 cm, with a ground beside each signal and stronger 3.3 kΩ pull-ups on the board (see [its README](pcb/through-hole-v1/README.md)).
 
 ## ADS1115 connections
 
@@ -155,8 +155,8 @@ The 1 kΩ / 100 nF networks limit current and filter noise, but they are **not**
   1. The signal wire runs from J2 strip 16 to the sender terminal.
   2. A bond runs from the sender body to GND. On the bench it's a wire to any free hole on strip 7; in the car it's the tank bond strap to chassis, with the gauge's ground also to chassis.
   3. The ground-sense wire runs from J2 strip 15 to the sender body. Without it, the 100 kΩ bias pulls A1 to 3.3 V and the gauge shows `GROUND FAULT`.
-- **J3 (optional, car only):** feeds the display from a 12 V → 5 V automotive converter through the 5V socket. Check the board's power path first, and never connect USB at the same time.
-- **Not on this layout yet:** the input protection described above. It must be added before the board goes in the car. Its clamps should go to the board's 3.3 V and GND, not to A+ or A−.
+- **J3 (optional):** feeds the display from an external 5 V supply through the 5V socket, instead of USB. Check the board's power path first, and never connect USB at the same time.
+- **No input protection:** the veroboard stays a bench rig. For the car, use one of the PCBs below.
 
 ![Veroboard layout: display header on strips 1-8, the ADS1115 module upside down on two 6-way sockets with six cuts between them, filters, pull-up, bias resistor and harness connector](veroboard.svg)
 

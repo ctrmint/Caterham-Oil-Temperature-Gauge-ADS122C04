@@ -4,19 +4,35 @@
 
 An independent **oil-temperature gauge** for the Caterham 420R dry-sump tank's resistive temperature sender (potentially Caterham part **71167**). No ECU wiring and no factory gauge modifications. An **ADS1115 16-bit I²C ADC** measures the voltage across the 470 Ω pull-up and across the sender (using a dedicated ground-sense wire to the tank), so the reading is independent of the 3.3 V rail and of ground offsets. The Waveshare board handles display, fault reporting and alarm presentation.
 
-**Status: engineering prototype.** Host unit tests pass and the firmware compiles without warnings under ESP-IDF 5.5.5 (normal and demo builds; versions pinned in `dependencies.lock`). On hardware it has only been through a first boot: on 2026-11-11 the normal build booted on a Waveshare 31261, the display rendered, and with no ADS1115 fitted it showed `ADC UNAVAILABLE` and no temperature (see [docs/VALIDATION.md](docs/VALIDATION.md)). The ADS1115, the measurement circuit, the sender and calibration have **not** yet been verified on hardware. The firmware ships **without** a validated sender temperature curve, so it **shows ohms, not °C**, until you explicitly install measured calibration points. It is **not** a primary engine-protection instrument.
+**Status: bench prototype.** Host unit tests pass and the firmware compiles without warnings under ESP-IDF 5.5.5 (normal and demo builds; versions pinned in `dependencies.lock`). On the bench, so far ([docs/VALIDATION.md](docs/VALIDATION.md)):
+- The firmware runs on a Waveshare 31261, and both display layouts pass in the demo build.
+- On the veroboard the ADS1115 is found, and the gauge reads a bench sender (stamped 6811) in ohms, following the warmth of a hand.
+- `SENSOR OPEN`, `SENSOR SHORT` and `GROUND FAULT` each show when the fault is made.
+- A local build with a published sender curve, never committed, agreed with a reference probe up to 89 °C. That is an indication, not a calibration.
+
+Still owed: the resistance accuracy against known resistors, the measured Rp, a sender calibration up to 130 °C, both interface PCBs (designed, not yet built) and every in-car test. The firmware ships **without** a validated sender temperature curve, so it **shows ohms, not °C**, until you explicitly install measured calibration points. It is **not** a primary engine-protection instrument.
 
 ## Quick start
 
 1. Read [hardware/BOM.md](hardware/BOM.md), [hardware/WIRING.md](hardware/WIRING.md), and [docs/SAFETY.md](docs/SAFETY.md) before wiring to the car.
-2. On a **bench** (not in the vehicle) wire the ADS1115 to the H2 expansion header (I²C on GPIO17/18), then the 470 Ω pull-up, the three 1 kΩ / 100 nF input filters and a known test resistor in place of the sender; check all voltages with a meter before connecting the PCB.
+2. On a **bench** (not in the vehicle) build the circuit on a breadboard ([hardware/breadboard.svg](hardware/breadboard.svg)) or the veroboard ([hardware/veroboard.svg](hardware/veroboard.svg)): the ADS1115 module on the display's H2 header (I²C on GPIO17/18), the 470 Ω pull-up, the three 1 kΩ / 100 nF input filters, and a known test resistor in place of the sender. Check all voltages with a meter before connecting the display board. Neither build has input protection, so neither goes in the car.
 3. Install **ESP-IDF 5.5.5** on Fedora as described in [docs/SETUP_FEDORA.md](docs/SETUP_FEDORA.md).
 4. `idf.py set-target esp32s3 && idf.py build`, then flash through the board's `/dev/serial/by-id/usb-Espressif_*` port, never a bare `/dev/ttyACM0`, which can be another USB device: `idf.py -p "$(ls /dev/serial/by-id/usb-Espressif_*)" flash monitor` (see [Connect the board and flash](docs/SETUP_FEDORA.md#connect-the-board-and-flash)).
 5. Boot with an **uncalibrated** sensor and confirm the display shows resistance and `CALIBRATION REQUIRED`; simulate open and short faults on the bench.
 6. Independently characterise the exact sender, generate `main/CalibrationData.h`, rebuild, and verify °C against a reference thermometer. See [docs/CALIBRATION.md](docs/CALIBRATION.md).
-7. Only consider vehicle mounting after power-conditioning, grounding, thermal, EMI and installation checks.
+7. For the car, build one of the two interface PCBs (below) and pass its bench checks. Then do the power, grounding, thermal, EMI and installation checks in [docs/INSTALLATION.md](docs/INSTALLATION.md).
 
-`./scripts/test_host.sh` runs the host-based conversion and calibration tests without any ESP32 hardware. GitHub Actions ([CI workflow](.github/workflows/ci.yml)) runs them, plus the normal and demo firmware builds, on every pull request and every push to `main`. `idf.py menuconfig` → **Caterham oil temperature gauge** → **Display synthetic sensor readings** runs a clearly marked BENCH DEMO; it must remain **off** for a real vehicle.
+`./scripts/test_host.sh` runs the host tests without any ESP32 hardware: the conversion, alarm and display logic, the calibration tool, the sender graph and both PCB designs' checks. GitHub Actions ([CI workflow](.github/workflows/ci.yml)) runs them, plus the normal and demo firmware builds, on every pull request and every push to `main`. `idf.py menuconfig` → **Caterham oil temperature gauge** → **Display synthetic sensor readings** runs a clearly marked BENCH DEMO; it must remain **off** for a real vehicle.
+
+## Interface hardware
+
+| Build | What it is | Power | Status |
+|---|---|---|---|
+| Breadboard or veroboard ([hardware/WIRING.md](hardware/WIRING.md)) | Adafruit ADS1115 module and the measurement circuit, wired to the display's header | USB, on the bench | Bench-tested on the veroboard (2026-11-13/14). No input protection: **bench only** |
+| [surface-mount-v1](hardware/pcb/surface-mount-v1/README.md) | 39 × 23 mm two-layer board that plugs into the display case's socket. Surface-mount parts, fitted by the board house | 5 V on its harness connector, from a separate automotive 12 V → 5 V converter | Designed, not yet built (#48) |
+| [through-hole-v1](hardware/pcb/through-hole-v1/README.md) | 92 × 64 mm single-sided board, hand-soldered, in its own 3D-printed box, joined to the display by a cable of 30 cm or less | Fused, ignition-switched 12 V, through its own fuse, TVS, reverse-polarity diode and 5 V regulator | Designed, not yet built (#51) |
+
+Both PCBs have the same measurement and the same input protection: each harness tap is 1 kΩ, a clamp pair to 3.3 V and GND, then the filter's 1 kΩ, and a TVS sits on the signal wire. The firmware is the same for every build; set `kPullUpOhms` in `main/Config.h` to your measured Rp. Each PCB's folder has its parts list (with connectors and mating parts), renders, Gerbers and the checks to do before and after building it.
 
 ## Display
 
@@ -73,17 +89,22 @@ Beyond the calibration table the reading shows `<min` or `>max` (for example `<2
 | ADC | **ADS1115** 16-bit I²C ADC at 0x48, ±4.096 V range; SDA GPIO17 (H2-6), SCL GPIO18 (H2-7); ALERT/RDY not used (GPIO16 / H2-8 left open) |
 | Measurement | Differential: Vp = A0 − A3 across the pull-up, Vs = A3 − A1 across the sender; `Rs = Rp × Vs / Vp` (ratiometric, cancels rail and ground offset) |
 | Sender interface | 470 Ω 0.1 % pull-up to 3.3 V; signal wire to the spade plus a **dedicated ground-sense wire** to the tank bond stud |
-| Input noise | 1 kΩ series + 100 nF filter on A0, A1, A3; protection stage required for vehicle use |
+| Input noise | 1 kΩ series + 100 nF filter on A0, A1, A3 |
+| Input protection | On both PCBs: clamp pairs on the signal and ground-sense taps, and a TVS on the signal wire. Designed, not yet bench-tested or qualified in the car. The breadboard and veroboard have none |
+| Interface hardware | Two PCB options for the car: surface-mount-v1 (plugs onto the display) and through-hole-v1 (its own box, cabled to the display); see [hardware/pcb](hardware/pcb/) |
+| Power | USB on the bench. In the car: 5 V from a separate automotive converter (surface-mount-v1), or the car's fused 12 V into through-hole-v1's own regulator. Never 12 V to the display |
 | Isolation | No connection to MBE ECU / existing instruments |
 | Radio | Not used. The internal ADC2 is no longer needed, so Wi-Fi/BLE could be added later |
 | Temperature calibration | Explicit sender measurements, no assumed Caterham curve |
-| Safety | Fault detection, fail-closed calibration, external overvoltage protection required |
+| Safety | Fault detection, fail-closed calibration, no extrapolation; input protection on the PCBs, still to be tested |
 
 ## Important known limitations
 
 * The **sender's resistance-versus-temperature curve is not verified**. The listed 1,158–44 Ω range is the 40 °C and 140 °C points of the likely factory sender's published curve (Caerbont TT6811-03, #42). It is not a calibration of the fitted sender. A bench sender stamped 6811 didn't follow that curve: up to 89 °C it tracked the Bosch 0 280 130 026 curve (2.5 kΩ at 20 °C) instead. [docs/sender-curve.svg](docs/sender-curve.svg) plots both curves against the firmware's thresholds.
 * The ADS1115 cancels ground offset only while each input stays between its GND and VDD. Bond the gauge supply ground close to the tank bond and keep the offset near 0 V; a 100 kΩ bias resistor makes a broken ground-sense wire show as `GROUND FAULT`. Extremely cold high-resistance readings may be outside the calibrated range. Readings over 5 kΩ, from a sender colder than about 10 °C, currently show `SENSOR OPEN` (#40).
-* Loose chassis grounds, alternator noise, load dumps and coolant/oil leaks are **vehicle integration hazards**. The I²C bus must stay short and inside the gauge enclosure.
+* Loose chassis grounds, alternator noise, load dumps and coolant/oil leaks are **vehicle integration hazards**. The I²C bus must stay short and never runs to the tank. On surface-mount-v1 it stays on the display; through-hole-v1's display cable must be 30 cm or less, and its one-hour I²C soak test is still owed (#51).
+* An open A3 or A1 tap (a cracked joint or a lifted socket contact) gives a plausible but wrong resistance with no fault (#39). Both PCBs solder every tap, and a firmware check is proposed in #39.
+* Neither PCB has been built yet. Their input protection is designed but untested, so don't assume it survives a load dump. through-hole-v1 needs about 7 V at its input to hold 5 V, so the display may reset while the engine cranks (#43).
 * The board and its exposed contacts need an enclosure rated for the chosen location. A dashboard instrument must not obscure any legally required indicators or the driver's view.
 * Calibrate up to at least the red threshold. Readings hotter than the top calibration point show `ABOVE CAL RANGE` and are treated as **critical** (red), because the real temperature is unknown.
 * Alarm levels (60/115/130 °C) are **illustrative configurable defaults**, not Caterham- or engine-approved limits. Review with engine builder/vehicle documentation before deployment.
