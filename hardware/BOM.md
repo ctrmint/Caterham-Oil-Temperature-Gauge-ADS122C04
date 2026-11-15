@@ -24,6 +24,8 @@ No longer needed compared with the original internal-ADC circuit: the 10 kΩ / 1
 
 **Avoid mounting a breadboard in a vehicle.** The finished interface should use soldered components or a professionally assembled PCB, strain relief and appropriately selected protection. All connected ground potentials must be checked before applying power. Do not power the product from USB and the vehicle at the same time without verifying the board's USB/VBUS power path.
 
-### Possible future PCB
+### Interface PCB
 
-The ADS1115 (as a bare chip), pull-up, input filters and protection can be combined into one small PCB fitted behind the gauge, with a locking connector for the sender and ground-sense wires. A custom automotive-tested analogue front end would be preferable for long-term operation. The exact protection diodes and supply converter should be selected after measuring possible fault/transient environments and reviewing board schematics; do not assume an unqualified generic 3.3 V TVS makes the circuit load-dump proof.
+The production build is a single PCB: [pcb/BOM.md](pcb/BOM.md) lists its parts and connectors, with manufacturer and LCSC part numbers, and [pcb/README.md](pcb/README.md) covers ordering, assembly and the checks. It combines everything above except the display, the sender, the harness, the converter, the enclosure and the test equipment. It has a bare ADS1115 instead of the module, a 1206 Rp (Vishay TNPW1206470RBEEA), and the input protection: SMBJ15A, BAV99 clamps and 1206 first-stage resistors.
+
+The protection still has to pass its bench fault tests and qualification in the car; do not assume it makes the circuit load-dump proof.

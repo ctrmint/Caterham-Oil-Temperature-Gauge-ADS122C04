@@ -45,6 +45,10 @@ Run: `./scripts/test_host.sh`.
 | Sender colder than about 10 °C (resistance over 5 kΩ) | A reading or `BELOW CAL RANGE`, not a fault. **Currently** `SENSOR OPEN`, because `kOpenResistanceOhms` is 5 kΩ (#40) | photo/log |
 | Calibrated bath at multiple points | Readings within verified error band (#42) | calibration report |
 | Alarm debounce and reset hysteresis | No oscillation at threshold (#37) | event log |
+| Interface PCB fit check, before ordering ([hardware/pcb](../hardware/pcb/README.md)) | The socket row is 18.70 mm below the case centre and its face is flush with the case back; the bottom screws are M2 at (±13.75, −14.70) mm; the original screw length is recorded; a 100 % print of `renders/placement.svg` lines up with the case back (#48) | measurements, photo |
+| Interface PCB readings, known resistors through J2 (WIRING.md bench steps 4–10) | The same results as the rows above, with the board in place of the module and veroboard (#48) | Vs, Vp, R and CSV log |
+| Interface PCB fault test: 14.4 V through a 50 mA limit, on J2 pin 1 and then pin 4 | No damage; a fault is shown, never a plausible reading; correct readings afterwards; Rp re-measured (#48) | photo/log, Rp |
+| Interface PCB retention | The board stays seated on the case socket under a shake test, held by the two screws and spacers (#48) | inspection |
 | Engine cranking and alternator operation | No resets, surge damage or false readings (#43) | powered test |
 | Vibration/thermal | Wiring/enclosure hold, stable function (#43) | inspection |
 | Sweep three-digit reading, demo build, °F | As in °C (passed on 2026-11-12): three centred digits over a faint `888`, with nothing touching the scale labels (86…266), the unit, `OIL TEMP` or the status line. The `<` / `>` sign beside the digits needs a reading beyond the table (#25). | photos |
