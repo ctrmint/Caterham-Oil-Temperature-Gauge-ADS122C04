@@ -1,8 +1,8 @@
-# Interface PCB (rev A)
+# surface-mount-v1: interface PCB
 
 ![Top of the board, 3D render](renders/top.png)
 
-One two-layer board that replaces both the veroboard and the separate protection board. It holds:
+surface-mount-v1 is the first interface PCB. It's a two-layer board with surface-mount parts, fitted by the board house. It replaces both the veroboard and the separate protection board. It holds:
 - the ADS1115 as a bare chip;
 - Rp;
 - the three input filters;
@@ -12,7 +12,7 @@ One two-layer board that replaces both the veroboard and the separate protection
 
 It plugs straight into the 8-way socket on the back of the Waveshare case, and the case's two bottom screws hold it on. Issue #48.
 
-**Status:** designed, with zero ERC and zero DRC findings. Not yet built or tested; the fit check and bench checks below are owed. Like the rest of the gauge, it's supplementary to the factory warnings ([docs/SAFETY.md](../../docs/SAFETY.md)).
+**Status:** designed, with zero ERC and zero DRC findings. Not yet built or tested; the fit check and bench checks below are owed. Like the rest of the gauge, it's supplementary to the factory warnings ([docs/SAFETY.md](../../../docs/SAFETY.md)).
 
 | | |
 |---|---|
@@ -46,14 +46,14 @@ It plugs straight into the 8-way socket on the back of the Waveshare case, and t
 
 ![Schematic](renders/schematic.svg)
 
-The measurement is the one in [WIRING.md](../WIRING.md): Vp = A0 − A3 across Rp, Vs = A3 − A1 across the sender, and Rs = Rp × Vs / Vp. The differences from the veroboard:
+The measurement is the one in [WIRING.md](../../WIRING.md): Vp = A0 − A3 across Rp, Vs = A3 − A1 across the sender, and Rs = Rp × Vs / Vp. The differences from the veroboard:
 - **Every tap is a soldered track.** There's no plug-in module, so the open-tap failure in #39 (a module socket contact lifting) can't happen here.
 - **The board carries its own I²C pull-ups (10 kΩ) and 100 nF decoupling.** The display board has no pull-ups on GPIO17/18, and the Adafruit module used to supply them.
 - **R2, the A0 tap, is a Kelvin connection to Rp's top pad.** It runs on its own bottom-layer track and joins nothing else on the way.
 - **Nothing is in series between Rp and the sender pin.**
 - **R7 biases the sense wire on the harness side of R5**, so a broken sense wire still reads `GROUND FAULT`.
 
-`tests/test_pcb.py` checks these rules against the design table, and checks J1 against the firmware's pins.
+`tests/test_surface_mount_v1.py` checks these rules against the design table, and checks J1 against the firmware's pins.
 
 **With a harness wire at 14.4 V:**
 
@@ -66,7 +66,7 @@ After any such fault, measure Rp again.
 
 ## Connectors
 
-[BOM.md](BOM.md) lists every part with its manufacturer part number, and gives both connector pinouts.
+The parts list is [BOM.md](BOM.md), also as `surface-mount-v1-bom.csv`. It gives every part with its manufacturer part number, and both connector pinouts.
 
 - **J1, the display header** (Samtec TSW-108-07-G-S, gold):
   - It's fitted on the **bottom** side: its long pins point away from the components and into the case socket.
@@ -91,8 +91,8 @@ If anything differs, change `layout.py` (`J1_Y`, `HOLES`) and rebuild.
 
 ## Ordering and assembly
 
-1. **PCB:** upload `fab/oil-gauge-interface-gerbers.zip`. Choose 2 layers, 1.6 mm, any colour, and lead-free HASL or ENIG. Five boards is the usual minimum.
-2. **Assembly (optional):** top side only. Upload `fab/bom-jlcpcb.csv` and `fab/cpl-jlcpcb.csv`.
+1. **PCB:** upload `fab/surface-mount-v1-gerbers.zip`. Choose 2 layers, 1.6 mm, any colour, and lead-free HASL or ENIG. Five boards is the usual minimum.
+2. **Assembly (optional):** top side only. Upload `fab/surface-mount-v1-bom-jlcpcb.csv` and `fab/surface-mount-v1-cpl-jlcpcb.csv`.
    - Board houses and KiCad differ in the zero rotation for some packages, so check every part in the placement preview: U1's pin-1 dot, the stripes on D3 and D4, and the BAV99s.
    - The files leave out J1, J2 and R1.
 3. **Hand-fit R1** (Vishay TNPW1206470RBEEA; Digi-Key or Mouser). Measure it first and note the value: it goes in `kPullUpOhms`, with approval (#36).
@@ -116,9 +116,23 @@ If anything differs, change `layout.py` (`J1_Y`, `HOLES`) and rebuild.
 - **J1 is still a plug contact.** A bad SDA or SCL contact shows as ADC errors (`adc_ok = false`). A bad 3.3V or GND contact shows as supply or ADC faults.
 - **It isn't qualified for automotive use.** The bench checks above and the in-car tests (#43) come first.
 
+## What's in this folder
+
+| Path | What it is |
+|---|---|
+| `README.md` | This page: decisions, fit check, ordering, assembly, checks. Hand-written. |
+| `BOM.md`, `surface-mount-v1-bom.csv` | The full parts list: the board, connectors, harness parts and fitting hardware |
+| `fab/surface-mount-v1-gerbers.zip` | Gerbers and drill files, to upload to the board house |
+| `fab/surface-mount-v1-bom-jlcpcb.csv`, `fab/surface-mount-v1-cpl-jlcpcb.csv` | The board house's assembly BOM and placement file (SMD parts only) |
+| `renders/` | `top.png`, `bottom.png`, `iso.png` (3D); `schematic.svg`; `placement.svg` (1 mm grid in case coordinates) |
+| `surface-mount-v1.kicad_pro`, `.kicad_sch`, `.kicad_pcb` | The KiCad 10 project |
+| `3d/` | The simplified 3D model of J2, for the renders |
+| `generator/` | The source: `design.py` (parts, nets, part numbers) and `layout.py` (placement, routing, silkscreen) |
+| `build.sh`, `outputs.sha256` | The rebuild script and the hash manifest it writes |
+
 ## Rebuilding
 
-`scripts/pcb_build.sh` regenerates everything here from `generator/`:
+`build.sh` (in this folder) regenerates everything here from `generator/`:
 - the KiCad schematic and board;
 - ERC and DRC, with schematic parity and zone refill. Any finding fails the build.
 - the renders, the Gerbers and drill files, the placement file and the BOMs;
@@ -126,12 +140,12 @@ If anything differs, change `layout.py` (`J1_Y`, `HOLES`) and rebuild.
 
 It runs KiCad 10.0.8 in its official container through podman or docker; set `KICAD_LOCAL=1` to use a local KiCad 10.0.8. An unchanged design rebuilds byte-for-byte, so a diff means the design changed.
 
-`tests/test_pcb.py`, which runs in CI, fails if anything listed in `outputs.sha256` changes without a rebuild.
+`tests/test_surface_mount_v1.py`, which runs in CI, fails if anything listed in `outputs.sha256` changes without a rebuild.
 
 **Where the design lives:**
 - `design.py`: the parts, nets and part numbers.
 - `layout.py`: placement, routing and silkscreen, in case coordinates. `renders/placement.svg` shows the same coordinates.
 
-The generator is the source for rev A. You can open the KiCad files in KiCad 10, but the next build overwrites them. To take the design over in the KiCad GUI, delete `generator/` and the generator steps from the script.
+The generator is the source for surface-mount-v1. You can open the KiCad files in KiCad 10, but the next build overwrites them. To take the design over in the KiCad GUI, delete `generator/` and the generator steps from the script.
 
 KiCad has no 3D model for the Micro-Fit header. `3d/Molex_43650-0415_envelope.wrl` is a plain box of the right size for the renders, not Molex's model.

@@ -1,7 +1,7 @@
 """Build the interface board (.kicad_pcb) with KiCad's pcbnew API.
 
 Nets come from the schematic's own netlist, footprints and values from design.py,
-and placement and routing from layout.py. scripts/pcb_build.sh runs this inside KiCad 10.0.8.
+and placement and routing from layout.py. build.sh runs this inside KiCad 10.0.8.
 Coordinates in layout.py are mm from the display case centre, viewed from the back
 (the board's top side), +x right, +y up.
 """

@@ -3,9 +3,9 @@
 gen_sch.py draws the schematic from this, and gen_pcb.py builds the board from it,
 so the two can't disagree. kicad-cli's DRC schematic-parity check confirms it.
 """
-PROJECT = 'oil-gauge-interface'
-TITLE = 'Oil-temperature gauge interface'
-REV = 'A'
+PROJECT = 'surface-mount-v1'
+TITLE = 'Oil-temperature gauge interface: surface-mount-v1'
+REV = 'v1'
 DATE = '2026-11-15'
 
 NC = None  # no connection

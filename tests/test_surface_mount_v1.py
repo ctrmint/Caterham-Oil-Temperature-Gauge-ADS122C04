@@ -1,6 +1,6 @@
-"""Checks on the interface PCB (hardware/pcb).
+"""Checks on the surface-mount-v1 interface PCB (hardware/pcb/surface-mount-v1).
 
-KiCad isn't available in CI, so ERC, DRC and schematic parity run in scripts/pcb_build.sh. These tests
+KiCad isn't available in CI, so ERC, DRC and schematic parity run in that folder's build.sh. These tests
 cover what can be checked without it: that every generated file is current, the measurement and
 protection topology, J1 against the firmware's pins, and the BOM.
 """
@@ -13,7 +13,8 @@ import unittest
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
-GEN = ROOT / 'hardware/pcb/generator'
+BOARD = ROOT / 'hardware/pcb/surface-mount-v1'
+GEN = BOARD / 'generator'
 
 
 def load(name):
@@ -39,17 +40,17 @@ def pin(ref, num):
 
 class TestOutputsCurrent(unittest.TestCase):
     def manifest(self):
-        lines = (ROOT / 'hardware/pcb/outputs.sha256').read_text(encoding='utf-8').splitlines()
+        lines = (BOARD / 'outputs.sha256').read_text(encoding='utf-8').splitlines()
         return dict(reversed(l.split('  ', 1)) for l in lines if l and not l.startswith('#'))
 
     def test_every_listed_file_matches(self):
         stale = [rel for rel, digest in self.manifest().items()
-                 if hashlib.sha256((ROOT / rel).read_bytes()).hexdigest() != digest]
-        self.assertEqual(stale, [], 'changed without a rebuild: run scripts/pcb_build.sh')
+                 if hashlib.sha256((BOARD / rel).read_bytes()).hexdigest() != digest]
+        self.assertEqual(stale, [], 'changed without a rebuild: run hardware/pcb/surface-mount-v1/build.sh')
 
     def test_no_unlisted_files(self):
-        self.assertEqual(sorted(self.manifest()), O.manifest_files(str(ROOT)),
-                         'hardware/pcb has files the last build did not write: run scripts/pcb_build.sh')
+        self.assertEqual(sorted(self.manifest()), O.manifest_files(str(BOARD)),
+                         'the board folder has files the last build did not write: run its build.sh')
 
 
 class TestMeasurementTopology(unittest.TestCase):
@@ -116,6 +117,13 @@ class TestDisplayHeader(unittest.TestCase):
 
 
 class TestBom(unittest.TestCase):
+    def test_everything_carries_the_board_name(self):
+        self.assertEqual(D.PROJECT, 'surface-mount-v1')
+        for rel in (f'{D.PROJECT}.kicad_pcb', f'{D.PROJECT}.kicad_sch', f'{D.PROJECT}-bom.csv',
+                    f'fab/{D.PROJECT}-gerbers.zip', f'fab/{D.PROJECT}-bom-jlcpcb.csv', f'fab/{D.PROJECT}-cpl-jlcpcb.csv'):
+            self.assertTrue((BOARD / rel).is_file(), rel)
+        self.assertTrue((BOARD / 'BOM.md').read_text(encoding='utf-8').startswith(f'# {D.PROJECT}: parts list'))
+
     def test_every_part_has_a_part_number(self):
         for ref in D.PARTS:
             if ref.startswith('H'):
@@ -130,13 +138,13 @@ class TestBom(unittest.TestCase):
         self.assertIn('43645-0400', D.BOM['J2'][3])
         extras = {e[3] for e in D.EXTRAS}
         self.assertTrue({'43645-0400', '43030-0007', '63819-0000'} <= extras)
-        md = (ROOT / 'hardware/pcb/BOM.md').read_text(encoding='utf-8')
+        md = (BOARD / 'BOM.md').read_text(encoding='utf-8')
         for mpn in ('TSW-108-07-G-S', '43650-0415', '43645-0400', '43030-0007', '63819-0000'):
             self.assertIn(mpn, md)
 
     def test_board_house_files_leave_out_hand_fitted_parts(self):
-        bom = (ROOT / 'hardware/pcb/fab/bom-jlcpcb.csv').read_text(encoding='utf-8')
-        cpl = (ROOT / 'hardware/pcb/fab/cpl-jlcpcb.csv').read_text(encoding='utf-8')
+        bom = (BOARD / f'fab/{D.PROJECT}-bom-jlcpcb.csv').read_text(encoding='utf-8')
+        cpl = (BOARD / f'fab/{D.PROJECT}-cpl-jlcpcb.csv').read_text(encoding='utf-8')
         for ref in D.HAND_FIT:
             self.assertIsNone(re.search(rf'\b{ref}\b', bom), ref)
             self.assertIsNone(re.search(rf'^{ref},', cpl, re.M), ref)
