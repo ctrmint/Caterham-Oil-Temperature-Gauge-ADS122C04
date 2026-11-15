@@ -1,0 +1,12 @@
+# Written by build.sh. tests/test_veroboard_usb_v1.py fails if any listed file changes
+# without a rebuild: regenerate with build.sh, never edit outputs by hand.
+01474c4f7c3cf59897effd078f35e4aac3a94d903fd8ec84b1c6b12017deb543  ASSEMBLY.md
+6cf43eb2e4733a5b4e3363d67391902302b9b120a25a8ae936d5be2949c5ab59  BOM.md
+4199f62d817f4649149dd0ba16fe329e114193612991072502480aa87a898cfb  build.sh
+2ce4e03a330e7076ffe81d89387a43d8c965d239352d6e9c71abdc351e001c13  generator/design.py
+1d63e1e8a0d50f24a35fc1615f7b865a2a4da217b459a8c1d69faf4fe1580cc3  generator/draw.py
+106af9bc15e6f38321df21f49eff1fd7c8c3f9b668efd4e00e4b7359c69cd79b  generator/layout.py
+59624275204c3955d265231e5c12c4c0874c86682c905c325997e70c234102b1  generator/outputs.py
+f23414501aa40c4c7c7d57a702741ce1ba8a473d3c16a06e612f78115a592609  generator/vero.py
+f7618c2e81788bb3436b918f568f2ce86c1871ec3d74739a2e0b05049144fd9f  renders/layout.svg
+4d6b37f61339781e283035b1c658852073bdc792ebe7c69182db1e4ef24bbe0d  veroboard-usb-v1-bom.csv
