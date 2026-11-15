@@ -8,7 +8,7 @@
 	(property "Reference" "REF**"
 		(at 0 -2.5 0)
 		(layer "F.SilkS")
-		(uuid "6d0194b8-cc63-4576-9b34-69a607269f62")
+		(uuid "15b286a6-3c43-4cbc-9307-095660dbe5f8")
 		(effects
 			(font
 				(size 1 1)
@@ -19,7 +19,7 @@
 	(property "Value" "TestPoint_Keystone_5000-5004_Miniature"
 		(at 0 2.5 0)
 		(layer "F.Fab")
-		(uuid "5d099c7c-fa2b-4796-812a-3bcbd7abfdc3")
+		(uuid "d3a2068b-679b-426f-aa58-a6fbd63f0fbb")
 		(effects
 			(font
 				(size 1 1)
@@ -32,7 +32,7 @@
 		(unlocked yes)
 		(layer "F.Fab")
 		(hide yes)
-		(uuid "797690ea-bac8-4803-83c9-48156f94f003")
+		(uuid "10702b90-a5b9-4858-b2cb-c15f2d33f938")
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -45,7 +45,7 @@
 		(unlocked yes)
 		(layer "F.Fab")
 		(hide yes)
-		(uuid "003dcab6-1c59-4a82-9d0a-5dd4b4d26871")
+		(uuid "cc8b59b3-cc96-44e8-8fe3-3f96965f9e58")
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -64,7 +64,7 @@
 		)
 		(fill no)
 		(layer "F.SilkS")
-		(uuid "dc695ad4-5f96-4c8f-8d91-5c76626861b1")
+		(uuid "21efd9aa-e3a8-4b19-93a6-807e8dec920e")
 	)
 	(fp_circle
 		(center 0 0)
@@ -75,7 +75,7 @@
 		)
 		(fill no)
 		(layer "F.CrtYd")
-		(uuid "da589802-7c0f-493d-8efb-94afcdfb5da3")
+		(uuid "794b501b-f8bc-47e3-a700-3c1d61fa52f9")
 	)
 	(fp_rect
 		(start -0.75 -0.25)
@@ -86,7 +86,7 @@
 		)
 		(fill no)
 		(layer "F.Fab")
-		(uuid "b7db7931-c2c1-40a9-b84a-85a5f407273e")
+		(uuid "f0bb6625-6552-4135-8070-2bf2a210e1f0")
 	)
 	(fp_circle
 		(center 0 0)
@@ -97,12 +97,12 @@
 		)
 		(fill no)
 		(layer "F.Fab")
-		(uuid "dd3642d6-cfdc-4f8e-b85b-d9efa038c56f")
+		(uuid "01dc163d-29fa-4b03-a859-5f0f311d8a4d")
 	)
 	(fp_text user "${REFERENCE}"
 		(at 0 -2.5 0)
 		(layer "F.Fab")
-		(uuid "aa81ef7c-378e-4a68-82d9-f94787138d81")
+		(uuid "804c7358-c0ba-4fbc-ba7f-27d1b96190a3")
 		(effects
 			(font
 				(size 1 1)
@@ -116,7 +116,7 @@
 		(drill 1)
 		(layers "*.Cu" "*.Mask")
 		(remove_unused_layers no)
-		(uuid "119275d5-4f32-469b-9cee-6b396b292b82")
+		(uuid "98dd66d0-a748-41d9-9c59-565894dd180c")
 	)
 	(embedded_fonts no)
 	(model "${KICAD10_3DMODEL_DIR}/TestPoint.3dshapes/TestPoint_Keystone_5000-5004_Miniature.step"

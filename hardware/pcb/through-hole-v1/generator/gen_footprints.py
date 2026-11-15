@@ -227,6 +227,7 @@ def set_model(fp, name):
 
 
 def main(out_dir):
+    pcbnew.KIID.SeedGenerator(51)   # deterministic UUIDs: an unchanged design rebuilds identically
     pretty = os.path.abspath(os.path.join(out_dir, 'footprints.pretty'))
     io = pcbnew.PCB_IO_KICAD_SEXPR()
     if not os.path.isdir(pretty):

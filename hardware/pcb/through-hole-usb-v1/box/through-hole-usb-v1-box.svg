@@ -1,0 +1,80 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1074" height="924" viewBox="0 0 1074 924" font-family="DejaVu Sans, Arial, sans-serif">
+<rect width="1074" height="924" fill="white"/>
+<text x="132.0" y="66.0" font-size="15" font-weight="bold">through-hole-usb-v1: box drawing (plan view, component side up; mm from the bottom-left corner)</text>
+<rect x="132.0" y="132.0" width="390.0" height="372.0" rx="18.0" fill="#f4f8f0" stroke="black" stroke-width="2"/>
+<text x="327.0" y="540.0" font-size="13" text-anchor="middle">65 wide (corner radius 3)</text>
+<text x="546.0" y="318.0" font-size="13">62 high</text>
+<circle cx="159.0" cy="159.0" r="9.600000000000001" fill="white" stroke="black" stroke-width="1.5"/>
+<circle cx="159.0" cy="159.0" r="21.6" fill="none" stroke="#888" stroke-dasharray="4 3"/>
+<text x="159.0" y="133.8" font-size="12" text-anchor="middle">H1</text>
+<circle cx="495.0" cy="159.0" r="9.600000000000001" fill="white" stroke="black" stroke-width="1.5"/>
+<circle cx="495.0" cy="159.0" r="21.6" fill="none" stroke="#888" stroke-dasharray="4 3"/>
+<text x="495.0" y="133.8" font-size="12" text-anchor="middle">H2</text>
+<circle cx="159.0" cy="477.0" r="9.600000000000001" fill="white" stroke="black" stroke-width="1.5"/>
+<circle cx="159.0" cy="477.0" r="21.6" fill="none" stroke="#888" stroke-dasharray="4 3"/>
+<text x="159.0" y="451.8" font-size="12" text-anchor="middle">H3</text>
+<circle cx="495.0" cy="477.0" r="9.600000000000001" fill="white" stroke="black" stroke-width="1.5"/>
+<circle cx="495.0" cy="477.0" r="21.6" fill="none" stroke="#888" stroke-dasharray="4 3"/>
+<text x="495.0" y="451.8" font-size="12" text-anchor="middle">H4</text>
+<rect x="295.23" y="302.73" width="45.539999999999964" height="24.539999999999964" fill="none" stroke="#bbb" stroke-width="1"/>
+<text x="318.0" y="319.0" font-size="9" text-anchor="middle" fill="#999">C1</text>
+<rect x="295.23" y="267.93" width="45.539999999999964" height="24.54000000000002" fill="none" stroke="#bbb" stroke-width="1"/>
+<text x="318.0" y="284.20000000000005" font-size="9" text-anchor="middle" fill="#999">C2</text>
+<rect x="295.23" y="224.13000000000002" width="45.539999999999964" height="24.539999999999935" fill="none" stroke="#bbb" stroke-width="1"/>
+<text x="318.0" y="240.39999999999998" font-size="9" text-anchor="middle" fill="#999">C3</text>
+<rect x="203.43" y="170.73" width="45.54000000000002" height="24.54000000000002" fill="none" stroke="#bbb" stroke-width="1"/>
+<text x="226.20000000000002" y="187.0" font-size="9" text-anchor="middle" fill="#999">C4</text>
+<rect x="386.07" y="160.70999999999998" width="15.54000000000002" height="58.860000000000014" fill="none" stroke="#bbb" stroke-width="1"/>
+<text x="393.84000000000003" y="194.14" font-size="9" text-anchor="middle" fill="#999">D1</text>
+<rect x="371.07" y="160.70999999999998" width="15.54000000000002" height="58.860000000000014" fill="none" stroke="#bbb" stroke-width="1"/>
+<text x="378.84000000000003" y="194.14" font-size="9" text-anchor="middle" fill="#999">D2</text>
+<rect x="373.46999400000004" y="269.43" width="15.539999999999964" height="89.33999999999997" fill="none" stroke="#bbb" stroke-width="1"/>
+<text x="381.239994" y="318.1" font-size="9" text-anchor="middle" fill="#999">D3</text>
+<rect x="391.46999400000004" y="269.43" width="15.539999999999964" height="58.860000000000014" fill="none" stroke="#bbb" stroke-width="1"/>
+<text x="399.239994" y="302.86" font-size="9" text-anchor="middle" fill="#999">D4</text>
+<rect x="479.43" y="273.03" width="25.139999999999986" height="94.13999999999999" fill="none" stroke="#bbb" stroke-width="1"/>
+<text x="492.0" y="324.09999999999997" font-size="9" text-anchor="middle" fill="#999">D5</text>
+<rect x="369.75" y="437.79" width="100.5" height="66.0" fill="#ffd9b3" stroke="#c60" stroke-width="1"/>
+<text x="420.0" y="474.79" font-size="12" text-anchor="middle" fill="#c60">J2</text>
+<rect x="188.84999999999997" y="421.23" width="85.5" height="82.56" fill="#ffd9b3" stroke="#c60" stroke-width="1"/>
+<text x="231.59999999999997" y="466.51" font-size="12" text-anchor="middle" fill="#c60">J3</text>
+<rect x="402.27" y="347.73" width="74.10000000000002" height="18.539999999999964" fill="none" stroke="#bbb" stroke-width="1"/>
+<text x="439.32" y="361.0" font-size="9" text-anchor="middle" fill="#999">R1</text>
+<rect x="296.43" y="327.33000000000004" width="74.09999999999997" height="18.539999999999964" fill="none" stroke="#bbb" stroke-width="1"/>
+<text x="333.48" y="340.6" font-size="9" text-anchor="middle" fill="#999">R2</text>
+<rect x="402.27" y="203.73" width="74.10000000000002" height="18.54000000000002" fill="none" stroke="#bbb" stroke-width="1"/>
+<text x="439.32" y="217.0" font-size="9" text-anchor="middle" fill="#999">R3</text>
+<rect x="296.43" y="203.73" width="74.09999999999997" height="18.54000000000002" fill="none" stroke="#bbb" stroke-width="1"/>
+<text x="333.48" y="217.0" font-size="9" text-anchor="middle" fill="#999">R4</text>
+<rect x="379.95000000000005" y="248.73" width="74.09999999999991" height="18.539999999999992" fill="none" stroke="#bbb" stroke-width="1"/>
+<text x="417.0" y="262.0" font-size="9" text-anchor="middle" fill="#999">R5</text>
+<rect x="296.43" y="248.73" width="74.09999999999997" height="18.539999999999992" fill="none" stroke="#bbb" stroke-width="1"/>
+<text x="333.48" y="262.0" font-size="9" text-anchor="middle" fill="#999">R6</text>
+<rect x="379.95000000000005" y="374.73" width="74.09999999999991" height="18.539999999999964" fill="none" stroke="#bbb" stroke-width="1"/>
+<text x="417.0" y="388.0" font-size="9" text-anchor="middle" fill="#999">R7</text>
+<rect x="201.63000000000002" y="377.73" width="74.1" height="18.539999999999964" fill="none" stroke="#bbb" stroke-width="1"/>
+<text x="238.68" y="391.0" font-size="9" text-anchor="middle" fill="#999">R8</text>
+<rect x="215.43" y="359.73" width="74.09999999999997" height="18.539999999999964" fill="none" stroke="#bbb" stroke-width="1"/>
+<text x="252.48" y="373.0" font-size="9" text-anchor="middle" fill="#999">R9</text>
+<rect x="145.84525799999997" y="301.84525799999994" width="20.324736" height="20.30948400000011" fill="none" stroke="#bbb" stroke-width="1"/>
+<text x="156.00762599999996" y="316.0" font-size="9" text-anchor="middle" fill="#999">TP1</text>
+<rect x="307.84525799999994" y="436.84525799999994" width="20.32473600000003" height="20.30948400000011" fill="none" stroke="#bbb" stroke-width="1"/>
+<text x="318.00762599999996" y="451.0" font-size="9" text-anchor="middle" fill="#999">TP2</text>
+<rect x="247.84525799999997" y="142.84525799999997" width="20.324736" height="20.309484000000054" fill="none" stroke="#bbb" stroke-width="1"/>
+<text x="258.00762599999996" y="157.0" font-size="9" text-anchor="middle" fill="#999">TP3</text>
+<rect x="177.33000000000004" y="196.52999999999997" width="113.33999999999992" height="158.94000000000005" fill="none" stroke="#bbb" stroke-width="1"/>
+<text x="234.0" y="280.0" font-size="9" text-anchor="middle" fill="#999">U1</text>
+<text x="132.0" y="576.0" font-size="13" font-weight="bold">Mounting holes (M3 clearance, 3.2 mm; keep bosses inside the dashed circles):</text>
+<text x="132.0" y="595.0" font-size="13">H1 at x 4.5, y 57.5; boss up to 7.2 mm across</text>
+<text x="132.0" y="614.0" font-size="13">H2 at x 60.5, y 57.5; boss up to 7.2 mm across</text>
+<text x="132.0" y="633.0" font-size="13">H3 at x 4.5, y 4.5; boss up to 7.2 mm across</text>
+<text x="132.0" y="652.0" font-size="13">H4 at x 60.5, y 4.5; boss up to 7.2 mm across</text>
+<text x="132.0" y="671.0" font-size="13" font-weight="bold">Cable wall (bottom edge): an opening for each plug, x from the board's left edge:</text>
+<text x="132.0" y="690.0" font-size="13">J3 display cable, Micro-Fit 2x3 plug: x 9.5 to 23.7 (14.2 wide), about 8 mm (header body 7.4 mm) above the board top</text>
+<text x="132.0" y="709.0" font-size="13">J2 sender harness, Micro-Fit 1x4 plug: x 39.6 to 56.4 (16.8 wide), about 5 mm (header body 4.4 mm) above the board top</text>
+<text x="132.0" y="728.0" font-size="13">Allow 1 mm round each opening and room above it for the plug's latch to be pressed.</text>
+<text x="132.0" y="747.0" font-size="13" font-weight="bold">Heights:</text>
+<text x="132.0" y="766.0" font-size="13">J3, the 2x3 header, is the tallest part (body 7.4 mm). The ADS1115 module on its 2.54 mm header stands about 5 mm,</text>
+<text x="132.0" y="785.0" font-size="13">and the test loops 4.6 mm (Keystone drawing). Check the C0G capacitors (TDK FG26) on their datasheet; allow 15 mm above the board.</text>
+<text x="132.0" y="804.0" font-size="13">Leave at least 5 mm under the board for the solder side and the M3 screw heads or nuts.</text>
+</svg>

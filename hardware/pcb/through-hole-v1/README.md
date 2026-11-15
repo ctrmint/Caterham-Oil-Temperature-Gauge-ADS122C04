@@ -121,7 +121,7 @@ through-hole-v1 is the second interface PCB (issue #51). Every part on it is thr
    - At 24 V, D6 stays off.
    - Find the input voltage where 5 V drops out. Expect about 7 V; it matters for cranking (#43).
 2. **Readings through J2:** WIRING.md bench steps 4–10, with J2 as the harness.
-3. **Fault tests:** 14.4 V through a 50 mA limit on J2 pin 1, then pin 4.
+3. **Fault tests:** 14.4 V through a 50 mA limit on J2 pin 1, then pin 2 (the sense wire).
 4. **I²C over the real cable:** a one-hour soak with no ADC errors in the CSV log.
 5. **Box fit,** and a shake test of the board and the module standoffs.
 

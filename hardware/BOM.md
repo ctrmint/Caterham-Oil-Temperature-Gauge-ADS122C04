@@ -26,7 +26,7 @@ No longer needed compared with the original internal-ADC circuit: the 10 kΩ / 1
 
 ### surface-mount-v1 PCB
 
-There are two PCB builds for the car. The smaller is [surface-mount-v1](pcb/surface-mount-v1/README.md), which plugs onto the display. [Its parts list](pcb/surface-mount-v1/BOM.md) gives its parts and connectors, with manufacturer and LCSC part numbers; its README covers ordering, assembly and the checks. It combines everything above except the display, the sender, the harness, the converter, the enclosure and the test equipment. It has a bare ADS1115 instead of the module, a 1206 Rp (Vishay TNPW1206470RBEEA), and the input protection: SMBJ15A, BAV99 clamps and 1206 first-stage resistors.
+There are three PCB builds for the car. The smallest is [surface-mount-v1](pcb/surface-mount-v1/README.md), which plugs onto the display. [Its parts list](pcb/surface-mount-v1/BOM.md) gives its parts and connectors, with manufacturer and LCSC part numbers; its README covers ordering, assembly and the checks. It combines everything above except the display, the sender, the harness, the converter, the enclosure and the test equipment. It has a bare ADS1115 instead of the module, a 1206 Rp (Vishay TNPW1206470RBEEA), and the input protection: SMBJ15A, BAV99 clamps and 1206 first-stage resistors.
 
 The protection still has to pass its bench fault tests and qualification in the car; do not assume it makes the circuit load-dump proof.
 
@@ -38,3 +38,12 @@ The protection still has to pass its bench fault tests and qualification in the 
 - a 12 V input with its own regulator, so no separate converter.
 
 [Its parts list](pcb/through-hole-v1/BOM.md) covers the board, the plugs and terminals, the display cable, the module standoffs and the box screws. It uses the Adafruit ADS1115 module (soldered in, never socketed), a 0.1 % 0207 Rp (Vishay MBB0207VD4700BC100), 1N4148 clamps and a P6KE18A on the signal wire.
+
+### through-hole-usb-v1 PCB
+
+[through-hole-usb-v1](pcb/through-hole-usb-v1/README.md) is through-hole-v1 for a display powered from its own USB-C socket:
+- the same front end, module and protection, in through-hole parts on one copper layer;
+- no 12 V input and no regulator: the board takes the display's 3.3 V;
+- a harness connector with a dedicated ground return to the tank.
+
+[Its parts list](pcb/through-hole-usb-v1/BOM.md) covers the board, the plugs and terminals, the display cable, the module standoffs and the box screws. The USB-C charger for the display isn't part of it.
