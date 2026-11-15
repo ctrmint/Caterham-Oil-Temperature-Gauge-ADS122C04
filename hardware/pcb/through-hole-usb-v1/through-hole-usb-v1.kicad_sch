@@ -3502,7 +3502,7 @@
 				)
 			)
 		)
-		(property "Footprint" "through-hole-usb-v1:R_P7.62mm"
+		(property "Footprint" "through-hole-usb-v1:R_P10.16mm"
 			(at 213.36 142.24 0)
 			(hide yes)
 			(show_name no)
@@ -3692,7 +3692,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" "through-hole-usb-v1:R_P7.62mm"
+		(property "Footprint" "through-hole-usb-v1:R_P10.16mm"
 			(at 236.22 132.08 0)
 			(hide yes)
 			(show_name no)
@@ -4258,7 +4258,7 @@
 				)
 			)
 		)
-		(property "Footprint" "through-hole-usb-v1:R_P7.62mm"
+		(property "Footprint" "through-hole-usb-v1:R_P10.16mm"
 			(at 177.8 76.2 0)
 			(hide yes)
 			(show_name no)
@@ -5192,7 +5192,7 @@
 				)
 			)
 		)
-		(property "Footprint" "through-hole-usb-v1:R_P7.62mm"
+		(property "Footprint" "through-hole-usb-v1:R_P10.16mm"
 			(at 177.8 142.24 0)
 			(hide yes)
 			(show_name no)
@@ -6374,7 +6374,7 @@
 				)
 			)
 		)
-		(property "Footprint" "through-hole-usb-v1:R_P7.62mm"
+		(property "Footprint" "through-hole-usb-v1:R_P10.16mm"
 			(at 177.8 101.6 0)
 			(hide yes)
 			(show_name no)
@@ -7471,7 +7471,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" "through-hole-usb-v1:R_P7.62mm"
+		(property "Footprint" "through-hole-usb-v1:R_P10.16mm"
 			(at 99.06 132.08 0)
 			(hide yes)
 			(show_name no)
@@ -7770,7 +7770,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" "through-hole-usb-v1:R_P7.62mm"
+		(property "Footprint" "through-hole-usb-v1:R_P10.16mm"
 			(at 88.9 132.08 0)
 			(hide yes)
 			(show_name no)

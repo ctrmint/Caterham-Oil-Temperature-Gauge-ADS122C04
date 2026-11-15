@@ -18,6 +18,7 @@ through-hole-usb-v1 is the third interface PCB (issue #54). It's [through-hole-v
 | Copper | **One layer** (bottom), 1 oz, ground pour. No vias, no top copper. |
 | Tracks | 0.5 mm signals, 0.6 mm 3.3 V and the sender wire, 0.8 mm grounds; 0.3 mm minimum clearance |
 | Pads | At least 0.6 mm of copper round each hole, because a single-sided board has unplated holes |
+| Resistors | All lie flat at 10.16 mm: Vishay's MBB0207 datasheet asks for at least 10.0 mm between the leads |
 | Parts | 24 through-hole parts plus 4 mounting holes. One part is the Adafruit ADS1115 module, soldered in. |
 | Connectors | Two Molex Micro-Fit 3.0 right-angle headers, both along one edge, so both cables leave through one wall of the box |
 

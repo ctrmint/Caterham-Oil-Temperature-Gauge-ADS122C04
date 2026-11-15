@@ -8,7 +8,7 @@
 	(property "Reference" "REF**"
 		(at 2.5 -3 0)
 		(layer "F.SilkS")
-		(uuid "7475f3b4-6ded-4e87-b53a-335d4c67b391")
+		(uuid "858ba18c-c417-456a-9865-a2723e71c4b7")
 		(effects
 			(font
 				(size 1 1)
@@ -19,7 +19,7 @@
 	(property "Value" "C_Rect_L7.0mm_W3.5mm_P5.00mm"
 		(at 2.5 3 0)
 		(layer "F.Fab")
-		(uuid "1f165010-121a-48d5-8ab1-cf50bf6e8c79")
+		(uuid "bc818260-eec3-438a-85dd-cefca540de5d")
 		(effects
 			(font
 				(size 1 1)
@@ -31,7 +31,7 @@
 		(at 0 0 0)
 		(layer "F.Fab")
 		(hide yes)
-		(uuid "3f3b5a65-0f9d-4758-b9c0-98e5ca16fe2c")
+		(uuid "e988daea-b7fb-4a48-8f9e-8b878c75fef4")
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -42,7 +42,7 @@
 		(at 0 0 0)
 		(layer "F.Fab")
 		(hide yes)
-		(uuid "46e6f86c-67fd-4bc5-87a3-255dc9f11db6")
+		(uuid "416ebbe9-836c-4755-ac96-9b5dcdc4540c")
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -53,7 +53,7 @@
 		(at 0 0 0)
 		(layer "F.SilkS")
 		(hide yes)
-		(uuid "8803abc2-1fa1-4455-a1a9-a6e139c546c0")
+		(uuid "896882b3-09d0-40bb-b78e-94291475d176")
 		(effects
 			(font
 				(size 1 1)
@@ -71,7 +71,7 @@
 			(type default)
 		)
 		(layer "F.SilkS")
-		(uuid "1eded1f2-203d-42b2-846e-6f3859443525")
+		(uuid "666401e9-0998-4526-91af-ad8c4c82ef89")
 	)
 	(fp_line
 		(start -1.12 -1.25)
@@ -81,7 +81,7 @@
 			(type default)
 		)
 		(layer "F.SilkS")
-		(uuid "5385be3e-d6a7-4c55-9ea3-cc83019af51d")
+		(uuid "212ea84d-0f89-49fd-8414-2074b0a17658")
 	)
 	(fp_line
 		(start -1.12 1.87)
@@ -91,7 +91,7 @@
 			(type default)
 		)
 		(layer "F.SilkS")
-		(uuid "4998e899-5acb-43a7-8577-93d5b26931bb")
+		(uuid "c0cd34ef-2b72-48f9-a880-938ef000ccd4")
 	)
 	(fp_line
 		(start 6.12 -1.87)
@@ -101,7 +101,7 @@
 			(type default)
 		)
 		(layer "F.SilkS")
-		(uuid "f29174b5-92c0-42b7-90e2-aaba80a3c6b5")
+		(uuid "4b94aa8e-0f9d-4208-a0b9-1ffebfb37452")
 	)
 	(fp_line
 		(start 6.12 1.25)
@@ -111,7 +111,7 @@
 			(type default)
 		)
 		(layer "F.SilkS")
-		(uuid "7f4b87a4-d0c7-4b54-82f5-83c689470766")
+		(uuid "eec5a917-54c1-48b3-9c8b-756df661307a")
 	)
 	(fp_line
 		(start 6.12 1.87)
@@ -121,7 +121,7 @@
 			(type default)
 		)
 		(layer "F.SilkS")
-		(uuid "ffce5afc-6d80-45f3-9c70-194f1727d867")
+		(uuid "4d7b06dd-75a9-47aa-bbee-39c601e7e041")
 	)
 	(fp_rect
 		(start -1.25 -2)
@@ -132,7 +132,7 @@
 		)
 		(fill no)
 		(layer "F.CrtYd")
-		(uuid "5bcbf1f9-396f-4329-8417-4149ad76403c")
+		(uuid "6514fcf7-09d6-444c-8112-c2023e341dec")
 	)
 	(fp_rect
 		(start -1 -1.75)
@@ -143,12 +143,12 @@
 		)
 		(fill no)
 		(layer "F.Fab")
-		(uuid "516b9f34-8cbd-4c21-81f4-62b497889414")
+		(uuid "ef76cbb7-c3bc-4b19-aeef-fe2198222802")
 	)
 	(fp_text user "${REFERENCE}"
 		(at 2.5 0 0)
 		(layer "F.Fab")
-		(uuid "7a8f3d60-8591-4870-9d15-3fd2611f6eac")
+		(uuid "dcdcc723-bce8-4f6e-9ea5-9473b7d8391b")
 		(effects
 			(font
 				(size 1 1)
@@ -162,7 +162,7 @@
 		(drill 0.8)
 		(layers "*.Cu" "*.Mask")
 		(remove_unused_layers no)
-		(uuid "6b01b78d-8aee-4242-acec-5d8bffcd9af8")
+		(uuid "ed910952-90b9-48f6-80d9-e0d08c02d00f")
 	)
 	(pad "2" thru_hole circle
 		(at 5 0)
@@ -170,7 +170,7 @@
 		(drill 0.8)
 		(layers "*.Cu" "*.Mask")
 		(remove_unused_layers no)
-		(uuid "5e6ccaa5-f536-4211-a827-9c7aa4e0f6f2")
+		(uuid "4897577f-5083-4a8e-923a-47e45dd2adcb")
 	)
 	(embedded_fonts no)
 	(model "${KICAD10_3DMODEL_DIR}/Capacitor_THT.3dshapes/C_Rect_L7.0mm_W3.5mm_P5.00mm.step"

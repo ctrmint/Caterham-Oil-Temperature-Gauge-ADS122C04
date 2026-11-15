@@ -20,7 +20,7 @@ import design as D  # noqa: E402
 N = D.PROJECT
 MANIFEST_SKIP = {'outputs.sha256', 'README.md'}
 PKG = {
-    'R_P10.16mm': 'Axial 0207, 10.16 mm', 'R_P7.62mm': 'Axial 0207, 7.62 mm',
+    'R_P10.16mm': 'Axial 0207, 10.16 mm',
     'C_P5.00mm': 'Radial, 5 mm',
     'D_DO-35_P7.62mm': 'DO-35', 'D_DO-35_P12.70mm': 'DO-35, 12.7 mm', 'D_DO-15_P12.70mm': 'DO-15',
     'MicroFit_1x04_RA': 'Micro-Fit 1x4 right-angle', 'MicroFit_2x03_RA': 'Micro-Fit 2x3 right-angle',

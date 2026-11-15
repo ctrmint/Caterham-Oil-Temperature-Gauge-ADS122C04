@@ -10,6 +10,9 @@ gen_footprints.py, plus the Adafruit ADS1115 module.
 The board is through-hole-v1 without its 12 V supply: the display runs from its own USB-C socket, and the
 board takes the display's 3.3 V over the cable. Nothing then ties the board's ground to the car, so the
 harness brings a dedicated ground return back from the tank (J2 pin 3), beside the ground-sense wire.
+
+Every resistor lies flat at 10.16 mm: Vishay's MBB/SMA 0207 datasheet (doc 28766) gives a 10.0 mm minimum
+pitch for horizontal mounting, and a different (L0) version for 7.5 to 10 mm.
 """
 PROJECT = 'through-hole-usb-v1'
 TITLE = 'Oil-temperature gauge interface: through-hole-usb-v1'
@@ -22,7 +25,6 @@ NC = None  # no connection
 # Single-sided footprints: name in the board's library -> the stock KiCad footprint it's made from.
 FOOTPRINTS = {
     'R_P10.16mm': 'Resistor_THT:R_Axial_DIN0207_L6.3mm_D2.5mm_P10.16mm_Horizontal',
-    'R_P7.62mm': 'Resistor_THT:R_Axial_DIN0207_L6.3mm_D2.5mm_P7.62mm_Horizontal',
     'C_P5.00mm': 'Capacitor_THT:C_Rect_L7.0mm_W3.5mm_P5.00mm',
     'D_DO-35_P7.62mm': 'Diode_THT:D_DO-35_SOD27_P7.62mm_Horizontal',
     'D_DO-35_P12.70mm': 'Diode_THT:D_DO-35_SOD27_P12.70mm_Horizontal',
@@ -64,32 +66,32 @@ PARTS = {
            {'1': '+3V3', '2': 'TAP_S'}, (195.58, 111.76, 90, None), {}),
     'D2': ('Device:D', '1N4148', fp('D_DO-35_P7.62mm'),
            {'1': 'TAP_S', '2': 'GND'}, (205.74, 121.92, 90, None), {}),
-    'R4': ('Device:R', '1k', fp('R_P7.62mm'),
+    'R4': ('Device:R', '1k', fp('R_P10.16mm'),
            {'1': 'TAP_S', '2': 'AIN3'}, (177.8, 101.6, 90, None), {}),
     'C3': ('Device:C', '100n', fp('C_P5.00mm'),
            {'1': 'AIN3', '2': 'GND'}, (162.56, 109.22, 0, None), {}),
     # A0: Kelvin from Rp's top pad
-    'R2': ('Device:R', '1k', fp('R_P7.62mm'),
+    'R2': ('Device:R', '1k', fp('R_P10.16mm'),
            {'1': '+3V3', '2': 'AIN0'}, (177.8, 76.2, 90, None), {}),
     'C1': ('Device:C', '100n', fp('C_P5.00mm'),
            {'1': 'AIN0', '2': 'GND'}, (162.56, 83.82, 0, None), {}),
     # Sense wire: bias on the harness side, the A1 tap (1k, clamp, 1k)
-    'R7': ('Device:R', '100k', fp('R_P7.62mm'),
+    'R7': ('Device:R', '100k', fp('R_P10.16mm'),
            {'1': '+3V3', '2': 'SENSE'}, (236.22, 132.08, 0, None), {}),
-    'R5': ('Device:R', '1k 0.6W', fp('R_P7.62mm'),
+    'R5': ('Device:R', '1k 0.6W', fp('R_P10.16mm'),
            {'1': 'SENSE', '2': 'TAP_G'}, (213.36, 142.24, 270, None), {}),
     'D3': ('Device:D', '1N4148', fp('D_DO-35_P12.70mm'),
            {'1': '+3V3', '2': 'TAP_G'}, (195.58, 152.4, 90, None), {}),
     'D4': ('Device:D', '1N4148', fp('D_DO-35_P7.62mm'),
            {'1': 'TAP_G', '2': 'GND'}, (205.74, 162.56, 90, None), {}),
-    'R6': ('Device:R', '1k', fp('R_P7.62mm'),
+    'R6': ('Device:R', '1k', fp('R_P10.16mm'),
            {'1': 'TAP_G', '2': 'AIN1'}, (177.8, 142.24, 90, None), {}),
     'C2': ('Device:C', '100n', fp('C_P5.00mm'),
            {'1': 'AIN1', '2': 'GND'}, (162.56, 149.86, 0, None), {}),
     # I2C pull-ups (stronger, for the cable; the module adds 10k) and 3.3 V decoupling at the module
-    'R8': ('Device:R', '3k3', fp('R_P7.62mm'),
+    'R8': ('Device:R', '3k3', fp('R_P10.16mm'),
            {'1': '+3V3', '2': 'SDA'}, (88.9, 132.08, 0, None), {}),
-    'R9': ('Device:R', '3k3', fp('R_P7.62mm'),
+    'R9': ('Device:R', '3k3', fp('R_P10.16mm'),
            {'1': '+3V3', '2': 'SCL'}, (99.06, 132.08, 0, None), {}),
     'C4': ('Device:C', '100n', fp('C_P5.00mm'),
            {'1': '+3V3', '2': 'GND'}, (111.76, 132.08, 0, None), {}),

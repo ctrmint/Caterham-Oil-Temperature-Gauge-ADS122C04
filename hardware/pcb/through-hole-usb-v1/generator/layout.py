@@ -15,42 +15,43 @@ EDGE_ROW = -HEIGHT / 2 + 9.5        # connector pins: 9.5 mm in from the edge pu
 PLACE = {
     # ref: (x, y, rot, side). For two-lead and connector footprints (x, y) is pad 1; for U1, H* and TP* the centre.
     'J3': (-12.9, EDGE_ROW, 180, 'F'),     # row A (edge): 1-3 GND; row B: 4 +3V3, 5 SCL, 6 SDA (each above a GND)
-    'J2': (18.0, EDGE_ROW, 180, 'F'),      # pads: 1 SENDER 18, 2 SENSE 15, 3 GND (return) 12, 4 GND 9
+    'J2': (20.0, EDGE_ROW, 180, 'F'),      # pads: 1 SENDER 20, 2 SENSE 17, 3 GND (return) 14, 4 GND 11
     'U1': (-15.5, 7.0, 270, 'F'),          # left column VIN GND SCL SDA (x -21.85), right column A3 A1 A0 (x -9.15)
     'H1': (HOLES[0][0], HOLES[0][1], 0, 'F'),
     'H2': (HOLES[1][0], HOLES[1][1], 0, 'F'),
     'H3': (HOLES[2][0], HOLES[2][1], 0, 'F'),
     'H4': (HOLES[3][0], HOLES[3][1], 0, 'F'),
     # display side: pull-ups across the I2C lanes, decoupling at the module
-    'R8': (-12.18, -11.5, 180, 'F'),
-    'R9': (-9.88, -8.5, 180, 'F'),
+    'R8': (-9.64, -11.5, 180, 'F'),
+    'R9': (-7.34, -8.5, 180, 'F'),
     'C4': (-19.3, 22.5, 0, 'F'),
     'TP1': (-28.5, 1.0, 0, 'F'),
     'TP2': (-1.5, EDGE_ROW, 0, 'F'),       # on the ground track from the harness return to the display
     'TP3': (-11.5, 27.5, 0, 'F'),
-    # Analogue: caps next to the module's right column, series resistors 7.62 mm out, the taps beyond.
+    # Analogue: caps next to the module's right column, series resistors 10.16 mm out, the taps beyond.
+    # Every resistor is at 10.16 mm: Vishay's minimum pitch for a flat MBB0207.
     # band A (y 17.5): the signal wire's A3 tap
     'C3': (-4.0, 13.6, 0, 'F'),
-    'R4': (3.62, 17.5, 180, 'F'),
-    'D2': (6.1, 17.5, 90, 'F'),
-    'D1': (8.6, 25.12, 270, 'F'),
-    'R3': (21.26, 17.5, 180, 'F'),
+    'R4': (6.16, 17.5, 180, 'F'),
+    'D2': (8.64, 17.5, 90, 'F'),
+    'D1': (11.14, 25.12, 270, 'F'),
+    'R3': (23.8, 17.5, 180, 'F'),
     # band B (y 10): the sense wire's A1 tap
-    'R6': (3.62, 10.0, 180, 'F'),
+    'R6': (6.16, 10.0, 180, 'F'),
     'C2': (-4.0, 6.3, 0, 'F'),
-    'R5': (15.0, 10.0, 180, 'F'),
-    'D3': (6.5, -5.7, 90, 'F'),
-    'D4': (9.5, 7.0, 270, 'F'),
+    'R5': (20.08, 10.0, 180, 'F'),
+    'D3': (9.04, -5.7, 90, 'F'),
+    'D4': (12.04, 7.0, 270, 'F'),
     # band C (y 0.5 .. -11): A0's filter, the Kelvin tap, Rp, the sense bias, the signal TVS
     'C1': (-4.0, 0.5, 0, 'F'),
-    'R2': (3.62, -3.1, 180, 'F'),
-    'R1': (11.1, -6.5, 0, 'F'),
-    'R7': (7.38, -11.0, 0, 'F'),
-    'D5': (24.5, 6.0, 270, 'F'),
+    'R2': (6.16, -3.1, 180, 'F'),
+    'R1': (13.64, -6.5, 0, 'F'),
+    'R7': (9.92, -11.0, 0, 'F'),
+    'D5': (27.5, 6.0, 270, 'F'),
 }
 
 EXPECT = {('U1', '7'): (-21.85, 13.35), ('U1', '2'): (-9.15, 10.81), ('J3', '6'): (-18.9, EDGE_ROW + 3),
-          ('J3', '1'): (-12.9, EDGE_ROW), ('J2', '1'): (18.0, EDGE_ROW), ('J2', '4'): (9.0, EDGE_ROW)}
+          ('J3', '1'): (-12.9, EDGE_ROW), ('J2', '1'): (20.0, EDGE_ROW), ('J2', '4'): (11.0, EDGE_ROW)}
 
 MODEL_OVERRIDE = {}
 
@@ -98,20 +99,20 @@ def route(board, P, nets, fps, pad_xy):
     # Top rail: module VIN -> C4 -> TP3 -> the A3 tap's clamp
     T('+3V3', [('U1', '7'), (-19.3, 15.0), ('C4', '1'), (-19.3, 27.5), ('TP3', '1'), (8.6, 27.5), ('D1', '1')], W_3V3)
     # Bottom rail: -> sense bias, the A1 tap's clamp, and Rp's top pad
-    T('+3V3', [(-12.9, -14.0), (7.38, -14.0), ('R7', '1')], W_3V3)
-    T('+3V3', [('R7', '1'), (6.5, -9.5), ('D3', '1')], W_3V3)
-    T('+3V3', [('R7', '1'), (11.1, -9.0), ('R1', '1')], W_3V3)
-    # A0: Kelvin from Rp's top pad, its own track
-    T('+3V3', [('R2', '1'), (7.5, -3.0), ('R1', '1')])
+    T('+3V3', [(-12.9, -14.0), (9.92, -14.0), ('R7', '1')], W_3V3)
+    T('+3V3', [('R7', '1'), (9.04, -9.5), ('D3', '1')], W_3V3)
+    T('+3V3', [('R7', '1'), (13.64, -9.0), ('R1', '1')], W_3V3)
+    # A0: Kelvin from Rp's top pad, its own track, clear of D3's +3V3 pad
+    T('+3V3', [('R2', '1'), (11.0, -3.1), ('R1', '1')])
 
     # Signal wire: harness pin -> Rp -> the A3 tap; TVS beside it. Nothing in series.
-    T('SENDER', [('J2', '1'), (18.0, -18.0), (21.26, -15.0), ('R1', '2'), ('R3', '1')], W_SENDER)
-    T('SENDER', [('D5', '1'), (21.26, 6.0)], W_SENDER)
+    T('SENDER', [('J2', '1'), (20.0, -18.5), (23.8, -14.7), ('R1', '2'), ('R3', '1')], W_SENDER)
+    T('SENDER', [('D5', '1'), (23.8, 6.0)], W_SENDER)
     T('TAP_S', [('R3', '2'), ('D1', '2'), ('D2', '1'), ('R4', '1')])
     T('AIN3', [('R4', '2'), ('C3', '1'), (-7.0, 12.0), ('U1', '2')])
 
     # Sense wire: harness pin -> bias -> the A1 tap
-    T('SENSE', [('J2', '2'), ('R7', '2'), ('R5', '1')])
+    T('SENSE', [('J2', '2'), (17.0, -18.5), (20.08, -15.42), ('R7', '2'), ('R5', '1')])
     T('TAP_G', [('R6', '1'), ('R5', '2'), ('D3', '2'), ('D4', '1')])
     T('AIN1', [('R6', '2'), ('C2', '1'), (-7.0, 6.3), ('U1', '4')])
     T('AIN0', [('R2', '2'), ('C1', '1'), (-7.0, 2.5), ('U1', '5')])
@@ -120,7 +121,7 @@ def route(board, P, nets, fps, pad_xy):
 SILK = []
 # Where a centred reference would sit on a pad or another part's legend: (x, y).
 REF_AT = {'TP1': (-28.5, 3.3), 'TP2': (-1.5, -24.0), 'TP3': (-8.2, 29.3),
-          'J2': (13.5, -28.8), 'J3': (-15.9, -28.8)}
+          'J2': (15.5, -28.8), 'J3': (-15.9, -28.8)}
 
 
 def pad_xy_mm(p):

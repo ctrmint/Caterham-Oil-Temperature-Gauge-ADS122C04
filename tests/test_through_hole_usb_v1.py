@@ -122,6 +122,16 @@ class TestMeasurementTopology(unittest.TestCase):
         self.assertEqual((pin('D5', '1'), pin('D5', '2')), ('SENDER', 'GND'))   # cathode on the wire
         self.assertEqual(D.BOM['D5'][1], 'P6KE18A-E3/54')
 
+    def test_resistors_lie_flat_at_vishays_minimum_pitch(self):
+        # Vishay doc 28766: an MBB/SMA 0207 mounted flat needs at least 10.0 mm between its leads
+        # (7.5 to 10 mm only for the separate L0 version, which this board doesn't use).
+        for ref, part in D.PARTS.items():
+            if ref.startswith('R'):
+                with self.subTest(ref=ref):
+                    self.assertTrue(D.BOM[ref][1].startswith('MBB0207'))
+                    pitch = float(re.search(r'_P([\d.]+)mm', D.FOOTPRINTS[part[2].split(':')[1]]).group(1))
+                    self.assertGreaterEqual(pitch, 10.0)
+
     def test_module_pins(self):
         u1 = D.PARTS['U1'][3]
         # Adafruit 1085: 1 A+, 2 A3, 3 A2, 4 A1, 5 A0, 6 A-; 7 VIN, 8 GND, 9 SCL, 10 SDA, 11 ADDR, 12 ALRT
