@@ -28,12 +28,13 @@ Still owed: the resistance accuracy against known resistors, the measured Rp, a 
 
 | Build | What it is | Power | Status |
 |---|---|---|---|
-| Breadboard or veroboard ([hardware/WIRING.md](hardware/WIRING.md)) | Adafruit ADS1115 module and the measurement circuit, wired to the display's header | USB, on the bench | Bench-tested on the veroboard (2026-11-13/14). No input protection: **bench only** |
+| Breadboard or bench veroboard ([hardware/WIRING.md](hardware/WIRING.md)) | Adafruit ADS1115 module and the measurement circuit, wired to the display's header | USB, on the bench | Bench-tested on the veroboard (2026-11-13/14). No input protection: **bench only** |
 | [surface-mount-v1](hardware/pcb/surface-mount-v1/README.md) | 39 × 23 mm two-layer board that plugs into the display case's socket. Surface-mount parts, fitted by the board house | 5 V on its harness connector, from a separate automotive 12 V → 5 V converter | Designed, not yet built (#48) |
 | [through-hole-v1](hardware/pcb/through-hole-v1/README.md) | 92 × 64 mm single-sided board, hand-soldered, in its own 3D-printed box, joined to the display by a cable of 30 cm or less | Fused, ignition-switched 12 V, through its own fuse, TVS, reverse-polarity diode and 5 V regulator | Designed, not yet built (#51) |
 | [through-hole-usb-v1](hardware/pcb/through-hole-usb-v1/README.md) | 65 × 62 mm single-sided board, hand-soldered, in its own 3D-printed box, joined to the display by a cable of 30 cm or less | The display's own USB-C socket (in the car, an ignition-switched USB-C charger); the board takes the display's 3.3 V. The harness brings a dedicated ground return from the tank | Designed, not yet built (#54) |
+| [veroboard-usb-v1](hardware/pcb/veroboard-usb-v1/README.md) | 86.4 × 30.5 mm stripboard (33 holes × 11 strips), hand-built, in its own box, with screw terminal blocks for the display cable and the harness | As through-hole-usb-v1: the display's USB-C socket, with a dedicated ground return from the tank | Designed, layout checked; not yet built (#55) |
 
-All three PCBs have the same measurement and the same input protection: each harness tap is 1 kΩ, a clamp pair to 3.3 V and GND, then the filter's 1 kΩ, and a TVS sits on the signal wire. The firmware is the same for every build; set `kPullUpOhms` in `main/Config.h` to your measured Rp. Each PCB's folder has its parts list (with connectors and mating parts), renders, Gerbers and the checks to do before and after building it.
+All four interface boards have the same measurement and the same input protection: each harness tap is 1 kΩ, a clamp pair to 3.3 V and GND, then the filter's 1 kΩ, and a TVS sits on the signal wire. The firmware is the same for every build; set `kPullUpOhms` in `main/Config.h` to your measured Rp. Each board's folder has its parts list (with connectors and mating parts), its drawings (and for the PCBs, renders and Gerbers) and the checks to do before and after building it.
 
 ## Display
 
@@ -74,7 +75,8 @@ Beyond the calibration table the reading shows `<min` or `>max` (for example `<2
 │   └── pcb/                        # interface PCBs, each self-contained: KiCad design, generator, build.sh, renders, Gerbers, parts lists
 │       ├── surface-mount-v1/       # plugs onto the display; SMD, board-house assembled
 │       ├── through-hole-v1/        # own box, cabled to the display, 12 V in; single-sided, hand-soldered
-│       └── through-hole-usb-v1/    # as through-hole-v1, but the display runs from USB-C; no 12 V input
+│       ├── through-hole-usb-v1/    # as through-hole-v1, but the display runs from USB-C; no 12 V input
+│       └── veroboard-usb-v1/       # through-hole-usb-v1's circuit on stripboard, with terminal blocks
 ├── docs/                           # architecture, Fedora setup, calibration,
 │                                   # installation, validation, safety, porting,
 │                                   # sender R/T graph (sender-curve.svg) and its data
@@ -92,9 +94,9 @@ Beyond the calibration table the reading shows `<min` or `>max` (for example `<2
 | Measurement | Differential: Vp = A0 − A3 across the pull-up, Vs = A3 − A1 across the sender; `Rs = Rp × Vs / Vp` (ratiometric, cancels rail and ground offset) |
 | Sender interface | 470 Ω 0.1 % pull-up to 3.3 V; signal wire to the spade plus a **dedicated ground-sense wire** to the tank bond stud |
 | Input noise | 1 kΩ series + 100 nF filter on A0, A1, A3 |
-| Input protection | On all three PCBs: clamp pairs on the signal and ground-sense taps, and a TVS on the signal wire. Designed, not yet bench-tested or qualified in the car. The breadboard and veroboard have none |
-| Interface hardware | Three PCB options for the car: surface-mount-v1 (plugs onto the display), and through-hole-v1 and through-hole-usb-v1 (each in its own box, cabled to the display); see [hardware/pcb](hardware/pcb/) |
-| Power | USB on the bench. In the car: 5 V from a separate automotive converter (surface-mount-v1), the car's fused 12 V into through-hole-v1's own regulator, or a USB-C charger into the display (through-hole-usb-v1, with a dedicated ground return from the tank). Never 12 V to the display |
+| Input protection | On all four interface boards: clamp pairs on the signal and ground-sense taps, and a TVS on the signal wire. Designed, not yet bench-tested or qualified in the car. The breadboard and the bench veroboard have none |
+| Interface hardware | Four options for the car: surface-mount-v1 (plugs onto the display), and through-hole-v1, through-hole-usb-v1 and the veroboard-usb-v1 stripboard (each in its own box, cabled to the display); see [hardware/pcb](hardware/pcb/) |
+| Power | USB on the bench. In the car: 5 V from a separate automotive converter (surface-mount-v1), the car's fused 12 V into through-hole-v1's own regulator, or a USB-C charger into the display (through-hole-usb-v1 and veroboard-usb-v1, with a dedicated ground return from the tank). Never 12 V to the display |
 | Isolation | No connection to MBE ECU / existing instruments |
 | Radio | Not used. The internal ADC2 is no longer needed, so Wi-Fi/BLE could be added later |
 | Temperature calibration | Explicit sender measurements, no assumed Caterham curve |
@@ -103,10 +105,10 @@ Beyond the calibration table the reading shows `<min` or `>max` (for example `<2
 ## Important known limitations
 
 * The **sender's resistance-versus-temperature curve is not verified**. The listed 1,158–44 Ω range is the 40 °C and 140 °C points of the likely factory sender's published curve (Caerbont TT6811-03, #42). It is not a calibration of the fitted sender. A bench sender stamped 6811 didn't follow that curve: up to 89 °C it tracked the Bosch 0 280 130 026 curve (2.5 kΩ at 20 °C) instead. [docs/sender-curve.svg](docs/sender-curve.svg) plots both curves against the firmware's thresholds.
-* The ADS1115 cancels ground offset only while each input stays between its GND and VDD. Bond the gauge supply ground close to the tank bond (on through-hole-usb-v1 the harness's own return wire does this) and keep the offset near 0 V; a 100 kΩ bias resistor makes a broken ground-sense wire show as `GROUND FAULT`. Extremely cold high-resistance readings may be outside the calibrated range. Readings over 5 kΩ, from a sender colder than about 10 °C, currently show `SENSOR OPEN` (#40).
+* The ADS1115 cancels ground offset only while each input stays between its GND and VDD. Bond the gauge supply ground close to the tank bond (on the USB-powered boards the harness's own return wire does this) and keep the offset near 0 V; a 100 kΩ bias resistor makes a broken ground-sense wire show as `GROUND FAULT`. Extremely cold high-resistance readings may be outside the calibrated range. Readings over 5 kΩ, from a sender colder than about 10 °C, currently show `SENSOR OPEN` (#40).
 * Loose chassis grounds, alternator noise, load dumps and coolant/oil leaks are **vehicle integration hazards**. The I²C bus must stay short and never runs to the tank. On surface-mount-v1 it stays on the display; the through-hole boards' display cable must be 30 cm or less, and their one-hour I²C soak tests are still owed (#51, #54).
-* An open A3 or A1 tap (a cracked joint or a lifted socket contact) gives a plausible but wrong resistance with no fault (#39). The PCBs solder every tap, and a firmware check is proposed in #39.
-* None of the PCBs has been built yet. Their input protection is designed but untested, so don't assume it survives a load dump. through-hole-v1 needs about 7 V at its input to hold 5 V, so the display may reset while the engine cranks (#43).
+* An open A3 or A1 tap (a cracked joint or a lifted socket contact) gives a plausible but wrong resistance with no fault (#39). The interface boards solder every tap, and a firmware check is proposed in #39.
+* None of the interface boards has been built yet. Their input protection is designed but untested, so don't assume it survives a load dump. through-hole-v1 needs about 7 V at its input to hold 5 V, so the display may reset while the engine cranks (#43).
 * The board and its exposed contacts need an enclosure rated for the chosen location. A dashboard instrument must not obscure any legally required indicators or the driver's view.
 * Calibrate up to at least the red threshold. Readings hotter than the top calibration point show `ABOVE CAL RANGE` and are treated as **critical** (red), because the real temperature is unknown.
 * Alarm levels (60/115/130 °C) are **illustrative configurable defaults**, not Caterham- or engine-approved limits. Review with engine builder/vehicle documentation before deployment.

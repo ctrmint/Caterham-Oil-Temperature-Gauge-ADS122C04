@@ -26,7 +26,7 @@ No longer needed compared with the original internal-ADC circuit: the 10 kΩ / 1
 
 ### surface-mount-v1 PCB
 
-There are three PCB builds for the car. The smallest is [surface-mount-v1](pcb/surface-mount-v1/README.md), which plugs onto the display. [Its parts list](pcb/surface-mount-v1/BOM.md) gives its parts and connectors, with manufacturer and LCSC part numbers; its README covers ordering, assembly and the checks. It combines everything above except the display, the sender, the harness, the converter, the enclosure and the test equipment. It has a bare ADS1115 instead of the module, a 1206 Rp (Vishay TNPW1206470RBEEA), and the input protection: SMBJ15A, BAV99 clamps and 1206 first-stage resistors.
+There are four interface boards for the car: three PCBs and a stripboard. The smallest is [surface-mount-v1](pcb/surface-mount-v1/README.md), which plugs onto the display. [Its parts list](pcb/surface-mount-v1/BOM.md) gives its parts and connectors, with manufacturer and LCSC part numbers; its README covers ordering, assembly and the checks. It combines everything above except the display, the sender, the harness, the converter, the enclosure and the test equipment. It has a bare ADS1115 instead of the module, a 1206 Rp (Vishay TNPW1206470RBEEA), and the input protection: SMBJ15A, BAV99 clamps and 1206 first-stage resistors.
 
 The protection still has to pass its bench fault tests and qualification in the car; do not assume it makes the circuit load-dump proof.
 
@@ -47,3 +47,7 @@ The protection still has to pass its bench fault tests and qualification in the 
 - a harness connector with a dedicated ground return to the tank.
 
 [Its parts list](pcb/through-hole-usb-v1/BOM.md) covers the board, the plugs and terminals, the display cable, the module standoffs and the box screws. The USB-C charger for the display isn't part of it.
+
+### veroboard-usb-v1 stripboard
+
+[veroboard-usb-v1](pcb/veroboard-usb-v1/README.md) is through-hole-usb-v1's circuit on stripboard, with the same parts. Instead of Micro-Fit connectors it has Phoenix MPT 0,5 screw terminal blocks. [Its parts list](pcb/veroboard-usb-v1/BOM.md) also covers the stripboard, link wire, cable and ferrules.

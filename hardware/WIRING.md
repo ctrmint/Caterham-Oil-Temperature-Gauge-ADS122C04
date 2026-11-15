@@ -19,7 +19,7 @@ The sender is measured by an external **ADS1115 16-bit I²C ADC**, not by the ES
 | 7 | GPIO18 | **I²C SCL** to ADS1115 SCL (on the `-G` model this pin may be used by GNSS; that model is not supported) |
 | 8 | GPIO16 | Not used. The firmware polls the ADS1115 for each result and turns its ALERT/RDY output off, so leave this pin and the module's ALRT unconnected. |
 
-The firmware uses I²C port 0; the Waveshare BSP already uses port 1 (GPIO14/15) for the touch panel and on-board peripherals. The recommended Adafruit ADS1115 module already has 10 kΩ pull-ups on SDA/SCL to its VDD, so no extra pull-ups are needed at 3.3 V. Keep the I²C leads short (ideally < 20 cm) and mount the ADS1115 next to the Waveshare board; **run the analogue sender wires to the tank, never the I²C bus**. The exceptions are through-hole-v1 and through-hole-usb-v1, which sit in their own boxes: their display cables may be up to 30 cm, with a ground beside each signal and stronger 3.3 kΩ pull-ups on the board (see [through-hole-v1's README](pcb/through-hole-v1/README.md)).
+The firmware uses I²C port 0; the Waveshare BSP already uses port 1 (GPIO14/15) for the touch panel and on-board peripherals. The recommended Adafruit ADS1115 module already has 10 kΩ pull-ups on SDA/SCL to its VDD, so no extra pull-ups are needed at 3.3 V. Keep the I²C leads short (ideally < 20 cm) and mount the ADS1115 next to the Waveshare board; **run the analogue sender wires to the tank, never the I²C bus**. The exceptions are through-hole-v1, through-hole-usb-v1 and veroboard-usb-v1, which sit in their own boxes: their display cables may be up to 30 cm, with a ground beside each signal and stronger 3.3 kΩ pull-ups on the board (see [through-hole-v1's README](pcb/through-hole-v1/README.md)).
 
 ## ADS1115 connections
 
@@ -47,7 +47,7 @@ Run three conductors from the gauge to the tank:
 2. **Ground-sense wire**: ADS1115 A1 (via 1 kΩ) to the tank bond stud. It carries essentially no current, so it reads the true tank potential.
 3. **Bond strap / supply ground**: tank to chassis, and the gauge supply ground to chassis. This carries the excitation current (up to about 7 mA) plus whatever else flows in the chassis.
 
-When the display runs from USB-C (through-hole-usb-v1), nothing guarantees the gauge's ground reaches the chassis: a power bank floats, and a USB charger's ground arrives through its own 12 V socket. The third conductor is then a **dedicated return wire** from the board's GND to the tank bond stud, run with the other two. It carries the excitation current; the ground-sense wire still measures the tank, so its resistance doesn't matter. If it breaks while the supply floats, the tank floats up to 3.3 V and the gauge shows `GROUND FAULT`.
+When the display runs from USB-C (through-hole-usb-v1, veroboard-usb-v1), nothing guarantees the gauge's ground reaches the chassis: a power bank floats, and a USB charger's ground arrives through its own 12 V socket. The third conductor is then a **dedicated return wire** from the board's GND to the tank bond stud, run with the other two. It carries the excitation current; the ground-sense wire still measures the tank, so its resistance doesn't matter. If it breaks while the supply floats, the tank floats up to 3.3 V and the gauge shows `GROUND FAULT`.
 
 Twist the signal and ground-sense wires (and the return wire, where there is one) together (or use a screened cable, screen grounded at the gauge end only) and route them away from ignition leads, the alternator and the exhaust.
 
@@ -110,13 +110,14 @@ The 1 kΩ / 100 nF networks limit current and filter noise, but they are **not**
 
   It too still has to pass its bench fault tests and the in-car tests.
 - **The through-hole-usb-v1 PCB** ([pcb/through-hole-usb-v1](pcb/through-hole-usb-v1/README.md)) has the same through-hole protection, with the same tests owed.
+- **The veroboard-usb-v1 stripboard** ([pcb/veroboard-usb-v1](pcb/veroboard-usb-v1/README.md)) builds it too, with the same parts.
 - **The surface-mount-v1 PCB** ([pcb/surface-mount-v1](pcb/surface-mount-v1/README.md)) engineers this as PR #34 proposed:
   - each harness tap is two stages: 1 kΩ (1206), then a BAV99 clamp to 3.3 V and GND (1N4148-class, nanoamp leakage), then the ADC's 1 kΩ;
   - an SMBJ15A TVS sits on the signal wire;
   - the 100 kΩ bias stays on the harness side.
 
   With a wire at 14.4 V, about 34 mA (signal) or 10 mA (sense) goes into the 3.3 V rail, and under 0.5 mA reaches an ADC pin. It still has to pass its bench fault tests and the in-car tests.
-- **The veroboard build** has none and stays a bench rig: don't fit it in the car. A separate veroboard protection board (PR #34) was closed in favour of surface-mount-v1.
+- **The bench veroboard build** (veroboard.svg, below) has none and stays a bench rig: don't fit it in the car. A separate veroboard protection board (PR #34) was closed in favour of surface-mount-v1.
 
 ## Bench steps
 
@@ -204,3 +205,15 @@ The 1 kΩ / 100 nF networks limit current and filter noise, but they are **not**
 [Its README](pcb/through-hole-usb-v1/README.md) covers the grounds, the cable, the box, ordering, assembly and the checks owed. [Its parts list](pcb/through-hole-usb-v1/BOM.md) gives every part with its manufacturer part number.
 
 ![through-hole-usb-v1 PCB, 3D render](pcb/through-hole-usb-v1/renders/iso.png)
+
+## veroboard-usb-v1 stripboard
+
+[veroboard-usb-v1](pcb/veroboard-usb-v1/README.md) is through-hole-usb-v1's circuit on 0.1 in stripboard, made as small as its parts allow: 33 holes by 11 strips (86.4 × 30.5 mm), 14 track cuts and 9 wire links.
+- **Unlike the bench veroboard above,** it has the full harness protection and the dedicated ground return, and the display reaches it only by cable.
+- **Both cables land in screw terminal blocks** (Phoenix MPT 0,5, 2.54 mm): J3 for the display (3.3 V, SCL and SDA, each beside a ground), J2 for the harness (1 sender, 2 ground return, 3 ground sense, 4 screen).
+- **The module is soldered in,** chip side up; its ADDR pin goes to ground.
+- **A checker** (`generator/vero.py`, run by `tests/test_veroboard_usb_v1.py`) proves the strips, cuts and links make exactly this circuit, and that every part fits at its datasheet size and lead spacing.
+
+[Its README](pcb/veroboard-usb-v1/README.md) has the layout, the build steps and the checks owed; [ASSEMBLY.md](pcb/veroboard-usb-v1/ASSEMBLY.md) lists every cut, link and hole.
+
+![veroboard-usb-v1 layout](pcb/veroboard-usb-v1/renders/layout.svg)
