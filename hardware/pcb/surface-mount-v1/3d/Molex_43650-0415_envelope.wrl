@@ -1,0 +1,16 @@
+#VRML V2.0 utf8
+# Simplified envelope of the Molex 43650-0415 (Micro-Fit 3.0, 1x4 vertical) for the 3D render.
+# 
+# KiCad ships no 3D model for this part. The body outline follows the KiCad footprint's
+# fab layer (15.65 x 4.37 mm plus the latch ramp) and Molex's 9.91 mm height. Not a Molex model.
+# VRML units are 0.1 in (2.54 mm); footprint y is down, VRML y is up.
+Transform { translation 1.7717 -0.4390 1.9508 children [ Shape { appearance Appearance { material Material { diffuseColor 0.12 0.12 0.13 specularColor 0.2 0.2 0.2 shininess 0.3 } } geometry Box { size 6.1614 1.7205 3.9016 } } ] }
+Transform { translation 1.7717 0.6969 1.4764 children [ Shape { appearance Appearance { material Material { diffuseColor 0.12 0.12 0.13 specularColor 0.2 0.2 0.2 shininess 0.3 } } geometry Box { size 1.1811 0.5512 2.9528 } } ] }
+Transform { translation 0.0000 -0.4528 3.9055 children [ Shape { appearance Appearance { material Material { diffuseColor 0.02 0.02 0.02 specularColor 0.2 0.2 0.2 shininess 0.3 } } geometry Box { size 1.1417 1.1417 0.0079 } } ] }
+Transform { translation 0.0000 -0.4528 2.5472 children [ Shape { appearance Appearance { material Material { diffuseColor 0.85 0.7 0.3 specularColor 0.2 0.2 0.2 shininess 0.3 } } geometry Box { size 0.2520 0.2520 2.7323 } } ] }
+Transform { translation 1.1811 -0.4528 3.9055 children [ Shape { appearance Appearance { material Material { diffuseColor 0.02 0.02 0.02 specularColor 0.2 0.2 0.2 shininess 0.3 } } geometry Box { size 1.1417 1.1417 0.0079 } } ] }
+Transform { translation 1.1811 -0.4528 2.5472 children [ Shape { appearance Appearance { material Material { diffuseColor 0.85 0.7 0.3 specularColor 0.2 0.2 0.2 shininess 0.3 } } geometry Box { size 0.2520 0.2520 2.7323 } } ] }
+Transform { translation 2.3622 -0.4528 3.9055 children [ Shape { appearance Appearance { material Material { diffuseColor 0.02 0.02 0.02 specularColor 0.2 0.2 0.2 shininess 0.3 } } geometry Box { size 1.1417 1.1417 0.0079 } } ] }
+Transform { translation 2.3622 -0.4528 2.5472 children [ Shape { appearance Appearance { material Material { diffuseColor 0.85 0.7 0.3 specularColor 0.2 0.2 0.2 shininess 0.3 } } geometry Box { size 0.2520 0.2520 2.7323 } } ] }
+Transform { translation 3.5433 -0.4528 3.9055 children [ Shape { appearance Appearance { material Material { diffuseColor 0.02 0.02 0.02 specularColor 0.2 0.2 0.2 shininess 0.3 } } geometry Box { size 1.1417 1.1417 0.0079 } } ] }
+Transform { translation 3.5433 -0.4528 2.5472 children [ Shape { appearance Appearance { material Material { diffuseColor 0.85 0.7 0.3 specularColor 0.2 0.2 0.2 shininess 0.3 } } geometry Box { size 0.2520 0.2520 2.7323 } } ] }

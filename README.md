@@ -54,6 +54,7 @@ Beyond the calibration table the reading shows `<min` or `>max` (for example `<2
 │   ├── Kconfig.projbuild           # explicitly opt-in simulation
 │   └── idf_component.yml          # Waveshare BSP / LVGL dependencies
 ├── hardware/                       # wiring, schematic (wiring.svg), bench breadboard (breadboard.svg) and veroboard (veroboard.svg) layouts, and BOM
+│   └── pcb/surface-mount-v1/       # interface PCB: KiCad design, generator, build.sh, renders, Gerbers, parts lists
 ├── docs/                           # architecture, Fedora setup, calibration,
 │                                   # installation, validation, safety, porting,
 │                                   # sender R/T graph (sender-curve.svg) and its data

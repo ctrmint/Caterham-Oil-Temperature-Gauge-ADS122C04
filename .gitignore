@@ -10,3 +10,8 @@ __pycache__/
 *.pyc
 build-*/
 build-*.log
+
+# KiCad local state (hardware/pcb)
+*.kicad_prl
+*-backups/
+fp-info-cache
