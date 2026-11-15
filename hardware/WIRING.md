@@ -107,7 +107,7 @@ The 1 kΩ / 100 nF networks limit current and filter noise, but they are **not**
   - the 100 kΩ bias stays on the harness side.
 
   With a wire at 14.4 V, about 34 mA (signal) or 10 mA (sense) goes into the 3.3 V rail, and under 0.5 mA reaches an ADC pin. It still has to pass its bench fault tests and the in-car tests.
-- **The veroboard build** has no protection fitted yet (PR #34).
+- **The veroboard build** has none and stays a bench rig: don't fit it in the car. A separate veroboard protection board (PR #34) was closed in favour of surface-mount-v1.
 
 ## Bench steps
 
