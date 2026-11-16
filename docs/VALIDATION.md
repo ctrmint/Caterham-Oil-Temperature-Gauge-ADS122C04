@@ -19,6 +19,11 @@
   - **Faults:** an open R1, R2, Rref or sender, a shorted sender, and a short across A0–A1 or A1–A2 each fault from the first full cycle.
   - **Bench step 11:** the statuses it states are checked.
   - **The full sweep:** run `front_end_sim_tests full` by hand.
+- Board checks (`tests/test_boards.py`):
+  - **Freshness:** each option's generated stripboard, PCB and parts-list files match their manifest, so none can go stale.
+  - **Stripboards:** both layouts pass their checker (nets, cuts, links, part spacing, edge and terminal clearances, and no ground strip beside a sensitive net), and the checker catches deliberately broken layouts.
+  - **PCBs:** each carries exactly the documented circuit. Each has two copper layers, no pour and no vias, and its sensitive copper is at least 1 mm from ground, measured from the board file independently of KiCad's DRC.
+  - **Parts lists:** part numbers appear only for the parts that were checked.
 - ADC frame tests (`tests/adc_frame_test.cpp`): the CRC-16-CCITT check value; register and conversion frames decoded; every single-bit error rejected; a reset chip's unsealed reply rejected; and 24-bit two's-complement codes at zero, ±1 and both full scales.
 
 Run: `./scripts/test_host.sh`.
@@ -51,6 +56,7 @@ Run: `./scripts/test_host.sh`.
 | R1 and R2 each unsoldered from the harness side (step 11) | `SENSOR OPEN` and `GROUND FAULT` respectively, never a reading (#1) | photo/log |
 | Pin pairs shorted, A0–A1 then A1–A2 (step 11), either option | `SENSOR OPEN`, then `SENSOR SHORT`, never a reading (#4) | photo/log |
 | Option B: bench steps 4–11 with C1 and C2 fitted | The same results as option A, and the same readings within the noise (#4) | CSV log |
+| Stripboard or PCB build (either option): bench steps 1–13 on the board as built | The same results as the no-board build; the board's assembly checks pass first | photo/log |
 | Short to 14.4 V through a 50 mA limit, signal wire then sense wire (step 12) | A fault while applied; no damage; correct readings afterwards; Rref re-measured unchanged (#1) | photo/log, Rref |
 | Return wire disconnected, display on a USB power bank | A fault (`SENSOR OPEN` or `GROUND FAULT`), never a reading (#1) | photo/log |
 | Wrong Rref fitted (for example 2.4 kΩ with 2.0 kΩ configured) | `SUPPLY FAULT` (#1) | photo/log |

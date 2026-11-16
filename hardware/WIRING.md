@@ -6,9 +6,16 @@ The sender is measured by an **Adafruit ADS122C04 24-bit I²C ADC module** (prod
 
 The same current flows through both resistors, so the current's own accuracy (±6 %), the ADC's reference and the 3.3 V rail all cancel. A dedicated **ground-sense wire** to the tank removes any ground offset between the gauge and the tank.
 
-The front end comes in two versions. Neither needs a PCB or stripboard, and the display lead, terminal strip, harness and firmware are the same for both:
-- **Option A, minimal:** three resistors soldered to the module's pins.
-- **Option B, filtered:** option A plus two small capacitors across neighbouring analogue pins, which keep radio-frequency interference out of the ADC ([Option B: the input filter](#option-b-the-input-filter)). **Use option B in the car.** Option A is fine on the bench, and in the car only if the noise check (step 14) passes.
+The front end comes in two versions, and the harness and firmware are the same for both:
+- **[Option A](option-a/README.md), minimal:** three resistors soldered to the module's pins.
+- **[Option B](option-b/README.md), filtered:** option A plus two small capacitors across neighbouring analogue pins, which keep radio-frequency interference out of the ADC ([Option B: the input filter](#option-b-the-input-filter)). **Use option B in the car.** Option A is fine on the bench, and in the car only if the noise check (step 14) passes.
+
+**Three ways to build either option:**
+- **Without a board:** described below.
+- **Stripboard:** a checked layout and assembly sheet, in each option's `veroboard/` folder.
+- **PCB:** a KiCad project with Gerbers, in each option's `pcb/` folder.
+
+Each option folder also has a complete parts list for all three builds.
 
 The display runs from **USB-C**, and the module runs from the display's 3.3 V.
 
@@ -68,7 +75,7 @@ R1 and R2 limit the current into the ADC if a harness wire shorts to the battery
 ## Building it without a board
 
 1. **Bottom row:** snap a 6-pin piece off the header strip that comes with the module. Solder it into the bottom row (VIN … !RST), long pins up, so the wires solder onto pins rather than into holes.
-2. **Display lead:** use a 5-core lead of 20 cm or less, with an 8-pin piece of 2.54 mm header as the plug for the display socket.
+2. **Display lead:** use a 5-core lead of 20 cm or less, with an 8-way 2.54 mm header as the plug for the display socket. The plug is a separate header: the strip that comes with the module is for the module.
    - At the plug, solder the lead to the pins under `18`, `17`, `3.3V` and `G` (two wires on `G`). The pins under `16`, `RX`, `TX` and `5V` carry nothing.
    - At the module, solder SCL, SDA, VIN and GND to their pins.
    - The fifth wire, from the plug's `G`, goes to the terminal strip's `RETURN`.

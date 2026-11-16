@@ -4,7 +4,7 @@
 
 An independent **oil-temperature gauge** for the Caterham 420R dry-sump tank's resistive temperature sender (potentially Caterham part **71167**). It needs no ECU wiring and no factory gauge modifications.
 - **Measurement:** an **ADS122C04 24-bit I²C ADC** drives its own 250 µA current source through a reference resistor and then the sender, and compares the voltage across each. A dedicated ground-sense wire runs to the tank. So the reading is independent of the current's accuracy, the 3.3 V rail and ground offsets.
-- **Hardware:** there's no interface board. Option A is three resistors on the ADC module's pins. Option B, recommended for the car, adds two filter capacitors across the pins. The display runs from USB-C.
+- **Hardware:** option A is three resistors on the ADC module's pins. Option B, recommended for the car, adds two filter capacitors across the pins. Either can be built without a board, on stripboard, or on a PCB. The display runs from USB-C.
 - **Display:** the Waveshare board handles display, fault reporting and alarm presentation.
 
 **Status: bench prototype, new front end.** Host unit tests pass and the firmware compiles without warnings under ESP-IDF 5.5.5 (normal and demo builds; versions pinned in `dependencies.lock`). On the bench, so far ([docs/VALIDATION.md](docs/VALIDATION.md)):
@@ -34,11 +34,19 @@ The firmware ships **without** a validated sender temperature curve, so it **sho
 6. Independently characterise the exact sender, generate `main/CalibrationData.h`, rebuild, and verify °C against a reference thermometer. See [docs/CALIBRATION.md](docs/CALIBRATION.md).
 7. For the car, solder the same parts to the module, fit the terminal strip and the box ([hardware/WIRING.md](hardware/WIRING.md), "Building it without a board"), and pass the bench steps, including the short-to-battery test. Then do the power, grounding, thermal, EMI and installation checks in [docs/INSTALLATION.md](docs/INSTALLATION.md).
 
-`./scripts/test_host.sh` runs the host tests without any ESP32 hardware: the conversion, fault, alarm and display logic, the ADC's frame and CRC decoding, a circuit simulation of both front-end options, the calibration tool and the sender graph. GitHub Actions ([CI workflow](.github/workflows/ci.yml)) runs them, plus the normal and demo firmware builds, on every pull request and every push to `main`. `idf.py menuconfig` → **Caterham oil temperature gauge** → **Display synthetic sensor readings** runs a clearly marked BENCH DEMO; it must remain **off** for a real vehicle.
+`./scripts/test_host.sh` runs the host tests without any ESP32 hardware: the conversion, fault, alarm and display logic, the ADC's frame and CRC decoding, a circuit simulation of both front-end options, the stripboard and PCB checks, the calibration tool and the sender graph. GitHub Actions ([CI workflow](.github/workflows/ci.yml)) runs them, plus the normal and demo firmware builds, on every pull request and every push to `main`. `idf.py menuconfig` → **Caterham oil temperature gauge** → **Display synthetic sensor readings** runs a clearly marked BENCH DEMO; it must remain **off** for a real vehicle.
 
 ## Interface hardware
 
-There is no interface board. The front end is three resistors soldered to the Adafruit ADS122C04 module, with a 3-way terminal strip for the harness, all in a small box beside the display. That's option A. Option B, recommended for the car, adds two 47 nF capacitors across the module's analogue pins. They filter interference near the ADC's 256 kHz sampling rate, and a shorted one gives a fault rather than a reading. [hardware/WIRING.md](hardware/WIRING.md) has the circuit, the build and the bench steps; [hardware/BOM.md](hardware/BOM.md) has the parts.
+The front end is small enough to need no interface board. **Option A** is three resistors soldered to the Adafruit ADS122C04 module, with a 3-way terminal strip for the harness, all in a small box beside the display. **Option B**, recommended for the car, adds two 47 nF capacitors across the module's analogue pins. They filter interference near the ADC's 256 kHz sampling rate, and a shorted one gives a fault rather than a reading.
+
+Each option has its own folder: [hardware/option-a](hardware/option-a/README.md) and [hardware/option-b](hardware/option-b/README.md). Each folder has:
+- a description of the design;
+- a complete parts list;
+- a checked stripboard layout;
+- a two-layer PCB, as a KiCad project with Gerbers.
+
+[hardware/WIRING.md](hardware/WIRING.md) has the circuit, the build without a board and the bench steps.
 
 | Part | Where | Why |
 |---|---|---|
@@ -103,7 +111,7 @@ Beyond the calibration table the reading shows `<min` or `>max` (for example `<2
 | Sender interface | Signal wire to the spade, a **dedicated ground-sense wire** and a return wire to the tank bond stud |
 | Integrity | Every register write read back with a CRC; every result checked by CRC16 and conversion counter; ADC offset self-test; excitation-current window; burn-out checks of both taps |
 | Input protection | At least 2 kΩ between every harness wire and the ADC; no clamps or TVS. Not load-dump qualified; the short-to-battery bench test is owed |
-| Interface hardware | None: three resistors on the module's pins (option A), plus two capacitors across the pin pairs (option B, for the car), and a 3-way terminal strip, in a small box beside the display |
+| Interface hardware | Three resistors on the module's pins (option A), plus two capacitors across the pin pairs (option B, for the car). Build it without a board, on stripboard or on a two-layer PCB (hardware/option-a, hardware/option-b) |
 | Power | USB-C into the display, on the bench and in the car (an ignition-switched charger); the module takes the display's 3.3 V. Never 12 V to the display |
 | Isolation | No connection to MBE ECU / existing instruments |
 | Radio | Not used. The internal ADC isn't needed, so Wi-Fi/BLE could be added later |

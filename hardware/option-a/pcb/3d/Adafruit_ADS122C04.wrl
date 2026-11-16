@@ -1,0 +1,21 @@
+#VRML V2.0 utf8
+# Adafruit ADS122C04 module (6432) on its headers
+# Simplified envelope for renders only, not the maker's model.
+Transform { translation 0.0000 -0.0000 1.3150 children [ Shape { appearance Appearance { material Material { diffuseColor 0.05 0.12 0.35 specularColor 0.2 0.2 0.2 shininess 0.3 } } geometry Box { size 10.0000 7.0000 0.6299 } } ] }
+Transform { translation 0.0000 2.5000 0.5000 children [ Shape { appearance Appearance { material Material { diffuseColor 0.1 0.1 0.11 specularColor 0.2 0.2 0.2 shininess 0.3 } } geometry Box { size 6.0000 1.0000 1.0000 } } ] }
+Transform { translation -2.5000 2.5000 1.4055 children [ Shape { appearance Appearance { material Material { diffuseColor 0.85 0.7 0.3 specularColor 0.2 0.2 0.2 shininess 0.3 } } geometry Box { size 0.2520 0.2520 0.8110 } } ] }
+Transform { translation -1.5000 2.5000 1.4055 children [ Shape { appearance Appearance { material Material { diffuseColor 0.85 0.7 0.3 specularColor 0.2 0.2 0.2 shininess 0.3 } } geometry Box { size 0.2520 0.2520 0.8110 } } ] }
+Transform { translation -0.5000 2.5000 1.4055 children [ Shape { appearance Appearance { material Material { diffuseColor 0.85 0.7 0.3 specularColor 0.2 0.2 0.2 shininess 0.3 } } geometry Box { size 0.2520 0.2520 0.8110 } } ] }
+Transform { translation 0.5000 2.5000 1.4055 children [ Shape { appearance Appearance { material Material { diffuseColor 0.85 0.7 0.3 specularColor 0.2 0.2 0.2 shininess 0.3 } } geometry Box { size 0.2520 0.2520 0.8110 } } ] }
+Transform { translation 1.5000 2.5000 1.4055 children [ Shape { appearance Appearance { material Material { diffuseColor 0.85 0.7 0.3 specularColor 0.2 0.2 0.2 shininess 0.3 } } geometry Box { size 0.2520 0.2520 0.8110 } } ] }
+Transform { translation 2.5000 2.5000 1.4055 children [ Shape { appearance Appearance { material Material { diffuseColor 0.85 0.7 0.3 specularColor 0.2 0.2 0.2 shininess 0.3 } } geometry Box { size 0.2520 0.2520 0.8110 } } ] }
+Transform { translation 0.0000 -2.5000 0.5000 children [ Shape { appearance Appearance { material Material { diffuseColor 0.1 0.1 0.11 specularColor 0.2 0.2 0.2 shininess 0.3 } } geometry Box { size 6.0000 1.0000 1.0000 } } ] }
+Transform { translation -2.5000 -2.5000 1.4055 children [ Shape { appearance Appearance { material Material { diffuseColor 0.85 0.7 0.3 specularColor 0.2 0.2 0.2 shininess 0.3 } } geometry Box { size 0.2520 0.2520 0.8110 } } ] }
+Transform { translation -1.5000 -2.5000 1.4055 children [ Shape { appearance Appearance { material Material { diffuseColor 0.85 0.7 0.3 specularColor 0.2 0.2 0.2 shininess 0.3 } } geometry Box { size 0.2520 0.2520 0.8110 } } ] }
+Transform { translation -0.5000 -2.5000 1.4055 children [ Shape { appearance Appearance { material Material { diffuseColor 0.85 0.7 0.3 specularColor 0.2 0.2 0.2 shininess 0.3 } } geometry Box { size 0.2520 0.2520 0.8110 } } ] }
+Transform { translation 0.5000 -2.5000 1.4055 children [ Shape { appearance Appearance { material Material { diffuseColor 0.85 0.7 0.3 specularColor 0.2 0.2 0.2 shininess 0.3 } } geometry Box { size 0.2520 0.2520 0.8110 } } ] }
+Transform { translation 1.5000 -2.5000 1.4055 children [ Shape { appearance Appearance { material Material { diffuseColor 0.85 0.7 0.3 specularColor 0.2 0.2 0.2 shininess 0.3 } } geometry Box { size 0.2520 0.2520 0.8110 } } ] }
+Transform { translation 2.5000 -2.5000 1.4055 children [ Shape { appearance Appearance { material Material { diffuseColor 0.85 0.7 0.3 specularColor 0.2 0.2 0.2 shininess 0.3 } } geometry Box { size 0.2520 0.2520 0.8110 } } ] }
+Transform { translation 0.0000 -0.0000 1.8071 children [ Shape { appearance Appearance { material Material { diffuseColor 0.02 0.02 0.02 specularColor 0.2 0.2 0.2 shininess 0.3 } } geometry Box { size 1.1811 1.1811 0.3543 } } ] }
+Transform { translation -3.9272 -0.0000 2.2008 children [ Shape { appearance Appearance { material Material { diffuseColor 0.9 0.9 0.86 specularColor 0.2 0.2 0.2 shininess 0.3 } } geometry Box { size 1.6732 1.9685 1.1417 } } ] }
+Transform { translation 3.9272 -0.0000 2.2008 children [ Shape { appearance Appearance { material Material { diffuseColor 0.9 0.9 0.86 specularColor 0.2 0.2 0.2 shininess 0.3 } } geometry Box { size 1.6732 1.9685 1.1417 } } ] }

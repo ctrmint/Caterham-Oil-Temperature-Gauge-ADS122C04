@@ -1,0 +1,8 @@
+#VRML V2.0 utf8
+# Molex Micro-Fit 3.0 43650-0400, 1x4 right-angle
+# Simplified envelope for renders only, not the maker's model.
+Transform { translation 1.7717 1.4606 0.8602 children [ Shape { appearance Appearance { material Material { diffuseColor 0.1 0.1 0.11 specularColor 0.2 0.2 0.2 shininess 0.3 } } geometry Box { size 6.1614 4.1024 1.7205 } } ] }
+Transform { translation 0.0000 3.5138 0.7874 children [ Shape { appearance Appearance { material Material { diffuseColor 0.02 0.02 0.02 specularColor 0.2 0.2 0.2 shininess 0.3 } } geometry Box { size 0.9449 0.0197 0.9449 } } ] }
+Transform { translation 1.1811 3.5138 0.7874 children [ Shape { appearance Appearance { material Material { diffuseColor 0.02 0.02 0.02 specularColor 0.2 0.2 0.2 shininess 0.3 } } geometry Box { size 0.9449 0.0197 0.9449 } } ] }
+Transform { translation 2.3622 3.5138 0.7874 children [ Shape { appearance Appearance { material Material { diffuseColor 0.02 0.02 0.02 specularColor 0.2 0.2 0.2 shininess 0.3 } } geometry Box { size 0.9449 0.0197 0.9449 } } ] }
+Transform { translation 3.5433 3.5138 0.7874 children [ Shape { appearance Appearance { material Material { diffuseColor 0.02 0.02 0.02 specularColor 0.2 0.2 0.2 shininess 0.3 } } geometry Box { size 0.9449 0.0197 0.9449 } } ] }
