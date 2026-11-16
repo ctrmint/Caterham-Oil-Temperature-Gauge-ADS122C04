@@ -6,8 +6,8 @@ body:
   - type: markdown
     attributes:
       value: |
-        This issue tracks a change request. Once accepted, the maintainer runs `/cr-workflow:spec-from-issue` to write it up as **`docs/changes/CR-<n>/request.md`** (see [docs/changes/README.md](https://github.com/ctrmint/Caterham-Oil-Temperature-Gauge/blob/main/docs/changes/README.md)). From then on that file is authoritative, and the agents plan and review against it, not against this issue.
-        Requirement IDs (REQ-…) are listed in section 2 of [docs/spec.md](https://github.com/ctrmint/Caterham-Oil-Temperature-Gauge/blob/main/docs/spec.md).
+        This issue tracks a change request. Once accepted, the maintainer runs `/cr-workflow:spec-from-issue` to write it up as **`docs/changes/CR-<n>/request.md`** (see [docs/changes/README.md](https://github.com/ctrmint/Caterham-Oil-Temperature-Gauge-ADS122C04/blob/main/docs/changes/README.md)). From then on that file is authoritative, and the agents plan and review against it, not against this issue.
+        Requirement IDs (REQ-…) are listed in section 2 of [docs/spec.md](https://github.com/ctrmint/Caterham-Oil-Temperature-Gauge-ADS122C04/blob/main/docs/spec.md).
   - type: textarea
     id: motivation
     attributes:
