@@ -9,25 +9,40 @@ int rank(Status s) { return s==Status::Red ? 2 : s==Status::Amber ? 1 : 0; }
 }
 
 Reading convertSample(const Sample &s) {
-  Reading r; r.pullup_volts=s.pullup_volts; r.sensor_volts=s.sender_volts; r.supply_volts=s.supply_volts;
-  if (!s.adc_ok || !std::isfinite(s.pullup_volts) || !std::isfinite(s.sender_volts) ||
-      !std::isfinite(s.supply_volts)) return r;
+  Reading r; r.reference_volts=s.reference_volts; r.sensor_volts=s.sender_volts;
+  r.supply_volts=s.supply_volts; r.ground_offset_volts=s.ground_volts-config::kGroundSenseBiasV;
+  if (!s.adc_ok || !std::isfinite(s.offset_volts) || !std::isfinite(s.reference_volts) ||
+      !std::isfinite(s.sender_volts) || !std::isfinite(s.ground_volts) ||
+      !std::isfinite(s.tap_volts) || !std::isfinite(s.supply_volts)) return r;
+  // The shorted-input reading should be a few microvolts; far from zero, the ADC is suspect.
+  if (std::fabs(s.offset_volts)>config::kAdcOffsetMaxV) return r;
+  r.reference_volts-=s.offset_volts; r.sensor_volts-=s.offset_volts;
   if (s.supply_volts<config::kValidSupplyMinV || s.supply_volts>config::kValidSupplyMaxV) {
     r.status=Status::BadSupply;return r;
   }
-  // Vp + Vs = A0 - A1, so the remainder of the rail is the tank ground offset.
-  r.ground_offset_volts=s.supply_volts-(s.pullup_volts+s.sender_volts);
   if (r.ground_offset_volts<config::kGroundOffsetMinV || r.ground_offset_volts>config::kGroundOffsetMaxV) {
     r.status=Status::GroundFault;return r;
   }
-  if (s.sender_volts<=0.0f) { r.status=Status::ShortCircuit;return r; }
-  if (s.pullup_volts<=0.0f) { r.status=Status::OpenCircuit;return r; }
-  r.resistance_ohms=config::kPullUpOhms*s.sender_volts/s.pullup_volts;
+  // A1 with the burn-out source on sits at the sender node plus the source's drop (the same
+  // 2.2k drop as A2's, so it cancels) and 10 uA x Rs. An open A1 tap floats up instead.
+  if (s.tap_volts-s.ground_volts-r.sensor_volts>config::kSenderTapMaxV) {
+    r.status=Status::OpenCircuit;return r;
+  }
+  if (r.sensor_volts<=0.0f) { r.status=Status::ShortCircuit;return r; }
+  if (r.reference_volts<=0.0f) { r.status=Status::OpenCircuit;return r; }
+  r.resistance_ohms=config::kReferenceOhms*r.sensor_volts/r.reference_volts;
   if (!std::isfinite(r.resistance_ohms) || r.resistance_ohms>config::kOpenResistanceOhms) {
     r.status=Status::OpenCircuit;return r;
   }
   if (r.resistance_ohms<config::kShortResistanceOhms) {
     r.status=Status::ShortCircuit;return r;
+  }
+  // With the sender in range the current source works well inside its compliance, so the
+  // current must match its setting. Outside the window the source or Rref is wrong, and a
+  // wrong Rref would give a plausible but wrong resistance.
+  const float amps=r.reference_volts/config::kReferenceOhms;
+  if (amps<config::kExcitationMinA || amps>config::kExcitationMaxA) {
+    r.status=Status::BadSupply;return r;
   }
   if (!calibrationValid()) {r.status=Status::NeedsCalibration;return r;}
   const int side=calibrationSide(r.resistance_ohms);

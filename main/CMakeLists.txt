@@ -6,7 +6,7 @@ idf_component_register(
         "core/LayoutChoice.cpp"
         "core/SweepModel.cpp"
         "core/Temperature.cpp"
-        "hal/Ads1115Source.cpp"
+        "hal/Ads122c04Source.cpp"
         "display/ClassicLayout.cpp"
         "display/fonts/gauge_digits_148.c"
         "display/GaugeDisplay.cpp"

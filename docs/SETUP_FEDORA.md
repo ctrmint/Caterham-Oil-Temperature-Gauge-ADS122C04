@@ -57,18 +57,18 @@ sudo dnf install -y gcc-c++ python3
 ./scripts/test_host.sh
 ```
 
-These tests require no ESP-IDF. The host tests pass and the firmware compiles cleanly with ESP-IDF 5.5.5. Flashing, display bring-up, ADS1115 communication on the veroboard and the sensor fault states have been verified on a 31261 board (see [VALIDATION.md](VALIDATION.md)). Resistance accuracy against known resistors and the one-hour I²C soak are still owed.
+These tests require no ESP-IDF. The host tests pass and the firmware compiles cleanly with ESP-IDF 5.5.5. Flashing and display bring-up have been verified on a 31261 board (see [VALIDATION.md](VALIDATION.md)). Every bench test of the ADS122C04 front end is still owed.
 
 ## Common faults
 
 | Symptom | Check |
 |---|---|
-| Display black | Correct *1.75* variant, 5 V power, Waveshare BSP 3.x, PSRAM config |
+| Display black | Correct *1.75* variant, USB-C power, Waveshare BSP 3.x, PSRAM config |
 | Chip not detected | Data USB cable, correct port, BOOT/recovery instructions |
-| ADC unavailable | ADS1115 not found at 0x48: SDA/SCL swapped (GPIO17 = SDA, GPIO18 = SCL), ADDR not tied to GND, missing 3.3 V/GND to the module, I²C leads too long |
-| Supply fault | ADS1115 A0 not connected to the top of the pull-up, 3.3 V rail out of range |
-| Sensor open | Sender spade disconnected, broken signal wire, actual high resistance outside design range (a sender colder than about 10 °C reads over 5 kΩ and currently shows this, #40) |
-| Plausible but wrong resistance, no fault (for example about 100 Ω from a sender that measures about 2 kΩ) | The A3 or A1 tap is open: a lifted socket contact, a cracked joint or a missing link. The firmware can't detect this yet (#39). Check each 1 kΩ tap for continuity |
-| Ground fault | Ground-sense wire disconnected (its 100 kΩ bias pulls it to 3.3 V) or landed on chassis instead of the tank stud; poor tank bond; tank more than 0.1 V below or 0.2 V above gauge GND. The CSV log's last column shows the measured offset |
+| ADC unavailable | ADS122C04 not found at 0x40: SDA/SCL swapped (GPIO17 = SDA, GPIO18 = SCL), an address jumper closed, missing 3.3 V/GND to the module, display lead too long. A persistent "read failed" with the module found points to a CRC, register or counter mismatch: check the lead and its grounds |
+| Supply fault | 3.3 V on VIN out of range; or the excitation current `ref_v` / Rref is outside 210–290 µA: Rref missing, the wrong value, or not on A0, or `kReferenceOhms` not set to the measured value |
+| Sensor open | Sender spade disconnected, broken signal wire, R1's joint open, or no return path to the tank (return wire off with the display on a power bank). Also a genuinely high resistance: over 5 kΩ is a sender colder than about 4 °C on the Bosch curve |
+| Sensor short | Signal wire shorted to the tank or chassis; Rref's joint at A0 open |
+| Ground fault | Ground-sense wire disconnected or R2's joint open (the ADC's burn-out source pulls it up), or landed on chassis instead of the tank stud; poor tank bond; tank more than 0.1 V below or 0.2 V above gauge GND. The CSV log's last column shows the measured offset |
 | Temperature stays `CALIBRATION REQUIRED` | Deliberate safe default; measure the sender and generate calibrated header |
 | Gauge shows unrealistic temp | Wrong calibration table, thermal coupling, ADC saturation, ground offsets, wrong board firmware |

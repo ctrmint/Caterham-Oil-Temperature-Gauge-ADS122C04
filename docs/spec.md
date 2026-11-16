@@ -14,10 +14,11 @@ An experimental, supplementary dry-sump oil-temperature display for a Caterham. 
 
 - **Hardware:**
   - Waveshare ESP32-S3-Touch-AMOLED-1.75 (466×466 AMOLED);
-  - ADS1115 16-bit ADC on I²C (`I2C_NUM_0`, SDA GPIO17, SCL GPIO18, address 0x48);
-  - 470 Ω 0.1 % pull-up;
+  - an ADS122C04 24-bit ADC (Adafruit module 6432) on I²C (`I2C_NUM_0`, SDA GPIO17, SCL GPIO18, address 0x40), powered from the display's 3.3 V;
+  - Rref, 2.00 kΩ 0.1 %, from A0, and 2.2 kΩ series resistors on A1 and A2: no interface board;
   - the existing resistive (NTC) sender in the oil tank;
-  - a dedicated ground-sense wire to the tank stud.
+  - a dedicated ground-sense wire and a return wire to the tank stud;
+  - the display powered from USB-C.
 
   Wiring is in [hardware/WIRING.md](../hardware/WIRING.md).
 - **Software:**
@@ -34,18 +35,29 @@ An experimental, supplementary dry-sump oil-temperature display for a Caterham. 
 Evidence key: **H** = host test in `tests/`, **B** = firmware build, **HW** = bench/vehicle test owed by a human (see [VALIDATION.md](VALIDATION.md)).
 
 ### Measurement
-- **REQ-M1:** Sender resistance is measured ratiometrically as `Rs = Rp · Vs / Vp`, with Vp = A0−A3 and Vs = A3−A1, both at ±4.096 V gain. A ground offset inside the window cancels out of `Rs`. *Evidence:* H (`temperature_test.cpp`: 120 Ω with 0 V and 0.15 V offset, within 0.02 Ω); HW.
-- **REQ-M2:** Each read cycle takes 4 interleaved Vp/Vs pairs plus one A0 rail reading, every `kSampleIntervalMs` (250 ms). The ADS1115 config register is read back and must match what was written. *Evidence:* B; HW.
-- **REQ-M3:** Any I²C error, timeout or read-back mismatch yields `adc_ok = false`. The driver then resets the bus and retries on the next cycle, logging once per failure episode. *Evidence:* B; HW.
+- **REQ-M1:** The ADC's current source drives 250 µA out of A0, through Rref and the sender. Sender resistance is measured ratiometrically as `Rs = kReferenceOhms · Vs / Vref`, with Vref = A0−A1 and Vs = A1−A2. Both are measured at gain 1, PGA bypassed, against the internal reference, with the ADC's shorted-input offset subtracted from each. A ground offset inside the window does not enter `Rs`. *Evidence:* H (`temperature_test.cpp`: 120 Ω with 0 V and 0.15 V offset and with ±0.2 mV ADC offset, within 0.02 Ω); HW.
+- **REQ-M2:** Each read cycle, every `kSampleIntervalMs` (250 ms), takes six single-shot conversions at 45 SPS:
+  1. the offset (inputs shorted);
+  2. Vref;
+  3. Vs;
+  4. A2 to ground with the 10 µA burn-out source on;
+  5. A1 to ground with the burn-out source on;
+  6. AVDD.
+
+  Before each conversion, all four configuration registers are written and each is read back with its CRC; they must match what was written. Each result's CRC16 must match, and its conversion counter must follow the previous one. *Evidence:* H (`adc_frame_test.cpp`: CRC and frame decoding); B; HW.
+- **REQ-M3:** Any I²C error, timeout, CRC failure, register mismatch or out-of-sequence counter yields `adc_ok = false`, never a stale value. The driver then resets the bus and retries on the next cycle, logging once per failure episode. *Evidence:* B; HW.
 
 ### Fault detection (never shows °C)
 - **REQ-F1:** Faults are checked in this order, and the first match wins:
-  1. ADC failure or non-finite values → `NoAdc`;
-  2. supply outside 2.9–3.5 V → `BadSupply`;
-  3. ground offset outside −0.10 to +0.20 V → `GroundFault`; this includes a broken sense wire;
-  4. Vs ≤ 0 or Rs < 20 Ω → `ShortCircuit`;
-  5. Vp ≤ 0 or Rs > 5000 Ω → `OpenCircuit`;
-  6. no verified calibration → `NeedsCalibration`.
+  1. ADC failure, non-finite values, or a shorted-input offset beyond `kAdcOffsetMaxV` (0.25 mV) → `NoAdc`;
+  2. supply (AVDD) outside 2.9–3.5 V → `BadSupply`;
+  3. ground offset (the A2 burn-out reading minus `kGroundSenseBiasV`) outside −0.10 to +0.20 V → `GroundFault`; this includes a broken sense wire or an open R2;
+  4. the sender tap check (the A1 burn-out reading minus the A2 reading minus Vs) above `kSenderTapMaxV` (0.25 V) → `OpenCircuit`; this is an open R1;
+  5. Vs ≤ 0 → `ShortCircuit`;
+  6. Vref ≤ 0 or Rs > 5000 Ω → `OpenCircuit`;
+  7. Rs < 20 Ω → `ShortCircuit`;
+  8. excitation current Vref / `kReferenceOhms` outside 210–290 µA → `BadSupply`;
+  9. no verified calibration → `NeedsCalibration`.
 
   *Evidence:* H (`temperature_test.cpp`).
 - **REQ-F2:** A fault shorter than `kFaultResetMs` (3000 ms) keeps the filter and the latched alarm. A sustained fault resets both. *Evidence:* H (demo test, intermittent-connector block).
@@ -87,7 +99,7 @@ Evidence key: **H** = host test in `tests/`, **B** = firmware build, **HW** = be
   - Choosing a layout: a long-press changes the layout. The choice is stored and restored at power-up.
 
   *Evidence:* H (`display_text_test.cpp`, `sweep_model_test.cpp`, `layout_choice_test.cpp`); B; HW.
-- **REQ-D2:** Once per second, a CSV line is logged with these columns: `uptime_ms,status,alarm,temp_c,resistance_ohms,pullup_v,sender_v,supply_v,ground_offset_v`. *Evidence:* B; HW.
+- **REQ-D2:** Once per second, a CSV line is logged with these columns: `uptime_ms,status,alarm,temp_c,resistance_ohms,ref_v,sender_v,supply_v,ground_offset_v`. *Evidence:* B; HW.
 
 ### Build and demo isolation
 - **REQ-B1:** Synthetic curves and readings exist only under `CONFIG_OIL_GAUGE_DEMO` (firmware) / `GAUGE_DEMO` (host tests). *Evidence:* B (both builds).
