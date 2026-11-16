@@ -35,4 +35,9 @@ g++ -std=c++17 -Wall -Wextra -Werror -Imain \
   tests/adc_frame_test.cpp \
   -o /tmp/caterham-oil-gauge-tests/adc_frame_tests
 /tmp/caterham-oil-gauge-tests/adc_frame_tests
+# Both front-end options simulated against convertSample (-O2: it steps the circuit in 10 us steps).
+g++ -std=c++17 -O2 -Wall -Wextra -Werror -Imain \
+  tests/front_end_sim_test.cpp main/core/Calibration.cpp main/core/Temperature.cpp \
+  -o /tmp/caterham-oil-gauge-tests/front_end_sim_tests
+/tmp/caterham-oil-gauge-tests/front_end_sim_tests
 python3 -m unittest discover -s tests -p 'test_*.py' -v

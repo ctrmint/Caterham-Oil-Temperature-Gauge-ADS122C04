@@ -1,6 +1,6 @@
 # Hardware BOM
 
-There's no interface board: the front end is three resistors soldered to the ADC module, plus a terminal strip for the harness. See [WIRING.md](WIRING.md) for the circuit and the build. Prices and quantities are deliberately not guessed.
+There's no interface board. **Option A** is three resistors soldered to the ADC module, plus a terminal strip for the harness. **Option B**, recommended for the car, adds two capacitors across the module's analogue pins. See [WIRING.md](WIRING.md) for the circuit and the build. Prices and quantities are deliberately not guessed.
 
 | Qty | Item | Notes |
 |---|---|---|
@@ -8,6 +8,7 @@ There's no interface board: the front end is three resistors soldered to the ADC
 | 1 | **[Adafruit ADS122C04 24-bit ADC module](https://www.adafruit.com/product/6432)** (product 6432; The Pi Hut SKU ADA6432) | Runs from the display's 3.3 V. It has I²C pull-ups and no regulator, and the address is 0x40 with its jumpers open. Solder every connection; don't rely on its STEMMA QT / Qwiic connectors in the car. It comes with a 12-pin header strip: 6 pins go on the module, and 8 make the display plug. |
 | 1 | **Rref: 2.00 kΩ, 0.1 %, ≤ 25 ppm/°C** metal-film resistor, 0.25 W | The measurement reference. Its accuracy and drift set the accuracy of the resistance reading. Measure its actual value and put it in `kReferenceOhms`. |
 | 2 | 2.2 kΩ, 1 % metal-film resistors, 0.25 W | Series resistors on A1 (sender tap) and A2 (ground sense). They limit fault current, and the firmware's ground reading assumes 2.2 kΩ. |
+| 2 | **Option B only:** 47 nF C0G (NP0) ceramic capacitors, 50 V, leaded, 2.54 mm lead spacing | C1 across A0–A1 and C2 across A1–A2: the input filter. Polyester or PPS film will do if C0G is hard to find; never X7R or another high-k ceramic, and never more than 100 nF. |
 | 1 | 3-way screw terminal strip ("chocolate block") | The harness connector: `SENDER`, `SENSE`, `RETURN` |
 | 1 | 5-core flexible cable, 20 cm or less | Display lead: 3.3 V, GND, SDA, SCL to the module, and GND to `RETURN` |
 | 1 | Small insulated box, with cable strain reliefs or glands | Holds the module and the terminal strip. Mount the module by its four holes, and glue the resistor bodies down |
@@ -22,7 +23,7 @@ There's no interface board: the front end is three resistors soldered to the ADC
 
 **What's no longer needed** compared with the earlier ADC's circuit:
 - the 470 Ω pull-up;
-- the 1 kΩ / 100 nF input filters;
+- the 1 kΩ / 100 nF input filters (option B's two capacitors replace them, and go only across pin pairs, never to ground);
 - the 100 kΩ ground-sense bias (the ADC's burn-out source does that job);
 - the clamp diodes and TVS;
 - every interface PCB and stripboard.

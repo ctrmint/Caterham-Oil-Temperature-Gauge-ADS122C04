@@ -15,7 +15,7 @@ This file is the **project contract** for the `cr-workflow` plugin (`ellanlabs/c
   - `main/Kconfig.projbuild`: `CONFIG_OIL_GAUGE_DEMO`.
   - `tests/`: host tests (C++ suites; Python tests for the calibration tool).
   - `scripts/`: `test_host.sh`, `build_calibration.py`, `plot_sender_curve.py`.
-  - `hardware/`: `WIRING.md` (circuit, build and bench steps), `BOM.md` and `wiring.svg`. There is no interface board: three resistors solder to the ADC module's pins.
+  - `hardware/`: `WIRING.md` (circuit, build and bench steps), `BOM.md` and `wiring.svg`. There is no interface board. In option A, three resistors solder to the ADC module's pins; option B (for the car) adds two filter capacitors across the analogue pin pairs. The firmware is the same for both.
   - `docs/spec.md`: system requirements and the change-request index.
   - `docs/changes/`: one folder per change request.
 - **Toolchain:** ESP-IDF 5.5.5 at `~/esp/esp-idf`, LVGL 9.4, Waveshare BSP 3.0.1, with versions pinned in `dependencies.lock`. Host tests need g++ and Python 3.
@@ -64,10 +64,12 @@ No change may weaken these. A request to change one needs explicit human approva
    - A failed read gives `adc_ok = false`, never a stale or invented value.
    - The burn-out checks of the A2 and A1 taps, the offset self-test and the excitation-current window stay in place.
    - Under the documented wiring, no ADS122C04 input can leave the AVSS − 0.1 V to AVDD range, and every harness wire reaches the ADC through at least 2 kΩ.
+   - No part connects an ADS122C04 analogue input to GND. A shorted capacitor there can give a plausible wrong reading that passes every check.
+   - Option B's filter capacitors go only across pin pairs (C1 across A0–A1, C2 across A1–A2), so a shorted one faults. They're C0G or film, at most 100 nF each, because larger values slow the burn-out checks.
    - `kReferenceOhms` is the measured value of Rref.
 6. **Bus allocation.** The Waveshare BSP owns `I2C_NUM_1` on GPIO14/15. The ADS122C04 is on `I2C_NUM_0` at address 0x40, with SDA on GPIO17 and SCL on GPIO18; DRDY (GPIO16) is not used.
 7. **Docs move together.**
-   - A circuit change updates `hardware/WIRING.md`, `hardware/BOM.md`, `hardware/wiring.svg` and the `docs/ARCHITECTURE.md` diagram together.
+   - A circuit change updates `hardware/WIRING.md`, `hardware/BOM.md`, `hardware/wiring.svg` and the `docs/ARCHITECTURE.md` diagram together, for both front-end options (A and B).
    - A change to a status, alarm or CSV column updates the docs that describe it (README, `docs/VALIDATION.md`, `docs/CALIBRATION.md`, `docs/ARCHITECTURE.md`).
 
 ## Changes that need human approval
@@ -95,6 +97,10 @@ Agents never do these. They go in a task's `human_verification`.
   - `tests/demo_temperature_test.cpp` builds with `-DGAUGE_DEMO`, so it has the synthetic 20–140 °C table for calibrated behaviour.
   - Its helpers are `forOhms`, `at`, `hold` and `kOpen`. `hold()` isn't wrap-safe, so use explicit `uint32_t` loops across millisecond wraparound.
 - **The Python calibration tool** (`scripts/build_calibration.py`) is tested in `tests/test_calibration_tool.py`.
+- **`tests/front_end_sim_test.cpp`:**
+  - simulates both front-end options' circuits with the driver's conversion timing, and checks `convertSample`'s verdict on every cycle;
+  - a change to a fault limit, the check order or the conversion sequence must keep it passing;
+  - it builds with `-O2`, and `front_end_sim_tests full` runs the full sweep.
 - **Not automatically testable:** `main/hal/`, `main/display/` and `main/main.cpp`. They're verified by both firmware builds plus a human check.
 - **Test tasks may touch:** files in `tests/`, and `scripts/test_host.sh` only to register a new test file.
 - **Pairing:** a behaviour change in `main/core/` gets a `test` task (tests fail first), then an `impl` task. For characterisation work the tests pass from the start, and the reviewer's mutation check proves their strength.
