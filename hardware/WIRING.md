@@ -6,9 +6,13 @@ The sender is measured by an **Adafruit ADS122C04 24-bit I²C ADC module** (prod
 
 The same current flows through both resistors, so the current's own accuracy (±6 %), the ADC's reference and the 3.3 V rail all cancel. A dedicated **ground-sense wire** to the tank removes any ground offset between the gauge and the tank.
 
-The whole front end is **three resistors** soldered to the module's pins, plus a terminal strip for the harness. There's no interface PCB or stripboard. The display runs from **USB-C**, and the module runs from the display's 3.3 V.
+The front end comes in two versions. Neither needs a PCB or stripboard, and the display lead, terminal strip, harness and firmware are the same for both:
+- **Option A, minimal:** three resistors soldered to the module's pins.
+- **Option B, filtered:** option A plus two small capacitors across neighbouring analogue pins, which keep radio-frequency interference out of the ADC ([Option B: the input filter](#option-b-the-input-filter)). **Use option B in the car.** Option A is fine on the bench, and in the car only if the noise check (step 14) passes.
 
-![Schematic: display socket, ADS122C04 module, Rref, two 2.2 kΩ taps, terminal strip and the three wires to the tank](wiring.svg)
+The display runs from **USB-C**, and the module runs from the display's 3.3 V.
+
+![Schematic: display socket, ADS122C04 module, Rref, two 2.2 kΩ taps, option B's two capacitors, terminal strip and the three wires to the tank](wiring.svg)
 
 ## Display socket (header H2)
 
@@ -39,9 +43,9 @@ It has no regulator. Its analogue pins go straight to the chip, with no filter p
 | VIN | display `3.3V` | Supply |
 | GND | display `G`, and the terminal strip's `RETURN` | Ground |
 | SDA / SCL | display `17` / `18` | I²C, address **0x40** (address jumpers open) |
-| **A0** | **Rref** to `SENDER` | The current source's output, and the top of Rref |
-| **A1** | **2.2 kΩ** to `SENDER` | Sender high side |
-| **A2** | **2.2 kΩ** to `SENSE` | Sender low side, via the ground-sense wire |
+| **A0** | **Rref** to `SENDER`. Option B: also **C1** to A1 | The current source's output, and the top of Rref |
+| **A1** | **2.2 kΩ** to `SENDER`. Option B: also C1 to A0 and **C2** to A2 | Sender high side |
+| **A2** | **2.2 kΩ** to `SENSE`. Option B: also C2 to A1 | Sender low side, via the ground-sense wire |
 | A3, Ref+, Ref−, DRDY, !RST | Nothing | The datasheet allows unused analogue inputs to float. The firmware polls for results, so DRDY is unused; !RST has a pull-up on the module |
 
 ## Parts
@@ -51,8 +55,15 @@ It has no regulator. Its analogue pins go straight to the chip, with no filter p
 | Rref | **2.00 kΩ, 0.1 %, ≤ 25 ppm/°C** metal film, 0.25 W | A0 to `SENDER`. It's the measurement reference: measure it and put the value in `kReferenceOhms` (`main/Config.h`) |
 | R1 | 2.2 kΩ, 1 %, 0.25 W | A1 to `SENDER` |
 | R2 | 2.2 kΩ, 1 %, 0.25 W | A2 to `SENSE` |
+| C1 | **Option B only:** 47 nF, C0G (NP0) ceramic, 50 V, leaded, 2.54 mm lead spacing | Across A0 and A1 |
+| C2 | **Option B only:** the same as C1 | Across A1 and A2 |
 
 R1 and R2 limit the current into the ADC if a harness wire shorts to the battery, and they let the firmware check both taps (below). The ADC draws only nanoamps, so they add no measurable error. Use 2.2 kΩ for both: the firmware's ground-offset reading assumes it (`kGroundSenseBiasV`).
+
+**Option B's capacitors:**
+- **Dielectric:** use C0G ceramic, or polyester or PPS film if you can't get C0G. Don't use X7R or another high-k ceramic: they're piezoelectric, so the car's vibration becomes voltage across them.
+- **Value:** never fit more than **100 nF**, because bigger capacitors slow the wiring checks.
+- **Never fit a capacitor from an analogue pin to GND.** A shorted one can give a believable wrong reading (see [Option B: the input filter](#option-b-the-input-filter)).
 
 ## Building it without a board
 
@@ -66,13 +77,14 @@ R1 and R2 limit the current into the ADC if a harness wire shorts to the battery
    - Fit Rref into A0, R1 into A1 and R2 into A2 from the chip side, and solder them underneath.
    - Lay the bodies flat, pointing away from the module, and sleeve the long leads.
    - Leave A3, Ref+ and Ref− empty.
+   - **Option B:** on the underside, solder C1 across the A0 and A1 joints, and C2 across the A1 and A2 joints. Keep the leads as short as possible and the bodies flat against the board. Then check that no two of A0, A1, A2 and GND read near 0 Ω to each other.
 4. **Terminal strip:** a 3-way screw terminal strip (a "chocolate block" cut to three ways) is the harness connector.
    - `SENDER` takes the far leads of Rref and R1, twisted and soldered together, plus the harness signal wire.
    - `SENSE` takes R2's far lead and the harness ground-sense wire.
    - `RETURN` takes the lead's fifth wire and the harness return wire.
    - Crimp ferrules on the harness wires.
 5. **Box:**
-   - Screw the module to the floor of a small insulated box by its four mounting holes, and fix the terminal strip beside it.
+   - Screw the module to the floor of a small insulated box by its four mounting holes, on spacers tall enough for the joints underneath (and option B's capacitors) to clear the floor. Fix the terminal strip beside it.
    - Hold the resistor bodies down with hot-melt glue or silicone so they can't flex their leads.
    - Bring both cables in through strain reliefs.
 
@@ -160,11 +172,61 @@ There are **no clamp diodes or TVS**. Instead, every harness wire reaches the AD
 - **Where it goes:** that current flows into the display's 3.3 V rail through the chip. The display draws far more than that, so the rail shouldn't rise, but nothing guarantees it.
 - **Compared with the old pull-up circuit:** the harness no longer reaches the 3.3 V rail through a low resistance.
 
-This is **not** load-dump, surge or ESD qualification. Bench test the short to battery (step 12) before fitting, and check the installed system in the car; see [SAFETY.md](../docs/SAFETY.md).
+This is **not** load-dump, surge or ESD qualification. Bench test the short to battery (step 12) before fitting, and check the installed system in the car; see [SAFETY.md](../docs/SAFETY.md). Option B's capacitors don't change this: they sit across pin pairs, so they don't slow a spike between the harness and ground.
+
+## Option B: the input filter
+
+**Why a filter is needed:**
+- The ADC samples its inputs at 256 kHz. Its digital filter rejects almost everything else, but interference close to 256 kHz or a multiple of it folds back into the reading (datasheet SBAS751B, section 9.1.4).
+- Option A has nothing to stop that. In the car, ignition, alternator and fan noise is the likely source.
+- It would show as noisy or wandering readings that no fault check catches.
+
+**What the filter does:** C1 and C2 form a low-pass filter with the series resistors.
+
+| Measurement | Capacitor | Resistance | Corner | At 256 kHz |
+|---|---|---|---|---|
+| Vref (A0 − A1) | C1, 47 nF | Rref + R1 = 4.2 kΩ | about 800 Hz | about −50 dB |
+| Vs (A1 − A2) | C2, 47 nF | R1 + R2 = 4.4 kΩ, plus the sender | about 770 Hz or lower | about −50 dB or better |
+
+**The capacitors go across pin pairs, never to ground.** A textbook ADC input filter also has a capacitor from each input to ground, for interference common to every wire. Here a shorted one would give a believable wrong reading that passes every check:
+- **A1 shorted to ground:** with the tank 50 mV below the gauge's ground (the usual direction in the car), an 89 Ω sender (130 °C on the Bosch curve) reads about 211 Ω. That's about 96 °C, so no alarm.
+- **A2 shorted to ground:** this does the same when the tank sits above the gauge's ground.
+
+A capacitor across a pin pair fails safe instead:
+
+| Failure | Result |
+|---|---|
+| C1 shorted (A0 = A1) | `Vref ≈ 0`: `SENSOR OPEN` |
+| C2 shorted (A1 = A2) | `Vs ≈ 0`: `SENSOR SHORT`, or `GROUND FAULT` with a high sender resistance |
+| Either open | No filter: exactly option A |
+
+So option B filters only the difference between the inputs. Interference common to all of them is left to the ADC's own common-mode rejection.
+
+**The wiring checks still work.** In option A, the 10 µA burn-out source snaps an open tap to the rail. In option B it has to charge the capacitors, so the tap ramps instead:
+- **R1 open:** A1, with 94 nF on it, climbs about 2 V during one conversion.
+- **R2 open:** A2, with 47 nF, reaches the rail.
+- Both are far past the check limits: 0.25 V for the tap and +0.2 V for the ground.
+
+**Simulation:** `tests/front_end_sim_test.cpp` simulates both options' circuits with the driver's conversion timing, and passes every cycle through the firmware's own fault checks. It runs with the host tests. The full sweep (`front_end_sim_tests full`) covers:
+- senders from 44 Ω to 4.75 kΩ;
+- tank offsets from −0.095 to +0.195 V;
+- AVDD from 2.9 to 3.5 V;
+- the tolerances of both current sources;
+- capacitors of 47 and 100 nF.
+
+It shows:
+- **Healthy circuit:** reads the same as option A to within 0.1 ppm, and never trips a check. The slowest time constant is under 0.5 ms, and Vref and Vs are read at least 44 ms after the burn-out source switches off.
+- **Faults:** each of these gives a fault from the first cycle that starts after it:
+  - an open R1, R2, Rref, sense wire or sender;
+  - a shorted sender;
+  - a short across A0–A1 or A1–A2.
+
+  The cycle in which it happens either faults or still gives the correct reading.
+- **Capacitor size:** at 220 nF and above, an open R1 can leave a believable stale or wrong reading. That's why C1 and C2 must never exceed 100 nF.
 
 ## Bench steps
 
-The module, the three resistors and a test resistor fit on a breadboard for these steps. Wire them as in the schematic: the test resistor goes from `SENDER` to a bench "tank" point, and the sense and return wires go to that same point.
+The module, the three resistors (and option B's two capacitors) and a test resistor fit on a breadboard for these steps. Wire them as in the schematic: the test resistor goes from `SENDER` to a bench "tank" point, and the sense and return wires go to that same point.
 
 1. Before connecting the display, check the wiring for unintended shorts. In particular, `SENDER` and `SENSE` must not touch 3.3 V or GND.
 2. Power the display from USB on the bench. Check the 3.3 V pin is stable.
@@ -181,7 +243,15 @@ The module, the three resistors and a test resistor fit on a breadboard for thes
 9. Vary known resistors across the expected range (44 Ω to 5 kΩ). Record the readings and errors.
 10. Disconnect the ground-sense wire at the terminal strip: expect `GROUND FAULT`. Reconnect it.
 11. **Tap checks:** unsolder R1's far lead from `SENDER`: expect `SENSOR OPEN`. Then unsolder R2's: expect `GROUND FAULT`. Resolder both. Neither may ever give a reading.
+    - **Pin-pair shorts, both options:** with the 120 Ω resistor back in, clip a test lead across A0 and A1: expect `SENSOR OPEN`. Then across A1 and A2: expect `SENSOR SHORT`. Neither may ever give a reading. This is what a failed C1 or C2 would do, or a solder bridge between those pins.
 12. **Short to battery:** with a bench supply at 14.4 V, current-limited to 50 mA, touch the signal wire for a few seconds, then the sense wire. Expect a fault while it's applied, no damage, and correct readings afterwards. Re-measure Rref.
 13. With the ignition OFF, connect the real sender, ground-sense and return wires. Before turning on gauge power, confirm that no voltage outside 0–3.3 V reaches `SENDER` or `SENSE`.
+14. **Noise check, in the car, both options.** Log the CSV for a minute with the ignition on and the engine off. Then log another minute with the engine running, the fan on if you can, and the harness as fitted.
+    - **What to compare:** the reading-to-reading jitter of `resistance_ohms` and `sender_v`, not the slow drift as the oil warms.
+    - **Pass:** it is no worse with the engine running.
+    - **If option A fails:** fit option B.
+    - **If option B fails:** reroute the harness away from the ignition leads, or use screened cable.
+
+    The log shows 0.1 Ω and 0.1 mV steps, so this catches interference well above the ADC's own noise, not every last trace of it.
 
 **Never** probe or splice a powered automobile circuit assuming it is grounded at the same potential as a USB-connected development laptop. Keep the car and laptop disconnected from each other while validating grounds.

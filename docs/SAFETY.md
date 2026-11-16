@@ -15,6 +15,9 @@ This is an **experimental supplemental display**. It is not automotive-certified
   - **Offsets:** the ground-sense wire cancels moderate offsets, but only while the tank stays within the ADC's input range (from 0.1 V below the gauge GND). Verify tank bonding, avoid loops, and check how laptop USB and vehicle power interact.
   - **Broken sense wire:** each cycle the ADC's 10 µA burn-out source pulls the sense input up. A broken ground-sense wire, or an open R2, is then reported as `GROUND FAULT`, never as a temperature. An open R1 is reported as `SENSOR OPEN` the same way.
   - **Return wire:** with the display on USB-C, the harness's return wire is the gauge's ground at the tank. If it breaks while the supply floats, no excitation current flows and the gauge shows a fault.
+- **Electrical interference:** option A has no input filter. Ignition or alternator interference near the ADC's 256 kHz sampling rate could make readings noisy, or shift them, without any fault.
+  - Use option B in the car, and do the in-car noise check (WIRING.md step 14).
+  - Option B's capacitors go only across pin pairs, so a shorted one is a fault, never a reading. A capacitor from a pin to ground could short into a plausible wrong reading, so the design has none.
 - **I²C bus:** keep it short (a display lead of 20 cm or less), and never run it to the tank. The one-hour soak test is still owed.
   - A long or noisy I²C bus can hang or return corrupt data.
   - Before every conversion the firmware writes the ADC's configuration and reads it back with a CRC, and every result carries a CRC16 and a conversion counter.

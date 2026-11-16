@@ -13,6 +13,12 @@
   With the synthetic demo table (`tests/demo_temperature_test.cpp`): interpolation, below/above-range handling, alarm debounce, hysteresis (Red → Amber → Normal), above-range critical alarm, alarm retention through intermittent faults, and the below-range hold (a latched alarm is kept, with status `BelowRange` and no temperature, until `kBelowRangeHoldMs` after the first raw sample colder than the table (fault samples in between neither pause nor restart that time), then clears; no hold when no alarm is latched).
 - Display host suites: `tests/display_text_test.cpp` (unitless reading text, `<min` / `>max`, °C to °F conversion and rounding, footer and fault text, `ohm` when uncalibrated), `tests/sweep_model_test.cpp` (the lit-segment count and its cap at the table maximum when above range; the 30–130 °C / 86–266 °F scale and its labels and their visibility; no segments when uncalibrated, below range or on a fault; the seven-segment table; the graduated colours, their stops and half-way band boundaries, no hard steps, each segment's colour, and the reading colour never less severe than the latched alarm, amber on a fault or when uncalibrated; Sweep's three-cell reading with the `<` / `>` sign split off and `--` for anything longer) and `tests/layout_choice_test.cpp` (layout encode/decode with Classic fallback, long-press detector). The display-text and sweep-model suites also run with `-DGAUGE_DEMO`. The colour rules are host-tested; that `GaugeDisplay` and the layouts apply them (digits, status text, Classic's arc, each lit segment) is covered only by the human demo-build check below.
 - Python unit tests: monotonic calibration generator, minimum of 5 points, comment lines, malformed-row rejection, the example file being unusable, generated calibration flag. For the sender graph (`tests/test_sender_curve.py`): the committed `docs/sender-curve.svg` matches its inputs; it follows threshold changes, measured points and a verified table, and never plots the unverified default; the reference curves are rejected by the calibration tool; and non-monotonic reference data is rejected.
+- Front-end simulation (`tests/front_end_sim_test.cpp`):
+  - **What it does:** steps both front-end options' circuits (option B with 47 nF and 100 nF capacitors) through the driver's conversion sequence and timing, and classifies every cycle with `convertSample`.
+  - **Healthy circuits:** they read the true resistance with no false fault, across sender, tank-offset, supply and current-source corners.
+  - **Faults:** an open R1, R2, Rref or sender, a shorted sender, and a short across A0–A1 or A1–A2 each fault from the first full cycle.
+  - **Bench step 11:** the statuses it states are checked.
+  - **The full sweep:** run `front_end_sim_tests full` by hand.
 - ADC frame tests (`tests/adc_frame_test.cpp`): the CRC-16-CCITT check value; register and conversion frames decoded; every single-bit error rejected; a reset chip's unsealed reply rejected; and 24-bit two's-complement codes at zero, ±1 and both full scales.
 
 Run: `./scripts/test_host.sh`.
@@ -43,6 +49,8 @@ Run: `./scripts/test_host.sh`.
 | Tank point about 50 mV below and above gauge GND (step 8) | No fault; `ground_offset_v` about ∓0.05 V; resistance within about 0.2 % of the normal reading. At about −0.11 V, `GROUND FAULT` (#1) | CSV log |
 | Ground-sense wire disconnected (step 10) | `GROUND FAULT`, never a reading (#1) | photo/log |
 | R1 and R2 each unsoldered from the harness side (step 11) | `SENSOR OPEN` and `GROUND FAULT` respectively, never a reading (#1) | photo/log |
+| Pin pairs shorted, A0–A1 then A1–A2 (step 11), either option | `SENSOR OPEN`, then `SENSOR SHORT`, never a reading (#4) | photo/log |
+| Option B: bench steps 4–11 with C1 and C2 fitted | The same results as option A, and the same readings within the noise (#4) | CSV log |
 | Short to 14.4 V through a 50 mA limit, signal wire then sense wire (step 12) | A fault while applied; no damage; correct readings afterwards; Rref re-measured unchanged (#1) | photo/log, Rref |
 | Return wire disconnected, display on a USB power bank | A fault (`SENSOR OPEN` or `GROUND FAULT`), never a reading (#1) | photo/log |
 | Wrong Rref fitted (for example 2.4 kΩ with 2.0 kΩ configured) | `SUPPLY FAULT` (#1) | photo/log |
@@ -54,6 +62,7 @@ Run: `./scripts/test_host.sh`.
 | Normal uncalibrated build, both layouts, with the ADC and a test resistor (1–4.7 kΩ) fitted | A 4-digit ohms reading fits, `CALIBRATION REQUIRED` and `TEMPERATURE NOT VERIFIED` are shown, and the unit reads `ohm` | photos |
 | Sender colder than about 4 °C on the Bosch curve (resistance over 5 kΩ) | `SENSOR OPEN`, because `kOpenResistanceOhms` is 5 kΩ. A reading or `BELOW CAL RANGE` would be better; raising the limit needs the compliance margin rechecked | photo/log |
 | In the car, display on a USB-C charger | `ground_offset_v` stays well inside −0.10…+0.20 V with the engine running and electrical loads on | CSV log |
+| In-car noise check, engine off then running (WIRING.md step 14) | `resistance_ohms` and `sender_v` jitter no more with the engine running than with it off. If option A's do, fit option B (#4) | CSV log |
 | Calibrated bath at multiple points | Readings within verified error band | calibration report |
 | Alarm debounce and reset hysteresis | No oscillation at threshold | event log |
 | Front-end box | The module, resistors and terminal strip stay put and no lead flexes under a shake test; the cables are strain-relieved (#1) | inspection |

@@ -6,15 +6,19 @@
  display G ───┬───── │ GND      ADS122C04      │
  GPIO17 ◄─────┼────► │ SDA      24-bit, 0x40   │
  GPIO18 ──────┼────► │ SCL      2.048 V ref    │
-              │      │   IDAC1 250 µA ──► A0   ├──[Rref 2.00 kΩ]──┐
-              │      │                    A1   ├──[R1 2.2 kΩ]─────┴── SENDER ── signal wire ──┐
-              │      │                    A2   ├──[R2 2.2 kΩ]──────── SENSE ─── sense wire ─┐ │
-              │      └─────────────────────────┘                                            │ │
-              │                                                      sender (Rs) ───────────┼─┘
-              │                                                           │ body            │
-              └── RETURN ── return wire ──────────────────────── TANK GND stud ◄────────────┘
-                                                                          │
-                                                                 bond strap ── chassis
+              │      │   IDAC1 250 µA ──► A0   ├──┬──[Rref 2.00 kΩ]──┐
+              │      │                         │ ═╧═ C1 47 nF        │
+              │      │                         │ ═╤═ (option B)      │
+              │      │                    A1   ├──┼──[R1 2.2 kΩ]─────┴── SENDER ── signal wire ──┐
+              │      │                         │ ═╧═ C2 47 nF                                    │
+              │      │                         │ ═╤═ (option B)                                  │
+              │      │                    A2   ├──┴──[R2 2.2 kΩ]──────── SENSE ─── sense wire ─┐ │
+              │      └─────────────────────────┘                                               │ │
+              │                                              sender (Rs) ──────────────────────┼─┘
+              │                                                   │ body                       │
+              └── RETURN ── return wire ───────────────── TANK GND stud ◄──────────────────────┘
+                                                                  │
+                                                         bond strap ── chassis
 
    ADS122C04, six conversions per cycle      ESP32-S3 (Waveshare AMOLED 1.75)
    offset, Vref = A0 − A1, Vs = A1 − A2,  ──I²C──► [ADS122C04 driver (hal)]
@@ -29,7 +33,7 @@
                                        [466x466 CO5300 AMOLED]
 ```
 
-See [hardware/wiring.svg](../hardware/wiring.svg) for the full schematic and [hardware/WIRING.md](../hardware/WIRING.md) for the build. There is no interface board: Rref, R1 and R2 solder to the module's pins, and the harness lands on a 3-way terminal strip. The display runs from its own USB-C socket. A USB supply needn't share the car's ground, so the harness carries a dedicated return wire from the tank bond stud to the gauge's ground, beside the ground-sense wire.
+See [hardware/wiring.svg](../hardware/wiring.svg) for the full schematic and [hardware/WIRING.md](../hardware/WIRING.md) for the build. There is no interface board: Rref, R1 and R2 solder to the module's pins, and the harness lands on a 3-way terminal strip. **Option B**, recommended for the car, adds C1 and C2 across the pin pairs. They filter interference near the ADC's 256 kHz sampling rate. There's never a capacitor from a pin to ground, so a shorted capacitor gives a fault, not a reading. The firmware is the same for both options. The display runs from its own USB-C socket. A USB supply needn't share the car's ground, so the harness carries a dedicated return wire from the tank bond stud to the gauge's ground, beside the ground-sense wire.
 
 **Code layout:**
 - **`main/hal/Ads122c04Source`** owns acquisition. It talks to the ADS122C04 over I²C port 0 (the Waveshare BSP uses port 1).
@@ -71,7 +75,7 @@ The core computes `Rs = Rref × Vs / Vref` after subtracting the offset. It take
 * Excess temperature sustained for the configured debounce (2.5 s) → warning/critical state. Alarms clear with 5 °C hysteresis, and Red steps down through Amber. The default alarm limits are **placeholders**.
 * A fault shorter than 3 s keeps the filter and the latched alarm (shown in the alarm colour with the fault text), so a vibrating connector cannot keep restarting the alarm debounce. A longer fault resets them.
 
-**Limitations:** ADC accuracy is not temperature-sender calibration. The ratiometric measurement removes the current source's error, the ADC's reference and gain errors and the ground offset, but not the tolerance and drift of Rref or thermal lag in the tank. There are no clamp diodes or TVS: the 2 kΩ and 2.2 kΩ series resistors keep a harness short to battery voltage within the ADC's input rating, but that is not load-dump qualification. A grounded, resistive automotive probe is neither a thermocouple nor a digital I²C temperature sensor. This gauge does not independently measure oil pressure, perform engine shutdown, or replace factory alerts.
+**Limitations:** ADC accuracy is not temperature-sender calibration. The ratiometric measurement removes the current source's error, the ADC's reference and gain errors and the ground offset, but not the tolerance and drift of Rref or thermal lag in the tank. Option A has no input filter, so interference near the ADC's 256 kHz sampling rate can reach the reading unseen; option B filters the difference between the inputs, but common-mode interference is left to the ADC's own rejection. There are no clamp diodes or TVS: the 2 kΩ and 2.2 kΩ series resistors keep a harness short to battery voltage within the ADC's input rating, but that is not load-dump qualification. A grounded, resistive automotive probe is neither a thermocouple nor a digital I²C temperature sensor. This gauge does not independently measure oil pressure, perform engine shutdown, or replace factory alerts.
 
 ## Board portability
 
