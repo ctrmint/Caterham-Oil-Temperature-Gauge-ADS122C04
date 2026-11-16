@@ -1,0 +1,6 @@
+(version 1)
+# Written by scripts/boards/pcb_board.py: a short from these nets to ground gives a believable wrong
+# reading, so their copper keeps well clear of ground copper.
+(rule "sensitive nets keep 1.0 mm from ground"
+  (constraint clearance (min 1.0mm))
+  (condition "(A.NetName == 'GND' && (B.NetName == '/AIN1' || B.NetName == '/AIN2' || B.NetName == '/SENDER' || B.NetName == '/SENSE')) || (B.NetName == 'GND' && (A.NetName == '/AIN1' || A.NetName == '/AIN2' || A.NetName == '/SENDER' || A.NetName == '/SENSE'))"))

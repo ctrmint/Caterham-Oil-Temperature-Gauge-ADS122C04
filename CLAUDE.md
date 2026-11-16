@@ -15,7 +15,15 @@ This file is the **project contract** for the `cr-workflow` plugin (`ellanlabs/c
   - `main/Kconfig.projbuild`: `CONFIG_OIL_GAUGE_DEMO`.
   - `tests/`: host tests (C++ suites; Python tests for the calibration tool).
   - `scripts/`: `test_host.sh`, `build_calibration.py`, `plot_sender_curve.py`.
-  - `hardware/`: `WIRING.md` (circuit, build and bench steps), `BOM.md` and `wiring.svg`. There is no interface board. In option A, three resistors solder to the ADC module's pins; option B (for the car) adds two filter capacitors across the analogue pin pairs. The firmware is the same for both.
+  - `hardware/`:
+    - `WIRING.md` (circuit, the build without a board, bench steps), `BOM.md` (an index) and `wiring.svg`.
+    - In option A, three resistors solder to the ADC module's pins. Option B (for the car) adds two filter capacitors across the analogue pin pairs. The firmware is the same for both.
+    - `hardware/option-a/` and `hardware/option-b/` each hold a hand-written `README.md` and generated files: `BOM.md`, `veroboard/` (stripboard layout and assembly sheet) and `pcb/` (KiCad 10 project, renders, Gerbers), with `outputs.sha256`.
+  - `scripts/boards/`: the board generators.
+    - `circuit.py` is the single source of both options' circuits and parts.
+    - `vero_layout.py` and `pcb_layout.py` hold the layouts.
+    - `build.sh` rebuilds and checks everything in the pinned KiCad 10.0.8 container, and needs podman or docker. It does ERC, DRC with schematic parity, a netlist check, and the stripboard checker.
+    - Never edit the generated files by hand. Tracks are placed by coordinates, never by an autorouter.
   - `docs/spec.md`: system requirements and the change-request index.
   - `docs/changes/`: one folder per change request.
 - **Toolchain:** ESP-IDF 5.5.5 at `~/esp/esp-idf`, LVGL 9.4, Waveshare BSP 3.0.1, with versions pinned in `dependencies.lock`. Host tests need g++ and Python 3.
@@ -69,7 +77,11 @@ No change may weaken these. A request to change one needs explicit human approva
    - `kReferenceOhms` is the measured value of Rref.
 6. **Bus allocation.** The Waveshare BSP owns `I2C_NUM_1` on GPIO14/15. The ADS122C04 is on `I2C_NUM_0` at address 0x40, with SDA on GPIO17 and SCL on GPIO18; DRDY (GPIO16) is not used.
 7. **Docs move together.**
-   - A circuit change updates `hardware/WIRING.md`, `hardware/BOM.md`, `hardware/wiring.svg` and the `docs/ARCHITECTURE.md` diagram together, for both front-end options (A and B).
+   - A circuit change updates these together, for both front-end options (A and B):
+     - `hardware/WIRING.md`, `hardware/wiring.svg` and the `docs/ARCHITECTURE.md` diagram;
+     - `scripts/boards/circuit.py`, then the rebuilt boards and parts lists (`scripts/boards/build.sh`);
+     - the option READMEs.
+   - On the boards, no copper of AIN1, AIN2, SENDER or SENSE may sit beside ground copper: never on a neighbouring strip, and at least 1 mm on the PCB.
    - A change to a status, alarm or CSV column updates the docs that describe it (README, `docs/VALIDATION.md`, `docs/CALIBRATION.md`, `docs/ARCHITECTURE.md`).
 
 ## Changes that need human approval
@@ -97,6 +109,11 @@ Agents never do these. They go in a task's `human_verification`.
   - `tests/demo_temperature_test.cpp` builds with `-DGAUGE_DEMO`, so it has the synthetic 20–140 °C table for calibrated behaviour.
   - Its helpers are `forOhms`, `at`, `hold` and `kOpen`. `hold()` isn't wrap-safe, so use explicit `uint32_t` loops across millisecond wraparound.
 - **The Python calibration tool** (`scripts/build_calibration.py`) is tested in `tests/test_calibration_tool.py`.
+- **`tests/test_boards.py`:**
+  - checks both options' stripboards and PCBs: the outputs are current, the circuit is right, and the stripboard checker catches faults;
+  - checks the sensitive-net clearance, recomputed from the board files;
+  - checks part numbers appear only where they were verified;
+  - CI doesn't run KiCad, so it relies on these checks: run `scripts/boards/build.sh` after any change under `scripts/boards/`.
 - **`tests/front_end_sim_test.cpp`:**
   - simulates both front-end options' circuits with the driver's conversion timing, and checks `convertSample`'s verdict on every cycle;
   - a change to a fault limit, the check order or the conversion sequence must keep it passing;

@@ -1,0 +1,20 @@
+Qty,Ref,Item,Manufacturer,MPN,Digi-Key UK,Notes
+1,U1,ADC module,Adafruit,6432,,ADS122C04 24-bit I2C ADC module (The Pi Hut SKU ADA6432). Solder it in by its header pins; never socket it
+1,Rref,Reference resistor,,,,"Rref: 2.00 kOhm, 0.1 %, 25 ppm/C or better, metal film, 0.25 W, 0207. Measure it and put the value in kReferenceOhms"
+2,"R1, R2",Tap resistors,,,,"2.2 kOhm, 1 %, metal film, 0.25 W, 0207"
+2,"C1, C2",Filter capacitors,,,,"Option B: 47 nF, 5 %, C0G (NP0) ceramic, 50 V, radial, 2.5 mm (0.1 in) lead spacing, body no more than 4.6 mm along the line of its leads and 3.8 mm thick. Never X7R, never more than 100 nF"
+1,,Display,Waveshare,ESP32-S3-Touch-AMOLED-1.75,,"Standard or -B; not 1.75C, 2.1 LCD or GNSS -G. Check the board revision and socket first"
+1,,Display plug,Samtec,TSW-108-07-G-S,,8-way 2.54 mm gold pin header: the plug for the display case socket
+1,,Display power,,,,"Ignition-switched USB-C charger rated for the car's transients, and a secured USB-C lead. Never 12 V to the display"
+as needed,,Harness wire,,,,"0.5 mm2 (20 AWG): signal, ground sense and return, twisted together, away from ignition leads, the alternator and the exhaust"
+1,,Ring terminal,,,,For the tank bond stud: the ground-sense and return wires land on it
+1,,Sender spade connector,,,,"Insulated, retained against vibration; check it fits the sender"
+1,,Box,,,,"Small, insulated, with strain reliefs or glands for both cables"
+-,,Heat-shrink and sleeving,,,,For the harness and display-lead joints
+1,,Sender,,,,The car's existing resistive oil-temperature sender (dry-sump tank). Confirm its type before relying on it
+1,,Stripboard,,,,"0.1 in (2.54 mm) copper stripboard, at least 29 x 11 holes; cut to size as in veroboard/ASSEMBLY.md"
+2,"J1, J2",Terminal blocks,Phoenix Contact,1725672,277-1275-ND,"MPT 0,5/ 4-2,54 PCB screw terminal block, 4-way, 2.54 mm; 0.14-0.5 mm2 (26-20 AWG) wire"
+12,,Module header pins,,,,"2.54 mm header, both rows; a strip comes with the module"
+10 cm,,Tinned copper wire,,,,"0.6 mm (22 SWG), for the three wire links"
+1,,Display lead,,,,"4-core flexible cable, 20 cm or less: 3.3 V, GND, SCL, SDA (J1 pins 1-4)"
+4,,Bootlace ferrules,,,,"0.25 mm2, no collar, for the display lead. Phoenix lists 0.25-0.34 mm2 ferrules for MPT 0,5; strip 0.5 mm2 harness wire 4.5 mm and fit it bare"

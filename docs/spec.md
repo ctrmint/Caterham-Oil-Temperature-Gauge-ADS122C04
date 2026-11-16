@@ -15,7 +15,7 @@ An experimental, supplementary dry-sump oil-temperature display for a Caterham. 
 - **Hardware:**
   - Waveshare ESP32-S3-Touch-AMOLED-1.75 (466×466 AMOLED);
   - an ADS122C04 24-bit ADC (Adafruit module 6432) on I²C (`I2C_NUM_0`, SDA GPIO17, SCL GPIO18, address 0x40), powered from the display's 3.3 V;
-  - Rref, 2.00 kΩ 0.1 %, from A0, and 2.2 kΩ series resistors on A1 and A2: no interface board (option A);
+  - Rref, 2.00 kΩ 0.1 %, from A0, and 2.2 kΩ series resistors on A1 and A2 (option A), built without a board, on stripboard or on a PCB (`hardware/option-a`, `hardware/option-b`);
   - option B, for the car, adds 47 nF C0G capacitors across A0–A1 and A1–A2. No capacitor ever goes from an analogue input to ground;
   - the existing resistive (NTC) sender in the oil tank;
   - a dedicated ground-sense wire and a return wire to the tank stud;
