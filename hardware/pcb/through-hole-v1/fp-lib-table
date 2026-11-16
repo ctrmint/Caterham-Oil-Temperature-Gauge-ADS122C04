@@ -1,4 +1,0 @@
-(fp_lib_table
-  (version 7)
-  (lib (name "through-hole-v1")(type "KiCad")(uri "${KIPRJMOD}/footprints.pretty")(options "")(descr "through-hole-v1 single-sided footprints"))
-)

@@ -1,219 +1,187 @@
-# Wiring (Waveshare ESP32-S3-Touch-AMOLED-1.75 standard / -B + ADS1115)
+# Wiring (Waveshare ESP32-S3-Touch-AMOLED-1.75 standard / -B + ADS122C04)
 
-The sender is measured by an external **ADS1115 16-bit I²C ADC**, not by the ESP32-S3's internal ADC. The ADS1115 measures the voltage across the pull-up and the voltage across the sender, both as **differential** readings, so the result does not depend on the 3.3 V rail or on any ground offset between the electronics and the tank.
+The sender is measured by an **Adafruit ADS122C04 24-bit I²C ADC module** (product 6432), not by the ESP32-S3's internal ADC. The ADC's own **current source** drives 250 µA through a **reference resistor (Rref)** and then the sender. The firmware reads the voltage across each and computes
 
-![Schematic: Waveshare ESP32-S3-Touch-AMOLED-1.75, ADS1115, 470 Ω pull-up, sender and ground-sense wire](wiring.svg)
+`Rs = Rref × Vs / Vref`
 
-## Waveshare header H2
+The same current flows through both resistors, so the current's own accuracy (±6 %), the ADC's reference and the 3.3 V rail all cancel. A dedicated **ground-sense wire** to the tank removes any ground offset between the gauge and the tank.
 
-**All pin numbers are for Waveshare's connector `H2`**. Consult the revision-specific schematic and identify pin 1 orientation on the PCB before attaching anything.
+The whole front end is **three resistors** soldered to the module's pins, plus a terminal strip for the harness. There's no interface PCB or stripboard. The display runs from **USB-C**, and the module runs from the display's 3.3 V.
 
-| H2 pin | Signal | Use |
-|---:|---|---|
-| 1 | VBUS | Optional regulated **5 V** board power, only after reviewing the board power-path schematic; otherwise use a properly engineered USB 5 V input. Never 12 V. |
-| 2 | GND | ADS1115 GND and all filter-capacitor grounds |
-| 3 | 3V3 | ADS1115 VDD **and** the top of the 470 Ω pull-up (excitation). Do not connect to vehicle 12 V |
-| 4 | GPIO44 / UART RX | Not used |
-| 5 | GPIO43 / UART TX | Not used |
-| 6 | GPIO17 | **I²C SDA** to ADS1115 SDA |
-| 7 | GPIO18 | **I²C SCL** to ADS1115 SCL (on the `-G` model this pin may be used by GNSS; that model is not supported) |
-| 8 | GPIO16 | Not used. The firmware polls the ADS1115 for each result and turns its ALERT/RDY output off, so leave this pin and the module's ALRT unconnected. |
+![Schematic: display socket, ADS122C04 module, Rref, two 2.2 kΩ taps, terminal strip and the three wires to the tank](wiring.svg)
 
-The firmware uses I²C port 0; the Waveshare BSP already uses port 1 (GPIO14/15) for the touch panel and on-board peripherals. The recommended Adafruit ADS1115 module already has 10 kΩ pull-ups on SDA/SCL to its VDD, so no extra pull-ups are needed at 3.3 V. Keep the I²C leads short (ideally < 20 cm) and mount the ADS1115 next to the Waveshare board; **run the analogue sender wires to the tank, never the I²C bus**. The exceptions are through-hole-v1, through-hole-usb-v1 and veroboard-usb-v1, which sit in their own boxes: their display cables may be up to 30 cm, with a ground beside each signal and stronger 3.3 kΩ pull-ups on the board (see [through-hole-v1's README](pcb/through-hole-v1/README.md)).
+## Display socket (header H2)
 
-## ADS1115 connections
+The display case has an 8-way socket. Read from the back, its label reads `18 17 16 RX TX 3.3V G 5V`. Waveshare's schematic calls it `H2`; consult the revision-specific schematic before attaching anything.
 
-| ADS1115 pin | Connects to | Purpose |
+| Case label | H2 pin | Signal | Use |
+|---|---:|---|---|
+| 18 | 7 | GPIO18 | **I²C SCL** to the module's SCL (on the `-G` model this pin may be used by GNSS; that model is not supported) |
+| 17 | 6 | GPIO17 | **I²C SDA** to the module's SDA |
+| 16 | 8 | GPIO16 | Not used |
+| RX / TX | 4 / 5 | GPIO44 / GPIO43 | Not used |
+| 3.3V | 3 | 3V3 | The module's VIN (its AVDD and DVDD). Never connect vehicle 12 V |
+| G | 2 | GND | The module's GND, and through it the harness's return wire |
+| 5V | 1 | VBUS | Not used: the display is powered from its USB-C socket |
+
+The firmware uses I²C port 0. The Waveshare BSP already uses port 1 (GPIO14/15) for the touch panel and on-board peripherals. The module has 10 kΩ pull-ups on SDA and SCL to its VIN, so no extra pull-ups are needed. Keep the display lead short (20 cm or less) and **never run the I²C bus to the tank**: only the analogue harness goes there.
+
+## Module connections
+
+The module has two rows of six holes ([Adafruit's guide](https://learn.adafruit.com/adafruit-ads122c04-24-bit-adc/pinouts)):
+- **Top row:** `Ref+ A0 A1 A2 A3 Ref-`.
+- **Bottom row:** `VIN GND SCL SDA DRDY !RST`.
+
+It has no regulator. Its analogue pins go straight to the chip, with no filter parts, and the chip's AVDD comes from VIN through a ferrite.
+
+| Module pin | Connects to | Purpose |
 |---|---|---|
-| VDD | H2-3 3V3 | Same rail as the pull-up excitation |
-| GND | H2-2 GND | |
-| SDA / SCL | H2-6 / H2-7 | I²C, 100–400 kHz |
-| ADDR | GND | I²C address **0x48** (check whether your module ties it already) |
-| ALRT | Leave unconnected | Not used: the firmware polls for results and turns ALERT/RDY off |
-| **A0** | 1 kΩ → top of Rp (`3V3_EXC`), Kelvin tap at the resistor lead | Pull-up high side |
-| **A3** | 1 kΩ → `SENDER_NODE` (bottom of Rp, signal wire to sender spade) | Sender high side |
-| **A1** | 1 kΩ → **dedicated ground-sense wire** to the tank bond stud, with a **100 kΩ bias resistor** from 3V3 to the sense wire at the gauge-end connector | Sender low side; the bias makes a broken wire read 3.3 V |
-| A2 | Spare | e.g. a second sender later |
+| VIN | display `3.3V` | Supply |
+| GND | display `G`, and the terminal strip's `RETURN` | Ground |
+| SDA / SCL | display `17` / `18` | I²C, address **0x40** (address jumpers open) |
+| **A0** | **Rref** to `SENDER` | The current source's output, and the top of Rref |
+| **A1** | **2.2 kΩ** to `SENDER` | Sender high side |
+| **A2** | **2.2 kΩ** to `SENSE` | Sender low side, via the ground-sense wire |
+| A3, Ref+, Ref−, DRDY, !RST | Nothing | The datasheet allows unused analogue inputs to float. The firmware polls for results, so DRDY is unused; !RST has a pull-up on the module |
 
-The 100 kΩ bias goes on the **wire side** of A1's 1 kΩ resistor. When the wire is connected, its 33 µA flows only through the sense wire (a fraction of an ohm), so it adds no measurable error. If the wire breaks, it pulls A1 to 3.3 V and the firmware reports `GROUND FAULT`. Without it, the 100 nF capacitor would hold a broken sense wire near 0 V and the gauge would silently fall back to a ground-referenced measurement.
+## Parts
 
-Each analogue input has a **1 kΩ series resistor** and a **100 nF** (C0G or X7R) capacitor to GND at the ADS1115 pin. Use 1 kΩ, not 10 kΩ: the ADS1115's input impedance is only a few MΩ, and a large series resistance adds gain error.
+| Ref | Part | Where |
+|---|---|---|
+| Rref | **2.00 kΩ, 0.1 %, ≤ 25 ppm/°C** metal film, 0.25 W | A0 to `SENDER`. It's the measurement reference: measure it and put the value in `kReferenceOhms` (`main/Config.h`) |
+| R1 | 2.2 kΩ, 1 %, 0.25 W | A1 to `SENDER` |
+| R2 | 2.2 kΩ, 1 %, 0.25 W | A2 to `SENSE` |
 
-### Wires to the tank
+R1 and R2 limit the current into the ADC if a harness wire shorts to the battery, and they let the firmware check both taps (below). The ADC draws only nanoamps, so they add no measurable error. Use 2.2 kΩ for both: the firmware's ground-offset reading assumes it (`kGroundSenseBiasV`).
 
-Run three conductors from the gauge to the tank:
+## Building it without a board
 
-1. **Signal wire**: `SENDER_NODE` to the sender spade terminal.
-2. **Ground-sense wire**: ADS1115 A1 (via 1 kΩ) to the tank bond stud. It carries essentially no current, so it reads the true tank potential.
-3. **Bond strap / supply ground**: tank to chassis, and the gauge supply ground to chassis. This carries the excitation current (up to about 7 mA) plus whatever else flows in the chassis.
+1. **Bottom row:** snap a 6-pin piece off the header strip that comes with the module. Solder it into the bottom row (VIN … !RST), long pins up, so the wires solder onto pins rather than into holes.
+2. **Display lead:** use a 5-core lead of 20 cm or less, with an 8-pin piece of 2.54 mm header as the plug for the display socket.
+   - At the plug, solder the lead to the pins under `18`, `17`, `3.3V` and `G` (two wires on `G`). The pins under `16`, `RX`, `TX` and `5V` carry nothing.
+   - At the module, solder SCL, SDA, VIN and GND to their pins.
+   - The fifth wire, from the plug's `G`, goes to the terminal strip's `RETURN`.
+   - Offer the plug up to the case and check that its `18` pin meets the socket labelled 18 before soldering.
+3. **Resistors:**
+   - Fit Rref into A0, R1 into A1 and R2 into A2 from the chip side, and solder them underneath.
+   - Lay the bodies flat, pointing away from the module, and sleeve the long leads.
+   - Leave A3, Ref+ and Ref− empty.
+4. **Terminal strip:** a 3-way screw terminal strip (a "chocolate block" cut to three ways) is the harness connector.
+   - `SENDER` takes the far leads of Rref and R1, twisted and soldered together, plus the harness signal wire.
+   - `SENSE` takes R2's far lead and the harness ground-sense wire.
+   - `RETURN` takes the lead's fifth wire and the harness return wire.
+   - Crimp ferrules on the harness wires.
+5. **Box:**
+   - Screw the module to the floor of a small insulated box by its four mounting holes, and fix the terminal strip beside it.
+   - Hold the resistor bodies down with hot-melt glue or silicone so they can't flex their leads.
+   - Bring both cables in through strain reliefs.
 
-When the display runs from USB-C (through-hole-usb-v1, veroboard-usb-v1), nothing guarantees the gauge's ground reaches the chassis: a power bank floats, and a USB charger's ground arrives through its own 12 V socket. The third conductor is then a **dedicated return wire** from the board's GND to the tank bond stud, run with the other two. It carries the excitation current; the ground-sense wire still measures the tank, so its resistance doesn't matter. If it breaks while the supply floats, the tank floats up to 3.3 V and the gauge shows `GROUND FAULT`.
+Every joint is soldered except the terminal strip, which you can open to disconnect the harness.
 
-Twist the signal and ground-sense wires (and the return wire, where there is one) together (or use a screened cable, screen grounded at the gauge end only) and route them away from ignition leads, the alternator and the exhaust.
+## Wires to the tank
+
+Run three conductors from the terminal strip to the tank, twisted together (or in a screened cable, with the screen grounded at the gauge end only). Route them away from ignition leads, the alternator and the exhaust.
+
+1. **Signal** (`SENDER`): to the sender spade.
+2. **Ground sense** (`SENSE`): to the tank bond stud. It carries only the 10 µA wiring-check current, so it reads the true tank potential.
+3. **Return** (`RETURN`): from the gauge's ground to the tank bond stud. It carries the 250 µA excitation current back.
+
+**Why the return wire is needed:** with the display on USB-C, nothing guarantees the gauge's ground reaches the chassis. A power bank floats, and a USB charger's ground arrives through its own 12 V socket. Without the return wire on a floating supply, no current flows and the gauge shows `SENSOR OPEN` or `GROUND FAULT`, never a reading. The ground-sense wire still measures the tank, so the return wire's resistance doesn't matter.
 
 ## Engineering calculations
 
-With pull-up `Rp` (470 Ω) and resistive sender `Rs`, the same current `I` flows through both:
+The current source pushes `I` (250 µA nominal) out of A0, through Rref and the sender, to the tank:
 
-* `Vp = V(A0) − V(A3) = I × Rp` (multiplexer setting AIN0–AIN3)
-* `Vs = V(A3) − V(A1) = I × Rs` (read as AIN1–AIN3 and negate; the ADS1115 multiplexer has no AIN3–AIN1 setting)
+* `Vref = V(A0) − V(A1) = I × Rref` (multiplexer setting AIN0–AIN1)
+* `Vs = V(A1) − V(A2) = I × Rs`, where A2 reads the tank through the ground-sense wire (AIN1–AIN2)
 
-Therefore
+Therefore `Rs = Rref × Vs / Vref`.
+- **What cancels:** the current's value, the ADC's reference and the rail. All six readings use the same gain (1, PGA bypassed) and the internal 2.048 V reference, so the ADC gain error cancels as well.
+- **What remains:** mainly Rref's tolerance and drift. Use a 0.1 % / ≤ 25 ppm/°C part and put its **measured** value in `kReferenceOhms`.
+- **Signal wire:** its resistance from `SENDER` to the spade is included in `Rs` (typically under 0.1 Ω, which calibration in place absorbs).
 
-`Rs = Rp × Vs / Vp`
+**Each 250 ms cycle** the ADC makes six single-shot conversions at 45 samples/s (about 150 ms in all):
 
-The rail voltage, the ADS1115's reference error and the ground offset between the board and the tank all cancel. Use the **same programmable gain (±4.096 V)** for both readings so the ADC gain error cancels as well. The remaining errors are mainly the tolerance and temperature drift of `Rp`, so use a 0.1 % / ≤25 ppm/°C part and put its **measured** value in `main/Config.h`. The signal-wire resistance from `SENDER_NODE` to the spade is included in `Rs` (typically < 0.1 Ω, which calibration in place absorbs).
+1. **Offset:** the inputs shorted internally. This is the ADC's own offset (a few µV), subtracted from Vref and Vs. If it's beyond 0.25 mV, the gauge shows `ADC UNAVAILABLE`.
+2. **Vref:** A0 − A1.
+3. **Vs:** A1 − A2.
+4. **Ground:** A2 to ground, with the ADC's 10 µA burn-out source on. The tank's offset from the gauge GND is this reading minus the source's 22 mV drop across R2.
+5. **Sender tap:** A1 to ground, with the burn-out source on.
+6. **Supply:** AVDD, through the ADC's own monitor.
 
-Diagnostics:
+**Data integrity:**
+- Before every conversion, the driver writes all four configuration registers and reads each back with a CRC.
+- Every result carries a CRC16 and a conversion counter.
+- Any I²C error, CRC failure, register mismatch, timeout or out-of-sequence counter makes that cycle `ADC UNAVAILABLE`, never a stale value.
 
-* `V(A0)` vs GND (single-ended): the 3.3 V excitation rail (`SUPPLY FAULT` if outside 2.9–3.5 V).
-* Tank ground offset = `V(A0) − (Vp + Vs)`, which equals `V(A1)` relative to the gauge GND (`GROUND FAULT` outside −0.10…+0.20 V). Each ADS1115 input must stay between GND and VDD for an accurate conversion (absolute maximum GND − 0.3 V to VDD + 0.3 V), so keep this offset close to 0 V (aim for within ±100 mV) by bonding the gauge supply ground to a chassis point close to the tank bond.
+**Compliance:** the current source holds its current only while A0 stays at least 0.9 V below AVDD. A0 sits at `I × (Rref + Rs)` plus the tank offset. At the open-circuit threshold (5 kΩ), a +0.2 V offset and AVDD at its 2.9 V limit, that's 1.95 V, under the 2.0 V limit. So everything the gauge reads as a resistance is measured with a steady current.
 
-**Expect the offset to be negative in the car.** The board's own supply current (about 0.1–0.3 A) returns to chassis through the gauge's ground lead, so the gauge GND sits slightly above the chassis and the tank. A1 then sits slightly below GND. That is outside the ADS1115's specified input range (GND to VDD), although well inside its absolute maximum (GND − 0.3 V). The firmware accepts offsets down to −0.10 V (`kGroundOffsetMinV`), so bench step 8 checks that readings stay accurate with the ground point below GND. If they don't, tighten that limit (a fault threshold, so it needs approval) or lower the offset with a heavier or shorter gauge ground lead. Bench step 7 tests only the opposite direction.
+**Diagnostics:**
 
-Fault detection no longer relies on the unreliable top of the ESP32 ADC range:
+* **Supply** outside 2.9–3.5 V: `SUPPLY FAULT`.
+* **Excitation current** `Vref / kReferenceOhms` outside 210–290 µA: `SUPPLY FAULT`. The source is 250 µA ± 6 %, so this catches a missing or wrong Rref (for example 2.4 kΩ fitted where 2.0 kΩ is configured). A wrong Rref would otherwise give a plausible but wrong resistance.
+* **Tank ground offset** outside −0.10…+0.20 V: `GROUND FAULT`. The ADC is specified for inputs from 0.1 V below its GND, so keep the offset near 0 V.
+* **Sender open:** no current flows, so `Vref ≈ 0`: `SENSOR OPEN`. The same applies to a sender resistance over 5 kΩ.
+* **Sender shorted to ground:** `Vs ≈ 0`, or under 20 Ω: `SENSOR SHORT`.
+* **Ground-sense wire broken, or R2's joint open:** the burn-out source pulls A2 up towards AVDD, so `GROUND FAULT`.
+* **R1's joint open** (A1 tap): the burn-out source pulls A1 up, and the tap check gives `SENSOR OPEN`. An intact tap reads the sender node plus 10 µA × Rs.
+* **Rref or A0's joint open:** no current reaches the sender, so `Vs ≈ 0`: `SENSOR SHORT`. Either way it's a fault, never a reading.
 
-* **Sender open**: no current, so `Vp ≈ 0`.
-* **Sender shorted to ground**: `Vs ≈ 0`.
-* **Ground-sense wire broken**: the 100 kΩ bias pulls A1 to 3.3 V, so the offset reads about 3.3 V: `GROUND FAULT`.
+**Expect the offset to be slightly negative in the car.** The display's supply current returns through its own ground, so the gauge GND can sit slightly above the tank. A2 then sits slightly below GND. The ADC is specified down to 0.1 V below its GND with the PGA bypassed, which is why the firmware accepts offsets down to −0.10 V (`kGroundOffsetMinV`). Bench step 8 checks that readings stay accurate there.
 
 ### Resolution
 
-At ±4.096 V full scale one ADS1115 step is **125 µV**. Near 130 °C the sender changes by roughly 8 mV per °C at the ADC, so the converter resolves about 0.02 °C there. Real accuracy is set by `Rp`, the calibration and thermal coupling, not by the converter.
+- **Step size:** one ADC step is 0.24 µV, and the noise at 45 samples/s is about 6.6 µV rms.
+- **Near 130 °C:** the TT6811-03 curve changes by about 1.7 Ω per °C, which is 0.43 mV per °C at 250 µA. That gives about 0.02 °C of noise before the gauge's filter.
+- **What sets accuracy:** Rref, the calibration and the thermal coupling, not the converter.
 
 ## Expected indicative voltages
 
-The **voltages below are theoretical electrical examples**, not a calibrated oil-temperature table. For nominal 3.30 V and a 470 Ω pull-up, with zero ground offset:
+These **voltages are theoretical electrical examples**, not a calibrated oil-temperature table. They assume 250 µA, Rref = 2.00 kΩ and zero ground offset.
 
-| Sender resistance | Vs = A3 − A1 | Vp = A0 − A3 |
-|---:|---:|---:|
-| 44 Ω | 0.282 V | 3.018 V |
-| 120 Ω | 0.671 V | 2.629 V |
-| 470 Ω | 1.650 V | 1.650 V |
-| 1,158 Ω | 2.347 V | 0.953 V |
-| Disconnected (open) | ≈ 3.30 V | ≈ 0 V |
-| Signal shorted to ground | ≈ 0 V | ≈ 3.30 V |
+| Sender resistance | Vs = A1 − A2 | Vref = A0 − A1 | A0 |
+|---:|---:|---:|---:|
+| 44 Ω | 11.0 mV | 0.500 V | 0.511 V |
+| 120 Ω | 30.0 mV | 0.500 V | 0.530 V |
+| 470 Ω | 117.5 mV | 0.500 V | 0.618 V |
+| 1,158 Ω | 289.5 mV | 0.500 V | 0.790 V |
+| 5,000 Ω (open threshold) | 1.250 V | 0.500 V | 1.750 V |
+| Disconnected (open) | — | ≈ 0 V | near 3.3 V |
+| Signal shorted to ground | ≈ 0 V | 0.500 V | 0.500 V |
 
-Excitation current is at most 3.3 V / (470 + 44) Ω ≈ 6.4 mA. The pull-up dissipates under 25 mW and the sender under 6 mW. ADS1115 inputs are **not 5 V tolerant** when powered from 3.3 V.
+**Self-heating is negligible.** The sender dissipates at most 72 µW at 1,158 Ω, and Rref 125 µW.
 
 ## Input protection
 
-The 1 kΩ / 100 nF networks limit current and filter noise, but they are **not** load-dump or harness-fault protection. At the harness entry, add clamps on the signal and ground-sense wires (for example a low-leakage dual Schottky diode to 3V3 and GND on the ADS1115 side of each 1 kΩ resistor, plus a TVS rated for the harness). Check that the 3.3 V rail can absorb the clamp current without rising, and check diode leakage at hot under-bonnet temperatures. The part choice and topology must be engineered and tested for the vehicle; see [SAFETY.md](../docs/SAFETY.md).
+There are **no clamp diodes or TVS**. Instead, every harness wire reaches the ADC only through at least 2 kΩ: Rref and R1 on the signal wire, R2 on the sense wire. The chip's own input clamps are rated for 10 mA continuous.
 
-**The signal wire also connects straight to the 3.3 V rail through Rp**, bypassing the 1 kΩ resistors where those clamps sit. If the signal wire chafed onto +12 V, about (12 − 3.3) V / 470 Ω ≈ 18 mA would flow into the board's 3.3 V rail, which feeds the ESP32-S3 and the display. Another ≈ 8 mA would flow through A3's 1 kΩ into the ADS1115's input diodes. The board's normal load would probably absorb it, but nothing guarantees that. The protection must therefore also cover `SENDER_NODE` itself, for example with a clamp or TVS on the signal wire at the harness entry. Do not add a series resistor between `SENDER_NODE` and the harness: it would be measured as part of the sender.
+- **Wire shorted to 14.4 V:** the signal wire pushes about 5.5 mA into A0 and 5 mA into A1, and the sense wire 5 mA into A2.
+- **24 V jump start:** about 10 mA per pin, at the rating.
+- **Where it goes:** that current flows into the display's 3.3 V rail through the chip. The display draws far more than that, so the rail shouldn't rise, but nothing guarantees it.
+- **Compared with the old pull-up circuit:** the harness no longer reaches the 3.3 V rail through a low resistance.
 
-**Where it's built:**
-- **The through-hole-v1 PCB** ([pcb/through-hole-v1](pcb/through-hole-v1/README.md)) builds the same protection in through-hole parts:
-  - each tap is 1 kΩ, then a pair of 1N4148 clamps to 3.3 V and GND, then the ADC's 1 kΩ;
-  - a P6KE18A TVS sits on the signal wire;
-  - the bias stays on the harness side.
-
-  It too still has to pass its bench fault tests and the in-car tests.
-- **The through-hole-usb-v1 PCB** ([pcb/through-hole-usb-v1](pcb/through-hole-usb-v1/README.md)) has the same through-hole protection, with the same tests owed.
-- **The veroboard-usb-v1 stripboard** ([pcb/veroboard-usb-v1](pcb/veroboard-usb-v1/README.md)) builds it too, with the same parts.
-- **The surface-mount-v1 PCB** ([pcb/surface-mount-v1](pcb/surface-mount-v1/README.md)) engineers this as PR #34 proposed:
-  - each harness tap is two stages: 1 kΩ (1206), then a BAV99 clamp to 3.3 V and GND (1N4148-class, nanoamp leakage), then the ADC's 1 kΩ;
-  - an SMBJ15A TVS sits on the signal wire;
-  - the 100 kΩ bias stays on the harness side.
-
-  With a wire at 14.4 V, about 34 mA (signal) or 10 mA (sense) goes into the 3.3 V rail, and under 0.5 mA reaches an ADC pin. It still has to pass its bench fault tests and the in-car tests.
-- **The bench veroboard build** (veroboard.svg, below) has none and stays a bench rig: don't fit it in the car. A separate veroboard protection board (PR #34) was closed in favour of surface-mount-v1.
+This is **not** load-dump, surge or ESD qualification. Bench test the short to battery (step 12) before fitting, and check the installed system in the car; see [SAFETY.md](../docs/SAFETY.md).
 
 ## Bench steps
 
-[breadboard.svg](breadboard.svg) shows a hole-by-hole layout of this circuit on a half-size (400-point) breadboard for these steps. It includes the step 8 parts, the probe points and a placement table.
+The module, the three resistors and a test resistor fit on a breadboard for these steps. Wire them as in the schematic: the test resistor goes from `SENDER` to a bench "tank" point, and the sense and return wires go to that same point.
 
-![Bench breadboard layout: ADS1115 module, 470 Ω pull-up, filters, test resistor and ground-sense wire on a half-size breadboard](breadboard.svg)
-
-1. With the interface board disconnected from the ESP32, check continuity for unintended shorts to battery+ / chassis.
-2. Power the Waveshare board from a clean bench 5 V source. Check the 3.3 V rail is stable.
-3. Connect the ADS1115 (VDD, GND, SDA, SCL, ADDR to GND). Confirm the firmware or an I²C scan finds address **0x48**.
-4. Fit a **known** 120 Ω resistor between `SENDER_NODE` and a bench "tank ground" point. Connect the ground-sense wire and the bond wire to that same point. Verify with a DMM: Vs ≈ 0.67 V, Vp ≈ 2.63 V.
-5. Check the firmware resistance reads close to 120 Ω (agreement here is not a temperature calibration).
-6. Remove the resistor: expect `SENSOR OPEN`. Short `SENDER_NODE` to the ground point through safe test leads: expect `SENSOR SHORT`.
-7. Add 10 Ω in the bond wire only (between the ground point and board GND). This lifts the ground point by about 55 mV; the resistance reading should not change, which proves the ground-sense cancellation works. (A single-ended measurement would read about 8 % high.)
-8. **Ground point below GND (the car's usual direction).** Replace the bond wire (or step 7's 10 Ω) with 1 Ω between the ground point and board GND. Then connect a 1.5 V AA cell in series with 27 Ω across that 1 Ω: cell + → 27 Ω → board GND, cell − → ground point. About 54 mA then flows from board GND to the ground point, holding it about 50 mV below board GND. Expect no fault, `ground_offset_v` about −0.05 V in the CSV log, and the resistance within about 0.2 % of the step 5 reading. Optionally use 12 Ω instead of 27 Ω (about −0.11 V): expect `GROUND FAULT`. Disconnect the cell afterwards and restore the bond wire.
-9. Vary known resistors across the expected range (44 Ω to 1,158 Ω and beyond); record readings and errors.
-10. Disconnect the ground-sense wire: expect `GROUND FAULT`. Reconnect it.
-11. With ignition OFF, connect the real sensor, ground-sense and bond wires. Confirm that no voltage above the ADS1115 input limits reaches any input before turning on gauge power.
+1. Before connecting the display, check the wiring for unintended shorts. In particular, `SENDER` and `SENSE` must not touch 3.3 V or GND.
+2. Power the display from USB on the bench. Check the 3.3 V pin is stable.
+3. Confirm the firmware (or an I²C scan) finds the module at **0x40**.
+4. Fit a **known** 120 Ω resistor as the sender, and the measured Rref value in `kReferenceOhms`. With a DMM, Vs should be about 30 mV and Vref about 0.50 V.
+5. Check the firmware's resistance reads close to 120 Ω. This agreement is not a temperature calibration.
+6. Remove the resistor: expect `SENSOR OPEN`. Short `SENDER` to the tank point through safe test leads: expect `SENSOR SHORT`.
+7. Add 10 Ω in the return wire only, between the tank point and the gauge GND. The resistance reading shouldn't change. The CSV's `ground_offset_v` rises by only about 2.5 mV, because the return wire carries just 250 µA. To test the offset window itself, use step 8.
+8. **Tank point below and above GND.** Replace the return wire with 1 Ω between the tank point and the gauge GND. Connect a 1.5 V AA cell in series with 27 Ω across that 1 Ω: cell + → 27 Ω → gauge GND, cell − → tank point. That holds the tank point about 50 mV below GND.
+   - Expect no fault, `ground_offset_v` about −0.05 V in the CSV log, and the resistance within about 0.2 % of the step 5 reading.
+   - With 12 Ω instead of 27 Ω (about −0.11 V), expect `GROUND FAULT`.
+   - Reverse the cell for about +0.05 V: no fault, and the same resistance.
+   - Afterwards, disconnect the cell and restore the return wire.
+9. Vary known resistors across the expected range (44 Ω to 5 kΩ). Record the readings and errors.
+10. Disconnect the ground-sense wire at the terminal strip: expect `GROUND FAULT`. Reconnect it.
+11. **Tap checks:** unsolder R1's far lead from `SENDER`: expect `SENSOR OPEN`. Then unsolder R2's: expect `GROUND FAULT`. Resolder both. Neither may ever give a reading.
+12. **Short to battery:** with a bench supply at 14.4 V, current-limited to 50 mA, touch the signal wire for a few seconds, then the sense wire. Expect a fault while it's applied, no damage, and correct readings afterwards. Re-measure Rref.
+13. With the ignition OFF, connect the real sender, ground-sense and return wires. Before turning on gauge power, confirm that no voltage outside 0–3.3 V reaches `SENDER` or `SENSE`.
 
 **Never** probe or splice a powered automobile circuit assuming it is grounded at the same potential as a USB-connected development laptop. Keep the car and laptop disconnected from each other while validating grounds.
-
-## Veroboard build
-
-[veroboard.svg](veroboard.svg) lays the circuit out on 0.1 in stripboard, 17 strips × 26 holes (about 66 × 43 mm). It's for the Adafruit ADS1115 STEMMA QT module, which has two 6-pin rows 0.5 in apart ([photo](ads1115-module.jpg)).
-
-- **Display header (J1):** an 8-way male header across strips 1–8 plugs into the display's sockets. Strip 1 is `18` and strip 8 is `5V`, in the case label's order. Offer the board up to the case and check strip 1 meets the socket labelled 18 before soldering anything else.
-- **Module:**
-  - It plugs into two 6-way female sockets upside down, chip side towards the veroboard, and lifts out.
-  - Upside down, its pins are mirrored. The analogue row (A+ A3 A2 A1 A0 A−) goes in the left socket (column 13) and the I²C row (VIN GND SCL SDA ADDR ALRT) in the right socket (column 18). A+ and VIN are both on strip 9.
-  - Its parts face the veroboard, so nothing sits under it.
-- **Track cuts:** six, all at column 15 on strips 9–14, between the two sockets. They're the only cuts; every other strip is one connection end to end. Without them, each strip would join a pin in one row to the pin opposite it (A3 to GND, A1 to SDA, and so on).
-- **Module pins:**
-  - The three capacitors return to A−, the ADC's own ground (GND through a ferrite on the module).
-  - A+ (the ADC's supply), A2, ADDR and ALRT connect to nothing else.
-  - The module defaults to address 0x48. Don't bridge the address jumper on its back, which faces up once it's fitted.
-- **Strips that belong to the display:** strips 3, 4, 5 (GPIO16, RX, TX) and 8 (5 V, live whenever USB is connected) carry nothing else.
-- **Measurement taps:** 3.3 V enters strip 17 at column 24, so R1's A0 tap (column 1) is past Rp (column 22), outside the excitation current. R2 and R3 likewise sit past Rp and R4 as seen from the harness connector (J2, column 26).
-- **Sender wiring:** three wires, drawn beside J2.
-  1. The signal wire runs from J2 strip 16 to the sender terminal.
-  2. A bond runs from the sender body to GND. On the bench it's a wire to any free hole on strip 7; in the car it's the tank bond strap to chassis, with the gauge's ground also to chassis.
-  3. The ground-sense wire runs from J2 strip 15 to the sender body. Without it, the 100 kΩ bias pulls A1 to 3.3 V and the gauge shows `GROUND FAULT`.
-- **J3 (optional):** feeds the display from an external 5 V supply through the 5V socket, instead of USB. Check the board's power path first, and never connect USB at the same time.
-- **No input protection:** the veroboard stays a bench rig. For the car, use one of the PCBs below.
-
-![Veroboard layout: display header on strips 1-8, the ADS1115 module upside down on two 6-way sockets with six cuts between them, filters, pull-up, bias resistor and harness connector](veroboard.svg)
-
-## surface-mount-v1 PCB
-
-[surface-mount-v1](pcb/surface-mount-v1/README.md) is the production version of this circuit: one 39 × 23 mm two-layer board for 1–5 units. Its surface-mount parts are fitted by the board house. It was designed in KiCad 10, and its folder's `build.sh` rebuilds it.
-- **J1:** plugs straight into the display's 8-way socket.
-- **Retention:** the case's two bottom screws hold the board on.
-- **J2:** a 4-way Molex Micro-Fit harness connector with the pins 1 sender, 2 GND, 3 5 V in, 4 ground sense.
-
-**The measurement is unchanged.** It has the same pins, address, channels and gain, so the firmware is unchanged; only `kPullUpOhms` changes, to the measured Rp.
-
-**Changes from the veroboard:**
-- the ADS1115 is a bare chip, so every tap is a soldered track;
-- the board carries the I²C pull-ups the module used to provide;
-- the input protection above is fitted;
-- a 5 V feed arrives through a reverse-blocking diode.
-
-[Its README](pcb/surface-mount-v1/README.md) has the design decisions, the fit check to do before ordering, ordering and assembly, and the bench checks. [Its parts list](pcb/surface-mount-v1/BOM.md) gives every part with its manufacturer part number, including the mating housing, terminals and crimp tool.
-
-![surface-mount-v1 PCB, 3D render](pcb/surface-mount-v1/renders/iso.png)
-
-## through-hole-v1 PCB
-
-[through-hole-v1](pcb/through-hole-v1/README.md) is the same circuit on a 92 × 64 mm board with one copper layer and only through-hole parts, for hand soldering.
-- **It sits in its own 3D-printed box**, and a cable joins it to the display (J3, Micro-Fit 2×4, with a ground beside each signal).
-- **It takes the car's fused 12 V** on J1 and makes the display's 5 V with a Traco TSR 1-2450. On the way in are a resettable fuse, a 1.5KE27A TVS and a reverse-polarity diode.
-- **The ADC is the Adafruit ADS1115 module**, soldered in and held by standoffs. The firmware is unchanged.
-- **J2 carries the sender harness:** 1 sender, 2 ground sense, 3 screen.
-
-[Its README](pcb/through-hole-v1/README.md) covers the cable, the box, ordering, assembly and the checks owed. [Its parts list](pcb/through-hole-v1/BOM.md) gives every part with its manufacturer part number and Digi-Key UK code.
-
-![through-hole-v1 PCB, 3D render](pcb/through-hole-v1/renders/iso.png)
-
-## through-hole-usb-v1 PCB
-
-[through-hole-usb-v1](pcb/through-hole-usb-v1/README.md) is through-hole-v1 without its 12 V input, on a 65 × 62 mm single-sided board.
-- **The display runs from its own USB-C socket.** The board takes the display's 3.3 V over the cable (J3, Micro-Fit 2×3: 3.3 V, SCL and SDA, each above a ground). There's no 5 V on the cable and no regulator.
-- **J2 carries the harness and its grounds:** 1 sender, 2 ground sense, 3 the dedicated return to the tank bond stud (see Wires to the tank, above), 4 the screen or a second return.
-- **The front end, the module and the protection** are through-hole-v1's. The firmware is unchanged.
-
-[Its README](pcb/through-hole-usb-v1/README.md) covers the grounds, the cable, the box, ordering, assembly and the checks owed. [Its parts list](pcb/through-hole-usb-v1/BOM.md) gives every part with its manufacturer part number.
-
-![through-hole-usb-v1 PCB, 3D render](pcb/through-hole-usb-v1/renders/iso.png)
-
-## veroboard-usb-v1 stripboard
-
-[veroboard-usb-v1](pcb/veroboard-usb-v1/README.md) is through-hole-usb-v1's circuit on 0.1 in stripboard, made as small as its parts allow: 33 holes by 11 strips (86.4 × 30.5 mm), 14 track cuts and 9 wire links.
-- **Unlike the bench veroboard above,** it has the full harness protection and the dedicated ground return, and the display reaches it only by cable.
-- **Both cables land in screw terminal blocks** (Phoenix MPT 0,5, 2.54 mm): J3 for the display (3.3 V, SCL and SDA, each beside a ground), J2 for the harness (1 sender, 2 ground return, 3 ground sense, 4 screen).
-- **The module is soldered in,** chip side up; its ADDR pin goes to ground.
-- **A checker** (`generator/vero.py`, run by `tests/test_veroboard_usb_v1.py`) proves the strips, cuts and links make exactly this circuit, and that every part fits at its datasheet size and lead spacing.
-
-[Its README](pcb/veroboard-usb-v1/README.md) has the layout, the build steps and the checks owed; [ASSEMBLY.md](pcb/veroboard-usb-v1/ASSEMBLY.md) lists every cut, link and hole.
-
-![veroboard-usb-v1 layout](pcb/veroboard-usb-v1/renders/layout.svg)

@@ -9,15 +9,17 @@
 using gauge::Status;
 
 static gauge::Sample forOhms(float r) {
-  const float amps=3.30f/(config::kPullUpOhms+r);
-  return {true,amps*config::kPullUpOhms,amps*r,3.30f};
+  const float amps=config::kExcitationA;
+  return {true,0.0f,amps*config::kReferenceOhms,amps*r,config::kGroundSenseBiasV,
+          config::kGroundSenseBiasV+(amps+10e-6f)*r,3.30f};
 }
 static gauge::Sample at(float t) {
   const float r = gauge::resistanceFromTemperature(t);
   assert(std::isfinite(r));
   return forOhms(r);
 }
-static const gauge::Sample kOpen = {true,0.0f,3.30f,3.30f};
+// Open sender: no current flows, so there is no voltage across Rref.
+static const gauge::Sample kOpen = {true,0.0f,0.0f,2.0f,config::kGroundSenseBiasV,2.048f,3.30f};
 
 // Feed the same sample every 250 ms for duration_ms; returns the last reading.
 static gauge::Reading hold(gauge::TemperatureState &s, const gauge::Sample &x, unsigned &ms, unsigned duration_ms) {

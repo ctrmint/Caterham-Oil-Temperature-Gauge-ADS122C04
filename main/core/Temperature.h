@@ -8,7 +8,7 @@ enum class Status : uint8_t {
 struct Reading {
   Status status = Status::NoAdc;
   Status alarm = Status::Normal;   // latched alarm level: Normal, Amber or Red
-  float pullup_volts = 0;
+  float reference_volts = 0;
   float sensor_volts = 0;
   float supply_volts = 0;
   float ground_offset_volts = 0;
@@ -16,9 +16,13 @@ struct Reading {
   float temperature_c = 0;
   bool has_temperature = false;
 };
-// ADS1115 readings: Vp = A0 - A3 across the pull-up, Vs = A3 - A1 across the sender,
-// supply = A0 single-ended.
-struct Sample { bool adc_ok; float pullup_volts; float sender_volts; float supply_volts; };
+// ADS122C04 readings, all against its internal reference: the shorted-input offset,
+// Vref = A0 - A1 across Rref, Vs = A1 - A2 across the sender, then A2 - AVSS (ground) and
+// A1 - AVSS (sender tap), each with the burn-out source on, and AVDD (supply).
+struct Sample {
+  bool adc_ok; float offset_volts; float reference_volts; float sender_volts;
+  float ground_volts; float tap_volts; float supply_volts;
+};
 Reading convertSample(const Sample &sample);
 const char* statusText(Status value);
 bool isFault(Status value);

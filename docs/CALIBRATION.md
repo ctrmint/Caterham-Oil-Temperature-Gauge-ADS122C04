@@ -4,11 +4,11 @@ The Caterham part listing identifies an electrically variable resistance, **not 
 
 ## Recommended method
 
-1. Identify the *actual* fitted sensor; confirm it is a single-terminal resistance-to-ground device and the spade terminal is isolated from the tank body. The likely factory part is a Caerbont TT6811-03 (1/8" NPT, 40–140 °C). Its published curve (quoted in #42) is not a safe assumption either. A bench sender stamped 6811 didn't follow it: up to 89 °C it tracked the Bosch 0 280 130 026 curve (2.5 kΩ at 20 °C) instead. Use published curves only to sanity-check your own points, never for the table.
-2. Record the **exact 470 Ω pull-up** with a calibrated DMM (circuit unpowered) and enter it in `main/Config.h`. With the ADS1115 ratiometric circuit this resistor is the reference for every reading: a 0.5 % error in its value is a 0.5 % error in sender resistance. The 1 kΩ input resistors do not need measuring.
+1. Identify the *actual* fitted sensor; confirm it is a single-terminal resistance-to-ground device and the spade terminal is isolated from the tank body. The likely factory part is a Caerbont TT6811-03 (1/8" NPT, 40–140 °C). Its published curve (in `docs/sender-reference-curves.csv`) is not a safe assumption either. A bench sender stamped 6811 didn't follow it: up to 89 °C it tracked the Bosch 0 280 130 026 curve (2.5 kΩ at 20 °C) instead. Use published curves only to sanity-check your own points, never for the table.
+2. Record the **exact reference resistor Rref** (nominal 2.00 kΩ) with a calibrated DMM, with the circuit unpowered, and enter it as `kReferenceOhms` in `main/Config.h`. In the ratiometric circuit this resistor is the reference for every reading: a 0.5 % error in its value is a 0.5 % error in sender resistance. The 2.2 kΩ series resistors do not need measuring.
 3. Characterise resistance across **at least five, preferably 7–10**, independently measured temperature points across the operating range. With sensor removed use a calibrated temperature probe, liquid bath, stable equilibrium, and suitable insulated leads. Follow relevant high-temperature and oil-handling safety procedures; **do not use boiling water as a method to assert calibration above 100°C**.
 4. If sender cannot be removed, you can compare it against an independently calibrated thermocouple securely attached near the sensing element, accounting for delay and temperature gradients. Never loosen sender or tank fitting while hot, pressurised, or full.
-5. Measure ohms with the ESP32/ADS1115 circuit disconnected (never use a meter in resistance mode on a powered circuit); ensure the sensor body has a good earth return. Alternatively, once the ADS1115 is fitted and its resistance reading has been checked against known resistors, the gauge's own logged resistance can be used. If you calibrate with the sender installed, connect the ground-sense wire to the same tank stud that will be used in service, so the calibration includes the real sender-to-tank contact.
+5. Measure ohms with the gauge disconnected (never use a meter in resistance mode on a powered circuit); ensure the sensor body has a good earth return. Alternatively, once the gauge's resistance reading has been checked against known resistors, its own logged resistance can be used. If you calibrate with the sender installed, connect the ground-sense wire to the same tank stud that will be used in service, so the calibration includes the real sender-to-tank contact.
 6. Put measurements in `measurements.csv` using the schema below, ascending temperatures. Exact values below are **deliberate placeholders** and MUST NOT be used as a real sender calibration.
 
 ```csv
@@ -44,7 +44,13 @@ After changing any of these inputs, run `python3 scripts/plot_sender_curve.py` a
 
 ## Expected tolerances
 
-With the ADS1115 the converter itself is rarely the limit (125 µV steps, about 0.02 °C near 130 °C). The ratiometric, ground-sensed measurement cancels rail voltage, ADC gain error and ground offset. What remains: the tolerance and temperature drift of the 470 Ω pull-up, contact resistance at the sender spade and tank stud, the temperature gradient within the tank, sensor self-heating (a few mW) and curve approximation between your calibration points. Do not claim a precision class without testing across the entire installed system. A match at room temperature does not prove 120°C accuracy.
+With the ADS122C04 the converter itself is rarely the limit (about 6.6 µV rms noise, roughly 0.02 °C near 130 °C at 250 µA). The ratiometric, ground-sensed measurement cancels the current source's accuracy, the ADC's reference and gain errors and ground offset. What remains:
+- the tolerance and temperature drift of Rref;
+- contact resistance at the sender spade and tank stud;
+- the temperature gradient within the tank;
+- curve approximation between your calibration points.
+
+Sensor self-heating is under 0.1 mW. Do not claim a precision class without testing across the entire installed system. A match at room temperature does not prove 120°C accuracy.
 
 ## Validating the resulting gauge
 

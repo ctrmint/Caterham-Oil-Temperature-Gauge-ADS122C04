@@ -31,4 +31,8 @@ g++ -std=c++17 -Wall -Wextra -Werror -Imain \
   tests/layout_choice_test.cpp main/core/LayoutChoice.cpp \
   -o /tmp/caterham-oil-gauge-tests/layout_choice_tests
 /tmp/caterham-oil-gauge-tests/layout_choice_tests
+g++ -std=c++17 -Wall -Wextra -Werror -Imain \
+  tests/adc_frame_test.cpp \
+  -o /tmp/caterham-oil-gauge-tests/adc_frame_tests
+/tmp/caterham-oil-gauge-tests/adc_frame_tests
 python3 -m unittest discover -s tests -p 'test_*.py' -v

@@ -1,4 +1,0 @@
-(sym_lib_table
-  (version 7)
-  (lib (name "through-hole-v1")(type "KiCad")(uri "${KIPRJMOD}/through-hole-v1.kicad_sym")(options "")(descr "through-hole-v1 module symbol"))
-)

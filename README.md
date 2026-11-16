@@ -2,39 +2,51 @@
 
 > **Hardware target:** Waveshare **ESP32-S3-Touch-AMOLED-1.75**, standard SKU 31261 or cased SKU 31262 (466×466 AMOLED, CO5300 controller). This firmware **does not** target the 2.1-inch RGB-LCD board, the `-1.75C` model, or the GNSS `-G` version without adaptation.
 
-An independent **oil-temperature gauge** for the Caterham 420R dry-sump tank's resistive temperature sender (potentially Caterham part **71167**). No ECU wiring and no factory gauge modifications. An **ADS1115 16-bit I²C ADC** measures the voltage across the 470 Ω pull-up and across the sender (using a dedicated ground-sense wire to the tank), so the reading is independent of the 3.3 V rail and of ground offsets. The Waveshare board handles display, fault reporting and alarm presentation.
+An independent **oil-temperature gauge** for the Caterham 420R dry-sump tank's resistive temperature sender (potentially Caterham part **71167**). It needs no ECU wiring and no factory gauge modifications.
+- **Measurement:** an **ADS122C04 24-bit I²C ADC** drives its own 250 µA current source through a reference resistor and then the sender, and compares the voltage across each. A dedicated ground-sense wire runs to the tank. So the reading is independent of the current's accuracy, the 3.3 V rail and ground offsets.
+- **Hardware:** the whole front end is three resistors on the ADC module's pins; there's no interface board. The display runs from USB-C.
+- **Display:** the Waveshare board handles display, fault reporting and alarm presentation.
 
-**Status: bench prototype.** Host unit tests pass and the firmware compiles without warnings under ESP-IDF 5.5.5 (normal and demo builds; versions pinned in `dependencies.lock`). On the bench, so far ([docs/VALIDATION.md](docs/VALIDATION.md)):
+**Status: bench prototype, new front end.** Host unit tests pass and the firmware compiles without warnings under ESP-IDF 5.5.5 (normal and demo builds; versions pinned in `dependencies.lock`). On the bench, so far ([docs/VALIDATION.md](docs/VALIDATION.md)):
 - The firmware runs on a Waveshare 31261, and both display layouts pass in the demo build.
-- On the veroboard the ADS1115 is found, and the gauge reads a bench sender (stamped 6811) in ohms, following the warmth of a hand.
-- `SENSOR OPEN`, `SENSOR SHORT` and `GROUND FAULT` each show when the fault is made.
-- A local build with a published sender curve, never committed, agreed with a reference probe up to 89 °C. That is an indication, not a calibration.
+- With the earlier front end, a bench sender stamped 6811 followed the Bosch 0 280 130 026 curve up to 89 °C against a reference probe. That is an indication about the sender, not a calibration.
 
-Still owed: the resistance accuracy against known resistors, the measured Rp, a sender calibration up to 130 °C, both interface PCBs (designed, not yet built) and every in-car test. The firmware ships **without** a validated sender temperature curve, so it **shows ohms, not °C**, until you explicitly install measured calibration points. It is **not** a primary engine-protection instrument.
+**Still owed:**
+- every bench test of the ADS122C04 front end ([hardware/WIRING.md](hardware/WIRING.md), bench steps);
+- the measured Rref;
+- a sender calibration up to 130 °C;
+- every in-car test.
+
+The firmware ships **without** a validated sender temperature curve, so it **shows ohms, not °C**, until you explicitly install measured calibration points. It is **not** a primary engine-protection instrument.
 
 ## Quick start
 
 1. Read [hardware/BOM.md](hardware/BOM.md), [hardware/WIRING.md](hardware/WIRING.md), and [docs/SAFETY.md](docs/SAFETY.md) before wiring to the car.
-2. On a **bench** (not in the vehicle) build the circuit on a breadboard ([hardware/breadboard.svg](hardware/breadboard.svg)) or the veroboard ([hardware/veroboard.svg](hardware/veroboard.svg)): the ADS1115 module on the display's H2 header (I²C on GPIO17/18), the 470 Ω pull-up, the three 1 kΩ / 100 nF input filters, and a known test resistor in place of the sender. Check all voltages with a meter before connecting the display board. Neither build has input protection, so neither goes in the car.
+2. On a **bench** (not in the vehicle), wire the circuit on a breadboard as in [hardware/WIRING.md](hardware/WIRING.md):
+   - the ADS122C04 module to the display's socket (3.3V, G, and I²C on GPIO17/18);
+   - Rref, R1 and R2;
+   - a known test resistor in place of the sender.
+
+   Check all voltages with a meter before connecting the display board.
 3. Install **ESP-IDF 5.5.5** on Fedora as described in [docs/SETUP_FEDORA.md](docs/SETUP_FEDORA.md).
 4. `idf.py set-target esp32s3 && idf.py build`, then flash through the board's `/dev/serial/by-id/usb-Espressif_*` port, never a bare `/dev/ttyACM0`, which can be another USB device: `idf.py -p "$(ls /dev/serial/by-id/usb-Espressif_*)" flash monitor` (see [Connect the board and flash](docs/SETUP_FEDORA.md#connect-the-board-and-flash)).
 5. Boot with an **uncalibrated** sensor and confirm the display shows resistance and `CALIBRATION REQUIRED`; simulate open and short faults on the bench.
 6. Independently characterise the exact sender, generate `main/CalibrationData.h`, rebuild, and verify °C against a reference thermometer. See [docs/CALIBRATION.md](docs/CALIBRATION.md).
-7. For the car, build one of the interface PCBs (below) and pass its bench checks. Then do the power, grounding, thermal, EMI and installation checks in [docs/INSTALLATION.md](docs/INSTALLATION.md).
+7. For the car, solder the same parts to the module, fit the terminal strip and the box ([hardware/WIRING.md](hardware/WIRING.md), "Building it without a board"), and pass the bench steps, including the short-to-battery test. Then do the power, grounding, thermal, EMI and installation checks in [docs/INSTALLATION.md](docs/INSTALLATION.md).
 
-`./scripts/test_host.sh` runs the host tests without any ESP32 hardware: the conversion, alarm and display logic, the calibration tool, the sender graph and both PCB designs' checks. GitHub Actions ([CI workflow](.github/workflows/ci.yml)) runs them, plus the normal and demo firmware builds, on every pull request and every push to `main`. `idf.py menuconfig` → **Caterham oil temperature gauge** → **Display synthetic sensor readings** runs a clearly marked BENCH DEMO; it must remain **off** for a real vehicle.
+`./scripts/test_host.sh` runs the host tests without any ESP32 hardware: the conversion, fault, alarm and display logic, the ADC's frame and CRC decoding, the calibration tool and the sender graph. GitHub Actions ([CI workflow](.github/workflows/ci.yml)) runs them, plus the normal and demo firmware builds, on every pull request and every push to `main`. `idf.py menuconfig` → **Caterham oil temperature gauge** → **Display synthetic sensor readings** runs a clearly marked BENCH DEMO; it must remain **off** for a real vehicle.
 
 ## Interface hardware
 
-| Build | What it is | Power | Status |
-|---|---|---|---|
-| Breadboard or bench veroboard ([hardware/WIRING.md](hardware/WIRING.md)) | Adafruit ADS1115 module and the measurement circuit, wired to the display's header | USB, on the bench | Bench-tested on the veroboard (2026-11-13/14). No input protection: **bench only** |
-| [surface-mount-v1](hardware/pcb/surface-mount-v1/README.md) | 39 × 23 mm two-layer board that plugs into the display case's socket. Surface-mount parts, fitted by the board house | 5 V on its harness connector, from a separate automotive 12 V → 5 V converter | Designed, not yet built (#48) |
-| [through-hole-v1](hardware/pcb/through-hole-v1/README.md) | 92 × 64 mm single-sided board, hand-soldered, in its own 3D-printed box, joined to the display by a cable of 30 cm or less | Fused, ignition-switched 12 V, through its own fuse, TVS, reverse-polarity diode and 5 V regulator | Designed, not yet built (#51) |
-| [through-hole-usb-v1](hardware/pcb/through-hole-usb-v1/README.md) | 65 × 62 mm single-sided board, hand-soldered, in its own 3D-printed box, joined to the display by a cable of 30 cm or less | The display's own USB-C socket (in the car, an ignition-switched USB-C charger); the board takes the display's 3.3 V. The harness brings a dedicated ground return from the tank | Designed, not yet built (#54) |
-| [veroboard-usb-v1](hardware/pcb/veroboard-usb-v1/README.md) | 86.4 × 30.5 mm stripboard (33 holes × 11 strips), hand-built, in its own box, with screw terminal blocks for the display cable and the harness | As through-hole-usb-v1: the display's USB-C socket, with a dedicated ground return from the tank | Designed, layout checked; not yet built (#55) |
+There is no interface board. The front end is three resistors soldered to the Adafruit ADS122C04 module, with a 3-way terminal strip for the harness, all in a small box beside the display. [hardware/WIRING.md](hardware/WIRING.md) has the circuit, the build and the bench steps; [hardware/BOM.md](hardware/BOM.md) has the parts.
 
-All four interface boards have the same measurement and the same input protection: each harness tap is 1 kΩ, a clamp pair to 3.3 V and GND, then the filter's 1 kΩ, and a TVS sits on the signal wire. The firmware is the same for every build; set `kPullUpOhms` in `main/Config.h` to your measured Rp. Each board's folder has its parts list (with connectors and mating parts), its drawings (and for the PCBs, renders and Gerbers) and the checks to do before and after building it.
+| Part | Where | Why |
+|---|---|---|
+| Rref, 2.00 kΩ 0.1 % ≤ 25 ppm/°C | A0 to the sender wire | Carries the ADC's 250 µA current to the sender; the voltage across it is the reference. Set `kReferenceOhms` in `main/Config.h` to its measured value |
+| R1, 2.2 kΩ | A1 to the sender wire | Sender high side. Limits fault current |
+| R2, 2.2 kΩ | A2 to the ground-sense wire | Sender low side. Limits fault current |
+
+The display runs from its own USB-C socket (in the car, an ignition-switched USB-C charger), and the module takes the display's 3.3 V. The harness is three wires: signal, ground sense, and a return wire from the gauge's ground to the tank bond stud.
 
 ## Display
 
@@ -57,13 +69,14 @@ Beyond the calibration table the reading shows `<min` or `>max` (for example `<2
 .
 ├── main/
 │   ├── main.cpp                    # main sampling / display loop
-│   ├── Config.h                    # pull-up value and warning settings
+│   ├── Config.h                    # reference resistor value, fault and warning settings
 │   ├── CalibrationData.h           # fail-closed uncalibrated default
 │   ├── core/                       # platform-independent resistance & temp math,
+│   │                               # ADC frame/CRC decoding (AdcFrame.h),
 │   │                               # plus display text (DisplayText.*), sweep ring
 │   │                               # model (SweepModel.*) and layout choice/long-press
 │   │                               # (LayoutChoice.*)
-│   ├── hal/Ads1115Source.*         # ADS1115 over I²C (port 0, GPIO17/18)
+│   ├── hal/Ads122c04Source.*       # ADS122C04 over I²C (port 0, GPIO17/18)
 │   ├── display/GaugeDisplay.*      # Waveshare BSP + LVGL 9 gauge; layout switching
 │   │   ├── ClassicLayout.cpp       # Classic layout
 │   │   ├── SweepLayout.cpp         # Sweep layout
@@ -71,12 +84,7 @@ Beyond the calibration table the reading shows `<min` or `>max` (for example `<2
 │   │   └── fonts/                  # generated Classic digit font + its licence
 │   ├── Kconfig.projbuild           # explicitly opt-in simulation
 │   └── idf_component.yml          # Waveshare BSP / LVGL dependencies
-├── hardware/                       # wiring, schematic (wiring.svg), bench breadboard (breadboard.svg) and veroboard (veroboard.svg) layouts, and BOM
-│   └── pcb/                        # interface PCBs, each self-contained: KiCad design, generator, build.sh, renders, Gerbers, parts lists
-│       ├── surface-mount-v1/       # plugs onto the display; SMD, board-house assembled
-│       ├── through-hole-v1/        # own box, cabled to the display, 12 V in; single-sided, hand-soldered
-│       ├── through-hole-usb-v1/    # as through-hole-v1, but the display runs from USB-C; no 12 V input
-│       └── veroboard-usb-v1/       # through-hole-usb-v1's circuit on stripboard, with terminal blocks
+├── hardware/                       # wiring and build (WIRING.md), schematic (wiring.svg), BOM
 ├── docs/                           # architecture, Fedora setup, calibration,
 │                                   # installation, validation, safety, porting,
 │                                   # sender R/T graph (sender-curve.svg) and its data
@@ -90,25 +98,26 @@ Beyond the calibration table the reading shows `<min` or `>max` (for example `<2
 | --- | --- |
 | Board | Waveshare ESP32-S3-Touch-AMOLED-1.75, **standard or -B** |
 | Display | 466×466 QSPI **CO5300** AMOLED, Waveshare BSP + LVGL 9; two layouts (Classic and Sweep), switched by a 1 s long-press; °C or °F set in menuconfig |
-| ADC | **ADS1115** 16-bit I²C ADC at 0x48, ±4.096 V range; SDA GPIO17 (H2-6), SCL GPIO18 (H2-7); ALERT/RDY not used (GPIO16 / H2-8 left open) |
-| Measurement | Differential: Vp = A0 − A3 across the pull-up, Vs = A3 − A1 across the sender; `Rs = Rp × Vs / Vp` (ratiometric, cancels rail and ground offset) |
-| Sender interface | 470 Ω 0.1 % pull-up to 3.3 V; signal wire to the spade plus a **dedicated ground-sense wire** to the tank bond stud |
-| Input noise | 1 kΩ series + 100 nF filter on A0, A1, A3 |
-| Input protection | On all four interface boards: clamp pairs on the signal and ground-sense taps, and a TVS on the signal wire. Designed, not yet bench-tested or qualified in the car. The breadboard and the bench veroboard have none |
-| Interface hardware | Four options for the car: surface-mount-v1 (plugs onto the display), and through-hole-v1, through-hole-usb-v1 and the veroboard-usb-v1 stripboard (each in its own box, cabled to the display); see [hardware/pcb](hardware/pcb/) |
-| Power | USB on the bench. In the car: 5 V from a separate automotive converter (surface-mount-v1), the car's fused 12 V into through-hole-v1's own regulator, or a USB-C charger into the display (through-hole-usb-v1 and veroboard-usb-v1, with a dedicated ground return from the tank). Never 12 V to the display |
+| ADC | **ADS122C04** 24-bit I²C ADC (Adafruit module 6432) at 0x40, internal 2.048 V reference, gain 1 with the PGA bypassed; SDA GPIO17, SCL GPIO18; DRDY not used (GPIO16 left open) |
+| Measurement | The ADC's 250 µA current source drives Rref and the sender in series; Vref = A0 − A1, Vs = A1 − A2; `Rs = Rref × Vs / Vref` (ratiometric: cancels the current's accuracy, the reference, the rail and ground offset) |
+| Sender interface | Signal wire to the spade, a **dedicated ground-sense wire** and a return wire to the tank bond stud |
+| Integrity | Every register write read back with a CRC; every result checked by CRC16 and conversion counter; ADC offset self-test; excitation-current window; burn-out checks of both taps |
+| Input protection | At least 2 kΩ between every harness wire and the ADC; no clamps or TVS. Not load-dump qualified; the short-to-battery bench test is owed |
+| Interface hardware | None: three resistors on the module's pins and a 3-way terminal strip, in a small box beside the display |
+| Power | USB-C into the display, on the bench and in the car (an ignition-switched charger); the module takes the display's 3.3 V. Never 12 V to the display |
 | Isolation | No connection to MBE ECU / existing instruments |
-| Radio | Not used. The internal ADC2 is no longer needed, so Wi-Fi/BLE could be added later |
+| Radio | Not used. The internal ADC isn't needed, so Wi-Fi/BLE could be added later |
 | Temperature calibration | Explicit sender measurements, no assumed Caterham curve |
-| Safety | Fault detection, fail-closed calibration, no extrapolation; input protection on the PCBs, still to be tested |
+| Safety | Fault detection, fail-closed calibration, no extrapolation; fault-current limiting still to be bench-tested |
 
 ## Important known limitations
 
-* The **sender's resistance-versus-temperature curve is not verified**. The listed 1,158–44 Ω range is the 40 °C and 140 °C points of the likely factory sender's published curve (Caerbont TT6811-03, #42). It is not a calibration of the fitted sender. A bench sender stamped 6811 didn't follow that curve: up to 89 °C it tracked the Bosch 0 280 130 026 curve (2.5 kΩ at 20 °C) instead. [docs/sender-curve.svg](docs/sender-curve.svg) plots both curves against the firmware's thresholds.
-* The ADS1115 cancels ground offset only while each input stays between its GND and VDD. Bond the gauge supply ground close to the tank bond (on the USB-powered boards the harness's own return wire does this) and keep the offset near 0 V; a 100 kΩ bias resistor makes a broken ground-sense wire show as `GROUND FAULT`. Extremely cold high-resistance readings may be outside the calibrated range. Readings over 5 kΩ, from a sender colder than about 10 °C, currently show `SENSOR OPEN` (#40).
-* Loose chassis grounds, alternator noise, load dumps and coolant/oil leaks are **vehicle integration hazards**. The I²C bus must stay short and never runs to the tank. On surface-mount-v1 it stays on the display; the through-hole boards' display cable must be 30 cm or less, and their one-hour I²C soak tests are still owed (#51, #54).
-* An open A3 or A1 tap (a cracked joint or a lifted socket contact) gives a plausible but wrong resistance with no fault (#39). The interface boards solder every tap, and a firmware check is proposed in #39.
-* None of the interface boards has been built yet. Their input protection is designed but untested, so don't assume it survives a load dump. through-hole-v1 needs about 7 V at its input to hold 5 V, so the display may reset while the engine cranks (#43).
+* The **sender's resistance-versus-temperature curve is not verified**. The listed 1,158–44 Ω range is the 40 °C and 140 °C points of the likely factory sender's published curve (Caerbont TT6811-03). It is not a calibration of the fitted sender. A bench sender stamped 6811 didn't follow that curve: up to 89 °C it tracked the Bosch 0 280 130 026 curve (2.5 kΩ at 20 °C) instead. [docs/sender-curve.svg](docs/sender-curve.svg) plots both curves against the firmware's thresholds.
+* The ADC cancels ground offset only while each input stays within 0.1 V of its GND range. Keep the tank's offset near 0 V. The harness's return wire gives the gauge a ground at the tank. The ADC's burn-out source makes a broken ground-sense wire show as `GROUND FAULT`.
+* Readings over 5 kΩ show `SENSOR OPEN`. On the Bosch 0 280 130 026 curve, that's a sender colder than about 4 °C.
+* Loose chassis grounds, alternator noise, load dumps and coolant/oil leaks are **vehicle integration hazards**. The I²C bus must stay short (a display lead of 20 cm or less) and never runs to the tank. The one-hour I²C soak test is still owed.
+* An open tap at R1 or R2 is detected by the ADC's burn-out source (`SENSOR OPEN` or `GROUND FAULT`). The bench tap tests in WIRING.md are still owed.
+* There are no clamp diodes or TVS. The series resistors keep a short to battery voltage within the ADC's input rating, but don't assume the front end survives a load dump.
 * The board and its exposed contacts need an enclosure rated for the chosen location. A dashboard instrument must not obscure any legally required indicators or the driver's view.
 * Calibrate up to at least the red threshold. Readings hotter than the top calibration point show `ABOVE CAL RANGE` and are treated as **critical** (red), because the real temperature is unknown.
 * Alarm levels (60/115/130 °C) are **illustrative configurable defaults**, not Caterham- or engine-approved limits. Review with engine builder/vehicle documentation before deployment.
@@ -118,8 +127,8 @@ Beyond the calibration table the reading shows `<min` or `>max` (for example `<2
 - [Waveshare board and product variants](https://github.com/waveshareteam/ESP32-S3-Touch-AMOLED-1.75)
 - [Waveshare verified header pin mapping](https://github.com/waveshareteam/ESP32-S3-Touch-AMOLED-1.75/blob/main/HARDWARE_REFERENCE.md)
 - [Waveshare ESP-IDF 02_lvgl_demo_v9 main](https://github.com/waveshareteam/ESP32-S3-Touch-AMOLED-1.75/blob/main/examples/esp-idf/02_lvgl_demo_v9/main/main.c)
-- [TI ADS1115 datasheet](https://www.ti.com/lit/ds/symlink/ads1115.pdf)
-- [Adafruit ADS1115 guide](https://learn.adafruit.com/adafruit-4-channel-adc-breakouts)
+- [TI ADS122C04 datasheet (SBAS751B)](https://www.ti.com/lit/ds/symlink/ads122c04.pdf)
+- [Adafruit ADS122C04 guide](https://learn.adafruit.com/adafruit-ads122c04-24-bit-adc) and [PCB files](https://github.com/adafruit/Adafruit-ADS122C04-24-Bit-ADC-PCB)
 - [Espressif ESP32-S3 I²C master driver](https://docs.espressif.com/projects/esp-idf/en/v5.5/esp32s3/api-reference/peripherals/i2c.html)
 - [Caterham part listing](https://caterhamparts.co.uk/senders/17-temperature-sender-water-all-variants.html)
 
