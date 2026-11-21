@@ -5,9 +5,10 @@
 
 using namespace layout;
 
-// Time-based trace (#12): the last 60 s, one point a second, newest on the right, on a 30 degC window. A thick white
-// line, the newest point as a dot in the reading's colour (a ring when it's beyond the table), amber and red threshold
-// lines when they're in the window, and grid lines every 10 degC. No digital readout.
+// Time-based trace (#12): the last 60 s, one point a second, newest on the right, on a 30 degC window. A thick line in
+// which each point's colour (the reading colour when it was taken) carries into the line around it, the newest point as
+// a dot in its colour (a ring when it's beyond the table), amber and red threshold lines when they're in the window, and
+// grid lines every 10 degC. No digital readout.
 //
 // The line is drawn by one object in a single pass, from a pixel snapshot render() takes under the display lock. The
 // main loop updates the history without that lock, so the LVGL task never reads the history itself.
@@ -35,8 +36,9 @@ lv_obj_t* grid_label[kGridLines];
 char grid_text[kGridLines][8];
 lv_obj_t* threshold[2];  // amber, red
 lv_obj_t* plot;                    // draws the line; padded by kLineW on every side so round ends aren't clipped
-bool plot_on[gauge::kTracePoints];  // the snapshot: a point in each slot (newest last), and its y pixel in the plot
+bool plot_on[gauge::kTracePoints];  // the snapshot: a point in each slot (newest last), its y pixel in the plot
 int plot_y[gauge::kTracePoints];
+uint32_t plot_colour[gauge::kTracePoints];  // and the colour it was taken with
 
 // The x pixel of a slot, 0 (60 s ago) to kTracePoints - 1 (now). Spread across the plot to the nearest pixel.
 constexpr int xOf(int slot) { return kPlotX + slot * kPlotW / (gauge::kTracePoints - 1); }
@@ -77,7 +79,8 @@ int yOf(const gauge::TraceWindow& w, float celsius) {
   return kPlotY + static_cast<int>(lroundf((w.hi_c - v) / (w.hi_c - w.lo_c) * kPlotH));
 }
 
-// LVGL task: one segment between each pair of neighbouring points that are both present.
+// LVGL task: one segment between each pair of neighbouring points that are both present. Each half of a segment takes
+// the colour of the point at its end, so every point's colour carries into the line around it.
 void onDrawLine(lv_event_t* e) {
   lv_layer_t* layer = lv_event_get_layer(e);
   lv_area_t area;
@@ -85,14 +88,22 @@ void onDrawLine(lv_event_t* e) {
   const int ox = area.x1 + kLineW - kPlotX, oy = area.y1 + kLineW - kPlotY;  // plot pixels to screen pixels
   lv_draw_line_dsc_t line;
   lv_draw_line_dsc_init(&line);
-  line.color = lv_color_hex(kWhite);
   line.width = kLineW;
   line.round_start = 1;
   line.round_end = 1;
   for (int s = 0; s + 1 < gauge::kTracePoints; ++s) {
     if (!plot_on[s] || !plot_on[s + 1]) continue;
-    line.p1 = {static_cast<lv_value_precise_t>(xOf(s) + ox), static_cast<lv_value_precise_t>(plot_y[s] + oy)};
-    line.p2 = {static_cast<lv_value_precise_t>(xOf(s + 1) + ox), static_cast<lv_value_precise_t>(plot_y[s + 1] + oy)};
+    const lv_point_precise_t a = {static_cast<lv_value_precise_t>(xOf(s) + ox), static_cast<lv_value_precise_t>(plot_y[s] + oy)};
+    const lv_point_precise_t b = {static_cast<lv_value_precise_t>(xOf(s + 1) + ox),
+                                  static_cast<lv_value_precise_t>(plot_y[s + 1] + oy)};
+    const lv_point_precise_t mid = {static_cast<lv_value_precise_t>((a.x + b.x) / 2), static_cast<lv_value_precise_t>((a.y + b.y) / 2)};
+    line.color = lv_color_hex(plot_colour[s]);
+    line.p1 = a;
+    line.p2 = mid;
+    lv_draw_line(layer, &line);
+    line.color = lv_color_hex(plot_colour[s + 1]);
+    line.p1 = mid;
+    line.p2 = b;
     lv_draw_line(layer, &line);
   }
 }
@@ -121,7 +132,7 @@ void TraceLayout::build(lv_obj_t* screen, gauge::Unit unit) {
   threshold[0] = bar(root_, kThresholdH, kAmber);
   threshold[1] = bar(root_, kThresholdH, kRed);
 
-  for (int i = 0; i < gauge::kTracePoints; ++i) { plot_on[i] = false; plot_y[i] = kPlotY; }
+  for (int i = 0; i < gauge::kTracePoints; ++i) { plot_on[i] = false; plot_y[i] = kPlotY; plot_colour[i] = kWhite; }
   plot = lv_obj_create(root_);
   lv_obj_set_size(plot, kPlotW + 2 * kLineW, kPlotH + 2 * kLineW);
   lv_obj_set_pos(plot, kPlotX - kLineW, kPlotY - kLineW);
@@ -186,6 +197,7 @@ void TraceLayout::drawTrace(const gauge::TraceHistory& h, bool scale_visible) {
     const gauge::TracePoint& p = h.point(s - first_slot);
     plot_on[s] = p.present;
     plot_y[s] = p.present ? yOf(w, p.celsius) : kPlotY;
+    plot_colour[s] = p.colour;
   }
   lv_obj_invalidate(plot);
 

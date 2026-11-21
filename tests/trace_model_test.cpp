@@ -113,6 +113,18 @@ int main() {
       // A fault is a gap, even while an alarm is latched through it: nothing is carried over.
       for(Status a : {Status::Normal,Status::Amber,Status::Red}) assert(!gauge::tracePoint(make(s,true,80.f,a)).present);
     } }
+  // Each point keeps the colour it was taken with, whatever comes later, so the line can be drawn in the colours of the
+  // temperatures that made it.
+  { TraceHistory h; uint32_t ms=0;
+    const gauge::Reading cold=at(40.f), warm=at(80.f), hot=make(Status::Amber,true,117.f,Status::Amber),
+                         red=make(Status::Red,true,131.f,Status::Red);
+    for(const gauge::Reading *r : {&cold,&warm,&hot,&red}) { h.update(*r,ms); ms+=P; }
+    for(int i=0;i<10;i++,ms+=P) h.update(warm,ms);
+    assert(h.point(0).colour==gauge::kColourDarkBlue);
+    assert(h.point(1).colour==gauge::readingColour(warm) && h.point(1).colour!=h.point(0).colour);
+    assert(h.point(2).colour==gauge::readingColour(hot) && h.point(2).colour!=h.point(1).colour);
+    assert(h.point(3).colour==gauge::kColourRed);
+    for(int i=4;i<h.count();i++) assert(h.point(i).colour==gauge::readingColour(warm)); }
   // History: gaps break the line and leave the window alone; points move it.
   { TraceHistory h; uint32_t ms=0;
     h.update(at(82.f),ms);                       ms+=gauge::kTraceSampleMs;
