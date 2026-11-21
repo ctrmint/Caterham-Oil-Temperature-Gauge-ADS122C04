@@ -4,8 +4,8 @@
 // Time-based trace (#12): one sample every kTraceSampleMs, the last 60 s, on a kTraceSpanC window that follows the latest
 // point. Pure logic, so the host tests cover it; the display only draws it.
 namespace gauge {
-constexpr uint32_t kTraceSampleMs = 5000;
-constexpr int kTracePoints = 13;      // now and 12 intervals back: 60 s
+constexpr uint32_t kTraceSampleMs = 1000;
+constexpr int kTracePoints = 61;      // now and 60 one-second intervals back: 60 s
 constexpr float kTraceSpanC = 30.f;   // the window's height
 constexpr float kTraceStepC = 5.f;    // the window's ends sit on multiples of this
 constexpr float kTraceMarginC = 3.f;  // re-centre when the latest point comes this close to an edge

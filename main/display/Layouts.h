@@ -155,7 +155,7 @@ class NeedleLayout : public LayoutView {
   const char* unit_text_ = nullptr;
 };
 
-// Time-based trace: the last 60 s, one point every 5 s, on a 30 degC window. No digital readout.
+// Time-based trace: the last 60 s, one point a second, on a 30 degC window. No digital readout.
 class TraceLayout : public LayoutView {
  public:
   void build(lv_obj_t* screen, gauge::Unit unit) override;

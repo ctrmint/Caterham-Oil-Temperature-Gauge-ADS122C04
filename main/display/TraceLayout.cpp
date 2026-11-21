@@ -5,12 +5,14 @@
 
 using namespace layout;
 
-// Time-based trace (#12): the last 60 s, one point every 5 s, newest on the right, on a 30 degC window. A thick white
+// Time-based trace (#12): the last 60 s, one point a second, newest on the right, on a 30 degC window. A thick white
 // line, the newest point as a dot in the reading's colour (a ring when it's beyond the table), amber and red threshold
 // lines when they're in the window, and grid lines every 10 degC. No digital readout.
+//
+// The line is drawn by one object in a single pass, from a pixel snapshot render() takes under the display lock. The
+// main loop updates the history without that lock, so the LVGL task never reads the history itself.
 namespace {
 constexpr int kPlotX = 96, kPlotY = 112, kPlotW = 288, kPlotH = 180;
-constexpr int kStepX = kPlotW / (gauge::kTracePoints - 1);
 constexpr int kLineW = 6, kDotD = 16, kDotRing = 3, kThresholdH = 2;
 constexpr int kGridLabelX = 46, kGridLabelW = 42, kGridLabelH = 16;  // right-aligned, 8 px left of the plot
 constexpr int kGridLines = 4;  // multiples of 10 degC in a 30 degC window
@@ -18,7 +20,6 @@ constexpr int kTitleY = 76, kTitleW = 160, kTimeY = kPlotY + kPlotH + 8, kTimeW 
 constexpr int kStatusY = 330;
 constexpr uint32_t kGrid = 0x1C2A33;
 
-static_assert(kStepX * (gauge::kTracePoints - 1) == kPlotW, "points must be evenly spaced across the plot");
 static_assert(kGridLabelX + kGridLabelW < kPlotX, "grid labels must sit left of the plot");
 // Everything lies on the round screen: the grid labels' outer corners, the plot's corners with the dot, the title.
 static_assert(lines::onScreen(kGridLabelX, kPlotY - kGridLabelH / 2) &&
@@ -33,8 +34,13 @@ lv_obj_t* grid[kGridLines];
 lv_obj_t* grid_label[kGridLines];
 char grid_text[kGridLines][8];
 lv_obj_t* threshold[2];  // amber, red
-lv_obj_t* seg[gauge::kTracePoints - 1];
-lv_point_precise_t seg_pts[gauge::kTracePoints - 1][2];
+lv_obj_t* plot;                    // draws the line; padded by kLineW on every side so round ends aren't clipped
+bool plot_on[gauge::kTracePoints];  // the snapshot: a point in each slot (newest last), and its y pixel in the plot
+int plot_y[gauge::kTracePoints];
+
+// The x pixel of a slot, 0 (60 s ago) to kTracePoints - 1 (now). Spread across the plot to the nearest pixel.
+constexpr int xOf(int slot) { return kPlotX + slot * kPlotW / (gauge::kTracePoints - 1); }
+static_assert(xOf(0) == kPlotX && xOf(gauge::kTracePoints - 1) == kPlotX + kPlotW, "slots must span the plot");
 
 lv_obj_t* label(lv_obj_t* parent, int w, int x, int y, lv_text_align_t align, uint32_t colour, const lv_font_t* font) {
   lv_obj_t* l = lv_label_create(parent);
@@ -70,6 +76,26 @@ int yOf(const gauge::TraceWindow& w, float celsius) {
   const float v = celsius < w.lo_c ? w.lo_c : (celsius > w.hi_c ? w.hi_c : celsius);
   return kPlotY + static_cast<int>(lroundf((w.hi_c - v) / (w.hi_c - w.lo_c) * kPlotH));
 }
+
+// LVGL task: one segment between each pair of neighbouring points that are both present.
+void onDrawLine(lv_event_t* e) {
+  lv_layer_t* layer = lv_event_get_layer(e);
+  lv_area_t area;
+  lv_obj_get_coords(lv_event_get_target_obj(e), &area);
+  const int ox = area.x1 + kLineW - kPlotX, oy = area.y1 + kLineW - kPlotY;  // plot pixels to screen pixels
+  lv_draw_line_dsc_t line;
+  lv_draw_line_dsc_init(&line);
+  line.color = lv_color_hex(kWhite);
+  line.width = kLineW;
+  line.round_start = 1;
+  line.round_end = 1;
+  for (int s = 0; s + 1 < gauge::kTracePoints; ++s) {
+    if (!plot_on[s] || !plot_on[s + 1]) continue;
+    line.p1 = {static_cast<lv_value_precise_t>(xOf(s) + ox), static_cast<lv_value_precise_t>(plot_y[s] + oy)};
+    line.p2 = {static_cast<lv_value_precise_t>(xOf(s + 1) + ox), static_cast<lv_value_precise_t>(plot_y[s + 1] + oy)};
+    lv_draw_line(layer, &line);
+  }
+}
 } // namespace
 
 void TraceLayout::build(lv_obj_t* screen, gauge::Unit unit) {
@@ -95,13 +121,14 @@ void TraceLayout::build(lv_obj_t* screen, gauge::Unit unit) {
   threshold[0] = bar(root_, kThresholdH, kAmber);
   threshold[1] = bar(root_, kThresholdH, kRed);
 
-  for (int i = 0; i < gauge::kTracePoints - 1; ++i) {
-    seg[i] = lv_line_create(root_);
-    lv_obj_set_style_line_width(seg[i], kLineW, 0);
-    lv_obj_set_style_line_color(seg[i], lv_color_hex(kWhite), 0);
-    lv_obj_set_style_line_rounded(seg[i], true, 0);
-    lv_obj_add_flag(seg[i], LV_OBJ_FLAG_HIDDEN);
-  }
+  for (int i = 0; i < gauge::kTracePoints; ++i) { plot_on[i] = false; plot_y[i] = kPlotY; }
+  plot = lv_obj_create(root_);
+  lv_obj_set_size(plot, kPlotW + 2 * kLineW, kPlotH + 2 * kLineW);
+  lv_obj_set_pos(plot, kPlotX - kLineW, kPlotY - kLineW);
+  lv_obj_set_style_bg_opa(plot, LV_OPA_TRANSP, 0);
+  lv_obj_set_style_border_width(plot, 0, 0);
+  lv_obj_set_style_pad_all(plot, 0, 0);
+  lv_obj_add_event_cb(plot, &onDrawLine, LV_EVENT_DRAW_MAIN, nullptr);
 
   dot_ = lv_obj_create(root_);
   lv_obj_set_size(dot_, kDotD, kDotD);
@@ -153,22 +180,14 @@ void TraceLayout::drawTrace(const gauge::TraceHistory& h, bool scale_visible) {
     show(threshold[i], in);
   }
 
-  // The line: one segment between each pair of neighbouring points, none across a gap. The newest point is on the right.
+  // The line's snapshot: each slot's point, newest in the last slot. onDrawLine joins neighbours, never across a gap.
   const int first_slot = gauge::kTracePoints - h.count();
-  for (int s = 0; s < gauge::kTracePoints - 1; ++s) {
-    const gauge::TracePoint& a = h.point(s - first_slot);
-    const gauge::TracePoint& b = h.point(s + 1 - first_slot);
-    if (!a.present || !b.present) { show(seg[s], false); continue; }
-    const int x0 = kPlotX + s * kStepX, x1 = x0 + kStepX;
-    const int y0 = yOf(w, a.celsius), y1 = yOf(w, b.celsius);
-    // Padded by the line width, so a flat segment never has a zero-height box.
-    const int mx = x0 - kLineW, my = (y0 < y1 ? y0 : y1) - kLineW;
-    seg_pts[s][0] = {static_cast<lv_value_precise_t>(x0 - mx), static_cast<lv_value_precise_t>(y0 - my)};
-    seg_pts[s][1] = {static_cast<lv_value_precise_t>(x1 - mx), static_cast<lv_value_precise_t>(y1 - my)};
-    lv_obj_set_pos(seg[s], mx, my);
-    lv_line_set_points(seg[s], seg_pts[s], 2);
-    show(seg[s], true);
+  for (int s = 0; s < gauge::kTracePoints; ++s) {
+    const gauge::TracePoint& p = h.point(s - first_slot);
+    plot_on[s] = p.present;
+    plot_y[s] = p.present ? yOf(w, p.celsius) : kPlotY;
   }
+  lv_obj_invalidate(plot);
 
   // The newest point: a dot in its reading's colour, or a ring when it's beyond the table (shown at the table maximum).
   const gauge::TracePoint& p = h.point(h.count() - 1);

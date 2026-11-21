@@ -51,7 +51,7 @@ See [hardware/wiring.svg](../hardware/wiring.svg) for the full schematic and [ha
 - **`main/main.cpp`:**
   - stores the layout in NVS only when it changes, and restores it at power-up (Classic on first boot, or if the stored choice is missing or can't be read);
   - schedules acquisition at 4 Hz, updates the display at 4 Hz and reports CSV-like serial diagnostics at 1 Hz.
-  - feeds every reading to the trace's history (`TraceModel`), which keeps one sample every 5 s, whichever layout is showing.
+  - feeds every reading to the trace's history (`TraceModel`), which keeps one sample a second, whichever layout is showing.
 
 **The measurement cycle.** The ADS122C04 runs single-shot at 45 samples/s, gain 1, with the PGA bypassed, so inputs are valid down to 0.1 V below its GND. Its internal current source drives 250 µA out of A0, through Rref and then the sender. One measurement cycle is six conversions, about 150 ms, well inside the 250 ms sample interval:
 1. the ADC's offset, with the inputs shorted;

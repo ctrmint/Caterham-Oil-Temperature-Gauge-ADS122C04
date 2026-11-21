@@ -114,7 +114,7 @@ Agents never do these. They go in a task's `human_verification`.
   - checks the sensitive-net clearance, recomputed from the board files;
   - checks part numbers appear only where they were verified;
   - CI doesn't run KiCad, so it relies on these checks: run `scripts/boards/build.sh` after any change under `scripts/boards/`.
-- **`tests/trace_model_test.cpp`** (built normally and with `GAUGE_DEMO`): the trace's 5 s sampling, including across millisecond wraparound and stalls, its gaps, its Y window and the newest point's colour.
+- **`tests/trace_model_test.cpp`** (built normally and with `GAUGE_DEMO`): the trace's 1 s sampling, including across millisecond wraparound and stalls, its gaps, its Y window and the newest point's colour.
 - **`tests/front_end_sim_test.cpp`:**
   - simulates both front-end options' circuits with the driver's conversion timing, and checks `convertSample`'s verdict on every cycle;
   - a change to a fault limit, the check order or the conversion sequence must keep it passing;

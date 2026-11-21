@@ -24,7 +24,9 @@ static void checkWindow(const TraceWindow &w, float latest) {
 }
 
 int main() {
-  assert(gauge::kTraceSampleMs==5000u && gauge::kTracePoints==13);  // 60 s on screen
+  assert(gauge::kTraceSampleMs==1000u && gauge::kTracePoints==61);  // 60 s on screen, a point a second
+  assert(static_cast<uint32_t>(gauge::kTracePoints-1)*gauge::kTraceSampleMs==60000u);
+  const uint32_t P=gauge::kTraceSampleMs;
   assert(gauge::kTraceSpanC==30.f && gauge::kTraceStepC==5.f && gauge::kTraceMarginC==3.f);
 
   // Window rule: centred on the first point, kept while the point stays inside the margin, re-centred otherwise.
@@ -53,38 +55,42 @@ int main() {
     assert(gauge::traceShows(w,115.f) && gauge::traceShows(w,130.f) && gauge::traceShows(w,100.f));
     assert(!gauge::traceShows(w,130.01f) && !gauge::traceShows(w,99.99f)); }
 
-  // Timing: one sample at the first call, then every 5 s, from 250 ms updates; across the millisecond wrap too.
-  for(uint32_t t0 : {0u, 1000u, 0xFFFFFFFFu-7000u, 0xFFFFFFFFu-4999u, 0xFFFFFFFFu}) {
-    TraceHistory h; int taken=0; uint32_t last=0;
-    for(uint32_t d=0; d<=70000; d+=250) {
+  // Timing: one sample at the first call, then one per period, from the main loop's 250 ms updates; across the wrap too.
+  for(uint32_t t0 : {0u, 1000u, 0xFFFFFFFFu-7000u, 0xFFFFFFFFu-P+1, 0xFFFFFFFFu}) {
+    TraceHistory h; uint32_t taken=0, last=0;
+    const uint32_t span=100*P;
+    for(uint32_t d=0; d<=span; d+=250) {
       const uint32_t ms=t0+d;
       if(h.update(at(80.f),ms)) {
-        if(taken) assert(uint32_t(ms-last)==gauge::kTraceSampleMs);
+        if(taken) assert(uint32_t(ms-last)==P);
         else assert(d==0);
         last=ms; ++taken;
       }
     }
-    assert(taken==15 && h.count()==gauge::kTracePoints && h.version()==15u);
+    assert(taken==span/P+1 && h.count()==gauge::kTracePoints && h.version()==taken);
   }
-  // A late loop keeps the 5 s schedule; a stall of two periods or more restarts it, with no catch-up samples.
+  // A late loop keeps the schedule; a stall of two periods or more restarts it, with no catch-up samples.
   { TraceHistory h;
     assert(h.update(at(80.f),0));
-    assert(!h.update(at(80.f),4999));
-    assert(h.update(at(80.f),5300));    // late: the next is still due at 10000
-    assert(!h.update(at(80.f),9999));
-    assert(h.update(at(80.f),10000));
-    assert(h.update(at(80.f),60000));   // stalled: one sample, then 5 s from here
-    assert(!h.update(at(80.f),64999));
-    assert(h.update(at(80.f),65000));
+    assert(!h.update(at(80.f),P-1));
+    assert(h.update(at(80.f),P+P*3/10));  // late: the next is still due at 2P
+    assert(!h.update(at(80.f),2*P-1));
+    assert(h.update(at(80.f),2*P));
+    assert(h.update(at(80.f),12*P));      // stalled: one sample, then one period from here
+    assert(!h.update(at(80.f),13*P-1));
+    assert(h.update(at(80.f),13*P));
     assert(h.count()==5); }
 
-  // Order and capacity: newest last, the oldest dropped once 13 are held; out of range is a gap.
+  // Order and capacity: newest last, the oldest dropped once kTracePoints are held; out of range is a gap.
   { TraceHistory h; uint32_t ms=0;
     assert(h.count()==0 && !h.point(0).present && h.version()==0u);
-    for(int i=0;i<20;i++,ms+=gauge::kTraceSampleMs) h.update(make(Status::Normal,true,50.f+i),ms);
-    assert(h.count()==gauge::kTracePoints);
+    const int extra=7;
+    for(int i=0;i<gauge::kTracePoints+extra;i++,ms+=P) {
+      h.update(make(Status::Normal,true,50.f+i),ms);
+      assert(h.count()==(i+1<gauge::kTracePoints ? i+1 : gauge::kTracePoints));
+    }
 #ifdef GAUGE_DEMO
-    for(int i=0;i<gauge::kTracePoints;i++) assert(h.point(i).present && h.point(i).celsius==50.f+7+i);
+    for(int i=0;i<gauge::kTracePoints;i++) assert(h.point(i).present && h.point(i).celsius==50.f+extra+i);
 #endif
     assert(!h.point(-1).present && !h.point(gauge::kTracePoints).present); }
 
@@ -132,7 +138,7 @@ int main() {
     }
   }
   { TraceHistory h;
-    for(uint32_t ms=0; ms<=70000; ms+=250) h.update(make(Status::NeedsCalibration),ms);
+    for(uint32_t ms=0; ms<=100*P; ms+=250) h.update(make(Status::NeedsCalibration),ms);
     assert(h.count()==gauge::kTracePoints);
     for(int i=0;i<h.count();i++) assert(!h.point(i).present);
     assert(h.window().lo_c==gauge::kTraceDefaultWindow.lo_c && h.window().hi_c==gauge::kTraceDefaultWindow.hi_c); }
