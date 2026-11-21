@@ -6,7 +6,6 @@
 namespace gauge {
 namespace {
 constexpr float kRoundLimit = 1e6f;
-constexpr float kNoMaxYetC = -200.f;  // max_c at or below this means no maximum recorded yet
 // Writes the rounded value, or "--" when it cannot be shown.
 void writeRounded(float value, const char *prefix, char *out, size_t size) {
   long n;

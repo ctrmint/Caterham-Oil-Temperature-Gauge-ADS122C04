@@ -6,6 +6,7 @@ Layout nextLayout(Layout current) {
     case Layout::Classic: return Layout::Sweep;
     case Layout::Sweep: return Layout::Needle;
     case Layout::Needle: return Layout::Trace;
+    case Layout::Trace: return Layout::Tape;
     default: return Layout::Classic;
   }
 }
@@ -15,6 +16,7 @@ Layout decodeLayout(bool found, uint8_t stored) {
     case 1: return Layout::Sweep;
     case 2: return Layout::Needle;
     case 3: return Layout::Trace;
+    case 4: return Layout::Tape;
     default: return Layout::Classic;
   }
 }

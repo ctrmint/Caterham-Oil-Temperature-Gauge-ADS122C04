@@ -7,6 +7,7 @@ enum class Unit : uint8_t { Celsius, Fahrenheit };
 constexpr size_t kReadingCells = 4;
 constexpr size_t kReadingTextSize = 12;
 constexpr size_t kFooterTextSize = 48;
+constexpr float kNoMaxYetC = -200.f;  // a maximum at or below this means none is recorded yet
 // degC -> display unit: F = C * 9/5 + 32.
 float toUnit(float celsius, Unit unit);
 // Nearest whole number, halves away from zero. False when not finite or |value| >= 1e6.

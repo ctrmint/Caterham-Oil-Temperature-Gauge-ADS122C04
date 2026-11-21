@@ -9,24 +9,26 @@ int main() {
   using gauge::kLongPressMs; using gauge::kLongPressSlopPx;
   assert(kLongPressMs==1000u && kLongPressSlopPx==40);
 
-  // Cycle: Classic -> Sweep -> Needle -> Trace -> Classic.
+  // Cycle: Classic -> Sweep -> Needle -> Trace -> Tape -> Classic.
   assert(gauge::nextLayout(Layout::Classic)==Layout::Sweep);
   assert(gauge::nextLayout(Layout::Sweep)==Layout::Needle);
   assert(gauge::nextLayout(Layout::Needle)==Layout::Trace);
-  assert(gauge::nextLayout(Layout::Trace)==Layout::Classic);
-  { Layout l=Layout::Sweep; for(int i=0;i<4;i++) l=gauge::nextLayout(l); assert(l==Layout::Sweep); }
+  assert(gauge::nextLayout(Layout::Trace)==Layout::Tape);
+  assert(gauge::nextLayout(Layout::Tape)==Layout::Classic);
+  { Layout l=Layout::Sweep; for(int i=0;i<5;i++) l=gauge::nextLayout(l); assert(l==Layout::Sweep); }
 
   // Stored value: anything missing or unknown is Classic. Existing values keep their meaning (0 Classic, 1 Sweep).
   assert(gauge::encodeLayout(Layout::Classic)==0 && gauge::encodeLayout(Layout::Sweep)==1);
-  assert(gauge::encodeLayout(Layout::Needle)==2 && gauge::encodeLayout(Layout::Trace)==3);
+  assert(gauge::encodeLayout(Layout::Needle)==2 && gauge::encodeLayout(Layout::Trace)==3 && gauge::encodeLayout(Layout::Tape)==4);
   assert(gauge::decodeLayout(true,0)==Layout::Classic);
   assert(gauge::decodeLayout(true,1)==Layout::Sweep);
   assert(gauge::decodeLayout(true,2)==Layout::Needle);
   assert(gauge::decodeLayout(true,3)==Layout::Trace);
-  assert(gauge::decodeLayout(true,4)==Layout::Classic);
+  assert(gauge::decodeLayout(true,4)==Layout::Tape);
+  assert(gauge::decodeLayout(true,5)==Layout::Classic);
   assert(gauge::decodeLayout(true,255)==Layout::Classic);
-  for(uint8_t v : {0,1,2,3,4,255}) assert(gauge::decodeLayout(false,v)==Layout::Classic);
-  for(Layout l : {Layout::Classic, Layout::Sweep, Layout::Needle, Layout::Trace})
+  for(uint8_t v : {0,1,2,3,4,5,255}) assert(gauge::decodeLayout(false,v)==Layout::Classic);
+  for(Layout l : {Layout::Classic, Layout::Sweep, Layout::Needle, Layout::Trace, Layout::Tape})
     assert(gauge::decodeLayout(true,gauge::encodeLayout(l))==l);
 
   const uint32_t t0=5000;

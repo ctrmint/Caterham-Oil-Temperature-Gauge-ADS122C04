@@ -5,6 +5,7 @@ idf_component_register(
         "core/DisplayText.cpp"
         "core/LayoutChoice.cpp"
         "core/SweepModel.cpp"
+        "core/TapeModel.cpp"
         "core/Temperature.cpp"
         "core/TraceModel.cpp"
         "hal/Ads122c04Source.cpp"
@@ -14,6 +15,7 @@ idf_component_register(
         "display/NeedleLayout.cpp"
         "display/StatusLines.cpp"
         "display/SweepLayout.cpp"
+        "display/TapeLayout.cpp"
         "display/TraceLayout.cpp"
     INCLUDE_DIRS "."
     REQUIRES esp_driver_i2c esp_timer freertos nvs_flash lvgl__lvgl waveshare__esp32_s3_touch_amoled_1_75

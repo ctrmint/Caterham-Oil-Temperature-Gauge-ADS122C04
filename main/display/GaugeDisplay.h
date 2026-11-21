@@ -22,6 +22,7 @@ class GaugeDisplay {
   SweepLayout sweep_;
   NeedleLayout needle_;
   TraceLayout trace_;
+  TapeLayout tape_;
   bool built_ = false;
   gauge::Layout active_ = gauge::Layout::Classic;  // guarded by the LVGL mutex (render and the event callback)
   gauge::LongPress press_;
