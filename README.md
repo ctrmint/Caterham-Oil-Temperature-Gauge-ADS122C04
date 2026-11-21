@@ -58,21 +58,22 @@ The display runs from its own USB-C socket (in the car, an ignition-switched USB
 
 ## Display
 
-There are four layouts of the same readings.
+There are five layouts of the same readings.
 
 * **Classic:** the title reads `OIL °C`, `OIL °F` or `OIL ohm`. The reading itself has no unit: large fixed-width digits, right-aligned so the ones digit stays in place, with a 3-digit reading centred on the screen (a four-character one such as `>284` or a 4-digit resistance uses the full width). The bottom line reads like `MAX 112  |  123 ohm` (maximum, then the sender resistance).
 * **Sweep:** a 40-segment ring around the edge covering 30–130 °C, with scale labels 30…130 (86…266 in °F). Each lit segment shows the colour of its own place on the scale. Three large seven-segment digits, centred, sit over faint ghost segments; beyond the table a `<` or `>` sign appears just left of them. The unit sits above `OIL TEMP`, with the status, footer and demo text below. A resistance of 1000 Ω or more (uncalibrated only) shows as `--` in Sweep, and in full in Classic.
   * **The LED:** a round light at 6 o'clock, in the open bottom of the ring. It glows in the reading's colour and pulses while an alarm is latched: slowly at amber (`HIGH TEMPERATURE`, from 115 °C after the 2.5 s debounce) and faster at red. It's off on a sensor fault and in an uncalibrated build. The exception is a brief fault while an alarm is latched: the LED keeps pulsing, as the digits keep the alarm colour.
 * **Needle:** an analogue dial. A white scale runs from lower left to lower right over 30–130 °C, with five numbers (30, 55, 80, 105, 130; 86…266 in °F), a tick between each pair and a pointer at each number. A red needle sits under a dark hub, with `OIL` above the unit at the bottom. There's no digital readout. The needle follows the same rules as Sweep's segments. It's hidden on a fault or when uncalibrated, rests at the start below the table, and sits at the table maximum above it. It moves smoothly, never past the reading, and doesn't sweep at power-up.
 * **Trace:** the last 60 s, one point a second, newest on the right, as a thick line in the colours of the temperatures that made it: each point's colour, the same as the digits' at that moment, carries into the line around it. The newest point is a dot in its colour, or a ring when it's beyond the table. The window is 30 °C tall, with grid lines every 10 °C. It moves only when the newest point comes within 3 °C of its top or bottom, then re-centres. Thin amber and red lines mark 115 °C and 130 °C when they're in view. A fault or a reading below the table leaves a gap, never a carried-over value. The LED from Sweep sits at 6 o'clock under the status lines, with the same colours and pulses. There's no digital readout and, uncalibrated, no trace. The history is kept whichever layout is showing, and starts empty at power-up.
+* **Tape:** an aircraft-style moving scale. The tape scrolls past a fixed pointer, so the scale moves rather than the needle. It shows 40 °C at a time, with ticks every degree and numbers every 10. A strip down its edge is in each temperature's colour, and amber and red bars mark 115 °C and 130 °C, so the hot zones come into view before the oil gets there. Past the ends of the calibration table the tape is hatched, with no numbers, and a small marker shows the session maximum. The reading sits in a window by the pointer: `>130` beyond the table, `--` on a fault, and ohms when uncalibrated. Under it is the rate of change, such as `▲ 2.4 °C/min`, `▼ 1.1 °C/min` or `STEADY` (under 0.5 °C/min). The rate comes from the last 30 one-second samples and is hidden unless all 30 are clean readings inside the table. The tape eases to each reading and is hidden on a fault or when uncalibrated.
 
 The status line and the footer are on every layout, so alarms and faults always show as text.
 
 **Colours:** the digits, the status text and Classic's arc are graduated by temperature, blending smoothly between bands: dark blue below 50 °C, light blue 50–69, green 70–95, yellow 96–105, amber 106–119 and red from 120 °C. The colour is never less severe than a latched alarm (amber at 115 °C, red at 130 °C, unchanged). A fault or an uncalibrated reading is amber.
 
-Beyond the calibration table the reading shows `<min` or `>max` (for example `<20` or `>140`) and no temperature reading, and the unit stays in the label. Uncalibrated firmware shows `ohm` in every layout. There are no scale numbers, no lit segments, no LED, no needle and no trace.
+Beyond the calibration table the reading shows `<min` or `>max` (for example `<20` or `>140`) and no temperature reading, and the unit stays in the label. Uncalibrated firmware shows `ohm` in every layout. There are no scale numbers, no lit segments, no LED, no needle, no trace, and no tape or rate.
 
-**Changing layout:** press anywhere on the screen for at least 1 s (a long-press). Each press moves to the next layout: Classic, Sweep, Needle, Trace, then Classic again. A short tap or a swipe does nothing. The choice is stored in flash and restored at power-up; it is Classic on first boot, or if the stored choice is missing or can't be read.
+**Changing layout:** press anywhere on the screen for at least 1 s (a long-press). Each press moves to the next layout: Classic, Sweep, Needle, Trace, Tape, then Classic again. A short tap or a swipe does nothing. The choice is stored in flash and restored at power-up; it is Classic on first boot, or if the stored choice is missing or can't be read.
 
 **Choosing °F:** `idf.py menuconfig` → **Caterham oil temperature gauge** → **Display temperature unit**, then rebuild. °C is the default. The unit applies to the display only; the serial CSV log stays in °C.
 
@@ -88,7 +89,8 @@ Beyond the calibration table the reading shows `<min` or `>max` (for example `<2
 │   │                               # ADC frame/CRC decoding (AdcFrame.h),
 │   │                               # plus display text (DisplayText.*), sweep ring,
 │   │                               # LED and needle model (SweepModel.*), the trace's
-│   │                               # history (TraceModel.*) and layout choice/long-press
+│   │                               # history (TraceModel.*), the tape and rate of change
+│   │                               # (TapeModel.*) and layout choice/long-press
 │   │                               # (LayoutChoice.*)
 │   ├── hal/Ads122c04Source.*       # ADS122C04 over I²C (port 0, GPIO17/18)
 │   ├── display/GaugeDisplay.*      # Waveshare BSP + LVGL 9 gauge; layout switching
@@ -96,7 +98,8 @@ Beyond the calibration table the reading shows `<min` or `>max` (for example `<2
 │   │   ├── SweepLayout.cpp         # Sweep layout, with its LED
 │   │   ├── NeedleLayout.cpp        # Needle layout (analogue dial)
 │   │   ├── TraceLayout.cpp         # Trace layout (the last 60 s)
-│   │   ├── StatusLines.cpp         # status, footer and demo lines for Needle and Trace
+│   │   ├── TapeLayout.cpp          # Tape layout (moving scale and rate of change)
+│   │   ├── StatusLines.cpp         # shared widgets: status lines and the 6 o'clock LED
 │   │   ├── Layouts.h               # shared layout interface
 │   │   └── fonts/                  # generated Classic digit font + its licence
 │   ├── Kconfig.projbuild           # explicitly opt-in simulation
@@ -114,7 +117,7 @@ Beyond the calibration table the reading shows `<min` or `>max` (for example `<2
 | Area | Choice |
 | --- | --- |
 | Board | Waveshare ESP32-S3-Touch-AMOLED-1.75, **standard or -B** |
-| Display | 466×466 QSPI **CO5300** AMOLED, Waveshare BSP + LVGL 9; four layouts (Classic, Sweep, Needle and Trace), cycled by a 1 s long-press; °C or °F set in menuconfig |
+| Display | 466×466 QSPI **CO5300** AMOLED, Waveshare BSP + LVGL 9; five layouts (Classic, Sweep, Needle, Trace and Tape), cycled by a 1 s long-press; °C or °F set in menuconfig |
 | ADC | **ADS122C04** 24-bit I²C ADC (Adafruit module 6432) at 0x40, internal 2.048 V reference, gain 1 with the PGA bypassed; SDA GPIO17, SCL GPIO18; DRDY not used (GPIO16 left open) |
 | Measurement | The ADC's 250 µA current source drives Rref and the sender in series; Vref = A0 − A1, Vs = A1 − A2; `Rs = Rref × Vs / Vref` (ratiometric: cancels the current's accuracy, the reference, the rail and ground offset) |
 | Sender interface | Signal wire to the spade, a **dedicated ground-sense wire** and a return wire to the tank bond stud |

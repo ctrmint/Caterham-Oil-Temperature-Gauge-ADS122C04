@@ -1,6 +1,7 @@
 #pragma once
 #include "core/DisplayText.h"
 #include "core/SweepModel.h"
+#include "core/TapeModel.h"
 #include "core/TraceModel.h"
 #include "lvgl.h"
 #include <stdint.h>
@@ -31,6 +32,10 @@ struct DisplayFrame {
   gauge::LedState led = {false, 0, gauge::LedPulse::None};  // the LED at 6 o'clock (Sweep and Trace)
   gauge::NeedleState needle = {false, 0.f};                 // Needle layout
   const gauge::TraceHistory* trace = nullptr;               // Trace layout; owned by main
+  gauge::TapeState tape = {false, 0.f};                     // Tape layout: where the tape is centred
+  gauge::Rate rate = {false, 0.f};                          // Tape layout: the rate of change
+  bool max_shown = false;                                   // Tape layout: the session maximum's marker, in degC
+  float max_c = 0.f;
 };
 
 // Every LayoutView method (build(), render() and setVisible() included) must be called with the display lock
@@ -186,4 +191,25 @@ class TraceLayout : public LayoutView {
   uint32_t version_ = 0;
   bool drawn_ = false;
   bool scale_shown_ = false;
+};
+
+// Moving tape (#15): a scale that scrolls past a fixed pointer, the reading in a window beside it, and the rate of change.
+class TapeLayout : public LayoutView {
+ public:
+  void build(lv_obj_t* screen, gauge::Unit unit) override;
+  void render(const DisplayFrame& f) override;
+ private:
+  static void onTimer(lv_timer_t* t);  // LVGL task: eases the tape to its target, never past it
+  lv_obj_t* tape_ = nullptr;
+  lv_obj_t* title_ = nullptr;
+  lv_obj_t* value_ = nullptr;
+  lv_obj_t* rate_ = nullptr;
+  lv_timer_t* timer_ = nullptr;
+  StatusLines lines_;
+  gauge::Unit unit_ = gauge::Unit::Celsius;
+  const char* title_text_ = nullptr;
+  uint32_t value_colour_ = 0;
+  bool tape_shown_ = false;
+  char value_text_[gauge::kReadingCells + 1] = {};
+  char rate_text_[gauge::kRateTextSize + 8] = {};  // with the arrow symbol in front
 };

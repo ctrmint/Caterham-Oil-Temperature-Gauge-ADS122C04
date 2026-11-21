@@ -1,6 +1,7 @@
 #include "display/GaugeDisplay.h"
 #include "bsp/esp-bsp.h"
 #include "bsp/display.h"
+#include "core/Calibration.h"
 #include "esp_err.h"
 #include <cmath>
 
@@ -21,6 +22,7 @@ bool GaugeDisplay::begin(gauge::Unit unit, gauge::Layout layout) {
   sweep_.build(root, unit_);
   needle_.build(root, unit_);
   trace_.build(root, unit_);
+  tape_.build(root, unit_);
   active_ = layout;
   showActive();
   lv_obj_add_event_cb(root, &GaugeDisplay::onScreenEvent, LV_EVENT_ALL, this);
@@ -53,6 +55,7 @@ void GaugeDisplay::showActive() {
   sweep_.setVisible(active_ == gauge::Layout::Sweep);
   needle_.setVisible(active_ == gauge::Layout::Needle);
   trace_.setVisible(active_ == gauge::Layout::Trace);
+  tape_.setVisible(active_ == gauge::Layout::Tape);
 }
 
 bool GaugeDisplay::takeLayoutChange(gauge::Layout& out) {
@@ -89,9 +92,14 @@ void GaugeDisplay::render(const gauge::Reading& r, float max_temp_c, bool max_ab
   f.led = gauge::ledState(r);
   f.needle = gauge::needleState(r, unit_);
   f.trace = &trace;
+  f.tape = gauge::tapeState(r);
+  f.rate = gauge::traceRate(trace);
+  f.max_shown = gauge::calibrationValid() && (max_above_range || max_temp_c > gauge::kNoMaxYetC);
+  f.max_c = max_above_range ? gauge::calibrationMaxC() : max_temp_c;
   classic_.render(f);
   sweep_.render(f);
   needle_.render(f);
   trace_.render(f);
+  tape_.render(f);
   bsp_display_unlock();
 }
