@@ -42,4 +42,26 @@ uint32_t gradientColour(float celsius);
 uint32_t readingColour(const Reading &r);
 // Colour of lit ring segment index (0..kSweepSegments-1): the gradient at the segment's centre on the scale.
 uint32_t segmentColour(int index, Unit unit);
+
+// Sweep's LED at 6 o'clock (#10). Lit in readingColour() and pulsing while an alarm is latched: slowly at Amber, faster at
+// Red. Off without a temperature (a fault, or an uncalibrated build), except that an alarm kept through a brief fault
+// keeps it pulsing, so it never looks calmer than the digits.
+enum class LedPulse : uint8_t { None, Slow, Fast };
+struct LedState { bool lit; uint32_t colour; LedPulse pulse; };
+LedState ledState(const Reading &r);
+// One bright-dim-bright cycle; the brightness never drops below kLedMinOpa (of 255).
+constexpr uint32_t kLedSlowPeriodMs = 1000, kLedFastPeriodMs = 500;
+constexpr uint8_t kLedMinOpa = 77;  // about 30 %
+// LED opacity at a millisecond tick: 255 when not pulsing, else a cosine from 255 (at each whole period) down to
+// kLedMinOpa (half-way). The phase jumps once at the 49.7-day tick wrap; that's cosmetic.
+uint8_t ledOpacity(LedPulse pulse, uint32_t ms);
+
+// Needle dial (#11): the same span as Sweep (sweepScale), with five numbers.
+constexpr int kNeedleLabels = 5;
+// 30, 55, 80, 105, 130 degC, or 86, 131, 176, 221, 266 degF; index valid for 0 <= index < kNeedleLabels.
+int needleLabel(Unit unit, int index);
+// The needle's place as a fraction 0..1 along the scale. It follows litSegments(): hidden when uncalibrated or on a fault,
+// at the start below the table, at the table maximum above it, and always clamped to the scale's ends.
+struct NeedleState { bool visible; float fraction; };
+NeedleState needleState(const Reading &r, Unit unit);
 } // namespace gauge

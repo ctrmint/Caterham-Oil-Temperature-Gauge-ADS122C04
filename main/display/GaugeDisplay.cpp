@@ -19,9 +19,10 @@ bool GaugeDisplay::begin(gauge::Unit unit, gauge::Layout layout) {
   lv_obj_clear_flag(root, LV_OBJ_FLAG_SCROLLABLE);
   classic_.build(root, unit_);
   sweep_.build(root, unit_);
-  classic_.setVisible(layout == gauge::Layout::Classic);
-  sweep_.setVisible(layout == gauge::Layout::Sweep);
+  needle_.build(root, unit_);
+  trace_.build(root, unit_);
   active_ = layout;
+  showActive();
   lv_obj_add_event_cb(root, &GaugeDisplay::onScreenEvent, LV_EVENT_ALL, this);
   built_ = true;
   bsp_display_unlock();
@@ -43,9 +44,15 @@ void GaugeDisplay::handleEvent(lv_event_code_t code) {
   if (code == LV_EVENT_PRESSED) { press_.press(p.x, p.y, now); return; }
   if (!press_.hold(p.x, p.y, now)) return;
   active_ = gauge::nextLayout(active_);
+  showActive();
+  pending_.store(gauge::encodeLayout(active_));
+}
+
+void GaugeDisplay::showActive() {
   classic_.setVisible(active_ == gauge::Layout::Classic);
   sweep_.setVisible(active_ == gauge::Layout::Sweep);
-  pending_.store(gauge::encodeLayout(active_));
+  needle_.setVisible(active_ == gauge::Layout::Needle);
+  trace_.setVisible(active_ == gauge::Layout::Trace);
 }
 
 bool GaugeDisplay::takeLayoutChange(gauge::Layout& out) {
@@ -55,7 +62,8 @@ bool GaugeDisplay::takeLayoutChange(gauge::Layout& out) {
   return true;
 }
 
-void GaugeDisplay::render(const gauge::Reading& r, float max_temp_c, bool max_above_range, bool demo) {
+void GaugeDisplay::render(const gauge::Reading& r, float max_temp_c, bool max_above_range,
+                          const gauge::TraceHistory& trace, bool demo) {
   if (!built_ || bsp_display_lock(100) != ESP_OK) return;
   DisplayFrame f;
   f.colour = gauge::readingColour(r);  // graduated, never less severe than the latched alarm
@@ -78,7 +86,12 @@ void GaugeDisplay::render(const gauge::Reading& r, float max_temp_c, bool max_ab
   f.status = gauge::statusText(r.status);
   f.footer = footer_text_;
   f.demo = demo;
+  f.led = gauge::ledState(r);
+  f.needle = gauge::needleState(r, unit_);
+  f.trace = &trace;
   classic_.render(f);
   sweep_.render(f);
+  needle_.render(f);
+  trace_.render(f);
   bsp_display_unlock();
 }
