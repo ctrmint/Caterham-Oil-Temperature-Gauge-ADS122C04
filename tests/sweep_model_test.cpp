@@ -30,6 +30,15 @@ static uint32_t colourOf(gauge::Status s, gauge::Status alarm, bool has_t=false,
   gauge::Reading r=make(s,has_t,t_c); r.alarm=alarm;
   return gauge::readingColour(r);
 }
+static gauge::LedState ledOf(gauge::Status s, gauge::Status alarm, bool has_t=false, float t_c=0) {
+  gauge::Reading r=make(s,has_t,t_c); r.alarm=alarm;
+  return gauge::ledState(r);
+}
+static gauge::NeedleState needleOf(gauge::Status s, bool has_t, float t_c, gauge::Unit u, gauge::Status alarm=gauge::Status::Normal) {
+  gauge::Reading r=make(s,has_t,t_c); r.alarm=alarm;
+  return gauge::needleState(r,u);
+}
+[[maybe_unused]] static bool near(float a, float b) { return std::fabs(a-b)<1e-5f; }
 
 int main() {
   using gauge::Status; using gauge::Unit;
@@ -133,6 +142,34 @@ int main() {
     assert(gauge::litSegments(make(Status::Normal,false,100.f),u)==0);  // stale temperature, no flag
   }
 
+  // Needle dial numbers (#11): five over Sweep's span. Sweep keeps its own numbers every 20 degC (tested above).
+  assert(gauge::kNeedleLabels==5);
+  { const int c[]={30,55,80,105,130}, f[]={86,131,176,221,266};
+    for(int i=0;i<gauge::kNeedleLabels;i++) {
+      assert(gauge::needleLabel(Unit::Celsius,i)==c[i]);
+      assert(gauge::needleLabel(Unit::Fahrenheit,i)==f[i]);
+    }
+    assert(gauge::needleLabel(Unit::Celsius,0)==static_cast<int>(gauge::sweepScale(Unit::Celsius).min));
+    assert(gauge::needleLabel(Unit::Celsius,4)==static_cast<int>(gauge::sweepScale(Unit::Celsius).max)); }
+
+  // LED pulse (#10): full brightness when steady; a cosine from 255 down to kLedMinOpa and back; Red twice as fast.
+  { using gauge::LedPulse; using gauge::ledOpacity;
+    assert(gauge::kLedFastPeriodMs*2==gauge::kLedSlowPeriodMs && gauge::kLedMinOpa>0);
+    for(uint32_t ms : {0u,1u,250u,499u,999u,123456u,0xFFFFFFFFu}) assert(ledOpacity(LedPulse::None,ms)==255);
+    assert(ledOpacity(LedPulse::Slow,0)==255 && ledOpacity(LedPulse::Slow,gauge::kLedSlowPeriodMs)==255);
+    assert(ledOpacity(LedPulse::Fast,0)==255 && ledOpacity(LedPulse::Fast,gauge::kLedFastPeriodMs)==255);
+    assert(ledOpacity(LedPulse::Slow,gauge::kLedSlowPeriodMs/2)==gauge::kLedMinOpa);
+    assert(ledOpacity(LedPulse::Fast,gauge::kLedFastPeriodMs/2)==gauge::kLedMinOpa);
+    for(uint32_t ms=0; ms<4000; ms+=3) {
+      const uint8_t s=ledOpacity(LedPulse::Slow,ms), f=ledOpacity(LedPulse::Fast,ms);
+      assert(s>=gauge::kLedMinOpa && f>=gauge::kLedMinOpa);
+      assert(f==ledOpacity(LedPulse::Slow,2*ms));
+      const int mirror=ledOpacity(LedPulse::Slow,gauge::kLedSlowPeriodMs-(ms%gauge::kLedSlowPeriodMs));
+      assert(std::abs(static_cast<int>(s)-mirror)<=1);  // symmetric about the half-period
+    }
+    for(uint32_t ms=1; ms<=gauge::kLedSlowPeriodMs/2; ms++)  // dims steadily, then (by symmetry) brightens
+      assert(ledOpacity(LedPulse::Slow,ms)<=ledOpacity(LedPulse::Slow,ms-1)); }
+
 #ifdef GAUGE_DEMO
   assert(gauge::scaleLabelsVisible());
   // Lit count: floor((T-min)/(max-min)*40), clamped.
@@ -197,6 +234,83 @@ int main() {
   assert(colourOf(Status::BelowRange,Status::Normal)==gauge::kColourDarkBlue);
   assert(colourOf(Status::BelowRange,Status::Amber)==gauge::kColourAmber);   // REQ-T3 hold keeps the alarm colour
   assert(colourOf(Status::BelowRange,Status::Red)==gauge::kColourRed);
+
+  // LED (#10).
+  { using gauge::LedPulse;
+    gauge::LedState l=ledOf(Status::Cold,Status::Normal,true,40.f);
+    assert(l.lit && l.pulse==LedPulse::None && l.colour==gauge::kColourDarkBlue);
+    l=ledOf(Status::Normal,Status::Normal,true,80.f);
+    assert(l.lit && l.pulse==LedPulse::None && l.colour==colourOf(Status::Normal,Status::Normal,true,80.f));
+    // Over 115 degC but still inside the debounce: steady. It pulses only once the alarm latches.
+    l=ledOf(Status::Normal,Status::Normal,true,117.f);
+    assert(l.lit && l.pulse==LedPulse::None);
+    l=ledOf(Status::Amber,Status::Amber,true,117.f);
+    assert(l.lit && l.pulse==LedPulse::Slow && l.colour==colourOf(Status::Amber,Status::Amber,true,117.f));
+    l=ledOf(Status::Red,Status::Red,true,131.f);
+    assert(l.lit && l.pulse==LedPulse::Fast && l.colour==gauge::kColourRed);
+    // Beyond the table: lit in the table limit's colour, pulsing once the alarm latches.
+    l=ledOf(Status::AboveRange,Status::Normal);
+    assert(l.lit && l.pulse==LedPulse::None && l.colour==gradientColour(gauge::calibrationMaxC()));
+    l=ledOf(Status::AboveRange,Status::Red);
+    assert(l.lit && l.pulse==LedPulse::Fast && l.colour==gauge::kColourRed);
+    l=ledOf(Status::BelowRange,Status::Normal);
+    assert(l.lit && l.pulse==LedPulse::None && l.colour==gauge::kColourDarkBlue);
+    l=ledOf(Status::BelowRange,Status::Amber);  // REQ-T3 hold
+    assert(l.lit && l.pulse==LedPulse::Slow && l.colour==gauge::kColourAmber);
+    for(int i=static_cast<int>(Status::NoAdc);i<=static_cast<int>(Status::Red);i++) {
+      const Status s=static_cast<Status>(i);
+      // Faults: off, unless an alarm is still latched through a brief fault; then it keeps pulsing in the alarm's colour.
+      if(gauge::isFault(s)) {
+        assert(!ledOf(s,Status::Normal).lit && !ledOf(s,Status::Normal,true,80.f).lit);
+        l=ledOf(s,Status::Amber); assert(l.lit && l.pulse==LedPulse::Slow && l.colour==gauge::kColourAmber);
+        l=ledOf(s,Status::Red); assert(l.lit && l.pulse==LedPulse::Fast && l.colour==gauge::kColourRed);
+      }
+      // Whenever lit it shows the reading's colour, never a calmer one; it pulses exactly while an alarm is latched.
+      for(Status a : {Status::Normal,Status::Amber,Status::Red}) {
+        for(float t : {40.f,80.f,117.f,135.f}) {
+          for(bool has_t : {false,true}) {
+            l=ledOf(s,a,has_t,t);
+            if(a!=Status::Normal) assert(l.lit);
+            if(l.lit) assert(l.colour==colourOf(s,a,has_t,t));
+            assert((l.pulse==LedPulse::None)==(a==Status::Normal));
+            assert(l.pulse!=LedPulse::Fast || a==Status::Red);
+          }
+        }
+      }
+    } }
+
+  // Needle (#11): follows the Sweep segments, clamped to the scale.
+  for(Unit u:units) {
+    gauge::NeedleState n=needleOf(Status::Normal,true,30.f,u); assert(n.visible && near(n.fraction,0.f));
+    n=needleOf(Status::Normal,true,55.f,u); assert(n.visible && near(n.fraction,0.25f));
+    n=needleOf(Status::Normal,true,80.f,u); assert(n.visible && near(n.fraction,0.5f));
+    n=needleOf(Status::Amber,true,105.f,u,Status::Amber); assert(n.visible && near(n.fraction,0.75f));
+    n=needleOf(Status::Red,true,130.f,u,Status::Red); assert(n.visible && near(n.fraction,1.f));
+    n=needleOf(Status::Cold,true,20.f,u); assert(n.visible && n.fraction==0.f);   // in the table, below the scale
+    n=needleOf(Status::Red,true,135.f,u,Status::Red); assert(n.visible && n.fraction==1.f);
+    n=needleOf(Status::AboveRange,false,0.f,u); assert(n.visible && n.fraction==1.f);  // table max 140, capped
+    n=needleOf(Status::BelowRange,false,0.f,u); assert(n.visible && n.fraction==0.f);
+    n=needleOf(Status::BelowRange,false,0.f,u,Status::Amber); assert(n.visible && n.fraction==0.f);  // REQ-T3 hold
+    for(int i=static_cast<int>(Status::NoAdc);i<=static_cast<int>(Status::Red);i++) {
+      const Status s=static_cast<Status>(i);
+      if(!gauge::isFault(s)) continue;
+      for(Status a : {Status::Normal,Status::Amber,Status::Red}) {
+        assert(!needleOf(s,false,0.f,u,a).visible);
+        assert(!needleOf(s,true,80.f,u,a).visible);
+      }
+    }
+    assert(!needleOf(Status::Normal,true,NAN,u).visible);
+    assert(!needleOf(Status::Normal,true,INFINITY,u).visible);
+    assert(!needleOf(Status::Normal,true,-INFINITY,u).visible);
+    assert(!needleOf(Status::Normal,false,80.f,u).visible);  // stale temperature, no flag
+    // The needle and the Sweep segments agree: the lit count is the needle's place in whole segments.
+    for(float t=30.f; t<=130.f; t+=0.37f) {
+      n=needleOf(Status::Normal,true,t,u);
+      const float segs=n.fraction*gauge::kSweepSegments;
+      assert(n.visible && n.fraction>=0.f && n.fraction<=1.f);
+      assert(std::fabs(static_cast<float>(lit(t,u))-std::floor(segs))<=1.f && static_cast<float>(lit(t,u))<=segs+1e-3f);
+    }
+  }
   std::puts("Sweep model tests passed (demo)");
 #else
   assert(!gauge::scaleLabelsVisible());
@@ -215,6 +329,13 @@ int main() {
     assert(colourOf(s,Status::Normal,true,80.f)==gauge::kColourAmber);
     assert(colourOf(s,Status::Amber,true,40.f)==gauge::kColourAmber);
     assert(colourOf(s,Status::Red,true,40.f)==gauge::kColourRed);
+    // No temperature, so no LED and no needle, whatever the status or alarm.
+    for(Status a : {Status::Normal,Status::Amber,Status::Red}) {
+      for(bool has_t : {false,true}) {
+        assert(!ledOf(s,a,has_t,100.f).lit);
+        for(Unit u:units) assert(!needleOf(s,has_t,100.f,u,a).visible);
+      }
+    }
   }
   std::puts("Sweep model tests passed (uncalibrated)");
 #endif

@@ -9,19 +9,25 @@ int main() {
   using gauge::kLongPressMs; using gauge::kLongPressSlopPx;
   assert(kLongPressMs==1000u && kLongPressSlopPx==40);
 
-  // Cycle.
+  // Cycle: Classic -> Sweep -> Needle -> Trace -> Classic.
   assert(gauge::nextLayout(Layout::Classic)==Layout::Sweep);
-  assert(gauge::nextLayout(Layout::Sweep)==Layout::Classic);
+  assert(gauge::nextLayout(Layout::Sweep)==Layout::Needle);
+  assert(gauge::nextLayout(Layout::Needle)==Layout::Trace);
+  assert(gauge::nextLayout(Layout::Trace)==Layout::Classic);
+  { Layout l=Layout::Sweep; for(int i=0;i<4;i++) l=gauge::nextLayout(l); assert(l==Layout::Sweep); }
 
-  // Stored value: anything missing or unknown is Classic.
+  // Stored value: anything missing or unknown is Classic. Existing values keep their meaning (0 Classic, 1 Sweep).
   assert(gauge::encodeLayout(Layout::Classic)==0 && gauge::encodeLayout(Layout::Sweep)==1);
+  assert(gauge::encodeLayout(Layout::Needle)==2 && gauge::encodeLayout(Layout::Trace)==3);
   assert(gauge::decodeLayout(true,0)==Layout::Classic);
   assert(gauge::decodeLayout(true,1)==Layout::Sweep);
-  assert(gauge::decodeLayout(true,2)==Layout::Classic);
+  assert(gauge::decodeLayout(true,2)==Layout::Needle);
+  assert(gauge::decodeLayout(true,3)==Layout::Trace);
+  assert(gauge::decodeLayout(true,4)==Layout::Classic);
   assert(gauge::decodeLayout(true,255)==Layout::Classic);
-  assert(gauge::decodeLayout(false,0)==Layout::Classic);
-  assert(gauge::decodeLayout(false,1)==Layout::Classic);
-  for(Layout l : {Layout::Classic, Layout::Sweep}) assert(gauge::decodeLayout(true,gauge::encodeLayout(l))==l);
+  for(uint8_t v : {0,1,2,3,4,255}) assert(gauge::decodeLayout(false,v)==Layout::Classic);
+  for(Layout l : {Layout::Classic, Layout::Sweep, Layout::Needle, Layout::Trace})
+    assert(gauge::decodeLayout(true,gauge::encodeLayout(l))==l);
 
   const uint32_t t0=5000;
   // No press yet.

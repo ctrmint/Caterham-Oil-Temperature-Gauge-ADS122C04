@@ -29,7 +29,7 @@
                                          [measured curve lookup]
                                          [EMA + warnings]
                                                           │
-                                   [LVGL gauge: Classic / Sweep]
+                                   [LVGL gauge: Classic / Sweep / Needle / Trace]
                                        [466x466 CO5300 AMOLED]
 ```
 
@@ -44,12 +44,14 @@ See [hardware/wiring.svg](../hardware/wiring.svg) for the full schematic and [ha
   - `AdcFrame.h` decodes and CRC-checks the ADC's I²C frames.
   - `Temperature` turns voltages into sender resistance, handles sender fault states and interpolates a user-validated, monotonically decreasing R/T calibration curve.
 - **`main/display/`** exclusively handles Waveshare BSP/LVGL calls.
-  - It draws a frame built from host-tested core helpers (`DisplayText`, `SweepModel`, `LayoutChoice`), so the text, the lit-segment count, the graduated colours and the layout rules are tested without hardware.
-  - The two layouts (Classic and Sweep) are each built once and switched by hiding and showing.
+  - It draws a frame built from host-tested core helpers (`DisplayText`, `SweepModel`, `TraceModel`, `LayoutChoice`), so the text, the lit-segment count, the graduated colours, the LED and needle states, the trace's samples and window, and the layout rules are tested without hardware.
+  - The four layouts (Classic, Sweep, Needle and Trace) are each built once and switched by hiding and showing.
+  - The LED's pulse and the needle's easing run on LVGL timers in the LVGL task, created once at start-up, so nothing is allocated per frame.
   - The long-press (at least 1 s) is detected in the LVGL task.
 - **`main/main.cpp`:**
   - stores the layout in NVS only when it changes, and restores it at power-up (Classic on first boot, or if the stored choice is missing or can't be read);
   - schedules acquisition at 4 Hz, updates the display at 4 Hz and reports CSV-like serial diagnostics at 1 Hz.
+  - feeds every reading to the trace's history (`TraceModel`), which keeps one sample every 5 s, whichever layout is showing.
 
 **The measurement cycle.** The ADS122C04 runs single-shot at 45 samples/s, gain 1, with the PGA bypassed, so inputs are valid down to 0.1 V below its GND. Its internal current source drives 250 µA out of A0, through Rref and then the sender. One measurement cycle is six conversions, about 150 ms, well inside the 250 ms sample interval:
 1. the ADC's offset, with the inputs shorted;

@@ -8,7 +8,7 @@ An independent **oil-temperature gauge** for the Caterham 420R dry-sump tank's r
 - **Display:** the Waveshare board handles display, fault reporting and alarm presentation.
 
 **Status: bench prototype, new front end.** Host unit tests pass and the firmware compiles without warnings under ESP-IDF 5.5.5 (normal and demo builds; versions pinned in `dependencies.lock`). On the bench, so far ([docs/VALIDATION.md](docs/VALIDATION.md)):
-- The firmware runs on a Waveshare 31261, and both display layouts pass in the demo build.
+- The firmware runs on a Waveshare 31261, and the Classic and Sweep layouts pass in the demo build. Sweep's LED and the Needle and Trace layouts (#10–#12) build and pass the host tests, but haven't been checked on the screen yet.
 - With the earlier front end, a bench sender stamped 6811 followed the Bosch 0 280 130 026 curve up to 89 °C against a reference probe. That is an indication about the sender, not a calibration.
 
 **Still owed:**
@@ -58,16 +58,21 @@ The display runs from its own USB-C socket (in the car, an ignition-switched USB
 
 ## Display
 
-There are two layouts of the same readings.
+There are four layouts of the same readings.
 
 * **Classic:** the title reads `OIL °C`, `OIL °F` or `OIL ohm`. The reading itself has no unit: large fixed-width digits, right-aligned so the ones digit stays in place, with a 3-digit reading centred on the screen (a four-character one such as `>284` or a 4-digit resistance uses the full width). The bottom line reads like `MAX 112  |  123 ohm` (maximum, then the sender resistance).
 * **Sweep:** a 40-segment ring around the edge covering 30–130 °C, with scale labels 30…130 (86…266 in °F). Each lit segment shows the colour of its own place on the scale. Three large seven-segment digits, centred, sit over faint ghost segments; beyond the table a `<` or `>` sign appears just left of them. The unit sits above `OIL TEMP`, with the status, footer and demo text below. A resistance of 1000 Ω or more (uncalibrated only) shows as `--` in Sweep, and in full in Classic.
+  * **The LED:** a round light at 6 o'clock, in the open bottom of the ring. It glows in the reading's colour and pulses while an alarm is latched: slowly at amber (`HIGH TEMPERATURE`, from 115 °C after the 2.5 s debounce) and faster at red. It's off on a sensor fault and in an uncalibrated build. The exception is a brief fault while an alarm is latched: the LED keeps pulsing, as the digits keep the alarm colour.
+* **Needle:** an analogue dial. A white scale runs from lower left to lower right over 30–130 °C, with five numbers (30, 55, 80, 105, 130; 86…266 in °F), a tick between each pair and a pointer at each number. A red needle sits under a dark hub, with `OIL` above the unit at the bottom. There's no digital readout. The needle follows the same rules as Sweep's segments. It's hidden on a fault or when uncalibrated, rests at the start below the table, and sits at the table maximum above it. It moves smoothly, never past the reading, and doesn't sweep at power-up.
+* **Trace:** the last 60 s, one point every 5 s, newest on the right, as a thick white line. The newest point is a dot in the reading's colour, or a ring when it's beyond the table. The window is 30 °C tall, with grid lines every 10 °C. It moves only when the newest point comes within 3 °C of its top or bottom, then re-centres. Thin amber and red lines mark 115 °C and 130 °C when they're in view. A fault or a reading below the table leaves a gap, never a carried-over value. There's no digital readout and, uncalibrated, no trace. The history is kept whichever layout is showing, and starts empty at power-up.
+
+The status line and the footer are on every layout, so alarms and faults always show as text.
 
 **Colours:** the digits, the status text and Classic's arc are graduated by temperature, blending smoothly between bands: dark blue below 50 °C, light blue 50–69, green 70–95, yellow 96–105, amber 106–119 and red from 120 °C. The colour is never less severe than a latched alarm (amber at 115 °C, red at 130 °C, unchanged). A fault or an uncalibrated reading is amber.
 
-Beyond the calibration table the reading shows `<min` or `>max` (for example `<20` or `>140`) and no temperature reading, and the unit stays in the label. Uncalibrated firmware shows `ohm` in both layouts, with no scale numbers and no lit segments in Sweep.
+Beyond the calibration table the reading shows `<min` or `>max` (for example `<20` or `>140`) and no temperature reading, and the unit stays in the label. Uncalibrated firmware shows `ohm` in every layout. There are no scale numbers, no lit segments, no LED, no needle and no trace.
 
-**Changing layout:** press anywhere on the screen for at least 1 s (a long-press). A short tap or a swipe does nothing. The choice is stored in flash and restored at power-up; it is Classic on first boot, or if the stored choice is missing or can't be read.
+**Changing layout:** press anywhere on the screen for at least 1 s (a long-press). Each press moves to the next layout: Classic, Sweep, Needle, Trace, then Classic again. A short tap or a swipe does nothing. The choice is stored in flash and restored at power-up; it is Classic on first boot, or if the stored choice is missing or can't be read.
 
 **Choosing °F:** `idf.py menuconfig` → **Caterham oil temperature gauge** → **Display temperature unit**, then rebuild. °C is the default. The unit applies to the display only; the serial CSV log stays in °C.
 
@@ -81,13 +86,17 @@ Beyond the calibration table the reading shows `<min` or `>max` (for example `<2
 │   ├── CalibrationData.h           # fail-closed uncalibrated default
 │   ├── core/                       # platform-independent resistance & temp math,
 │   │                               # ADC frame/CRC decoding (AdcFrame.h),
-│   │                               # plus display text (DisplayText.*), sweep ring
-│   │                               # model (SweepModel.*) and layout choice/long-press
+│   │                               # plus display text (DisplayText.*), sweep ring,
+│   │                               # LED and needle model (SweepModel.*), the trace's
+│   │                               # history (TraceModel.*) and layout choice/long-press
 │   │                               # (LayoutChoice.*)
 │   ├── hal/Ads122c04Source.*       # ADS122C04 over I²C (port 0, GPIO17/18)
 │   ├── display/GaugeDisplay.*      # Waveshare BSP + LVGL 9 gauge; layout switching
 │   │   ├── ClassicLayout.cpp       # Classic layout
-│   │   ├── SweepLayout.cpp         # Sweep layout
+│   │   ├── SweepLayout.cpp         # Sweep layout, with its LED
+│   │   ├── NeedleLayout.cpp        # Needle layout (analogue dial)
+│   │   ├── TraceLayout.cpp         # Trace layout (the last 60 s)
+│   │   ├── StatusLines.cpp         # status, footer and demo lines for Needle and Trace
 │   │   ├── Layouts.h               # shared layout interface
 │   │   └── fonts/                  # generated Classic digit font + its licence
 │   ├── Kconfig.projbuild           # explicitly opt-in simulation
@@ -105,7 +114,7 @@ Beyond the calibration table the reading shows `<min` or `>max` (for example `<2
 | Area | Choice |
 | --- | --- |
 | Board | Waveshare ESP32-S3-Touch-AMOLED-1.75, **standard or -B** |
-| Display | 466×466 QSPI **CO5300** AMOLED, Waveshare BSP + LVGL 9; two layouts (Classic and Sweep), switched by a 1 s long-press; °C or °F set in menuconfig |
+| Display | 466×466 QSPI **CO5300** AMOLED, Waveshare BSP + LVGL 9; four layouts (Classic, Sweep, Needle and Trace), cycled by a 1 s long-press; °C or °F set in menuconfig |
 | ADC | **ADS122C04** 24-bit I²C ADC (Adafruit module 6432) at 0x40, internal 2.048 V reference, gain 1 with the PGA bypassed; SDA GPIO17, SCL GPIO18; DRDY not used (GPIO16 left open) |
 | Measurement | The ADC's 250 µA current source drives Rref and the sender in series; Vref = A0 − A1, Vs = A1 − A2; `Rs = Rref × Vs / Vref` (ratiometric: cancels the current's accuracy, the reference, the rail and ground offset) |
 | Sender interface | Signal wire to the spade, a **dedicated ground-sense wire** and a return wire to the tank bond stud |

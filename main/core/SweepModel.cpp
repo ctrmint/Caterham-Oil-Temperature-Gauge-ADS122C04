@@ -97,4 +97,34 @@ uint32_t segmentColour(int index, Unit unit) {
   const float t = s.min + (static_cast<float>(index) + 0.5f) * (s.max - s.min) / kSweepSegments;
   return gradientColour(unit == Unit::Fahrenheit ? (t - 32.f) * 5.f / 9.f : t);
 }
+LedState ledState(const Reading &r) {
+  const LedPulse pulse = r.alarm == Status::Red ? LedPulse::Fast : r.alarm == Status::Amber ? LedPulse::Slow : LedPulse::None;
+  if (!calibrationValid() || (pulse == LedPulse::None && isFault(r.status))) return {false, 0, LedPulse::None};
+  return {true, readingColour(r), pulse};
+}
+uint8_t ledOpacity(LedPulse pulse, uint32_t ms) {
+  if (pulse == LedPulse::None) return 255;
+  const uint32_t period = pulse == LedPulse::Fast ? kLedFastPeriodMs : kLedSlowPeriodMs;
+  const float phase = static_cast<float>(ms % period) / static_cast<float>(period);
+  const float level = 0.5f + 0.5f * std::cos(6.2831853f * phase);  // 1 at the start of a period, 0 half-way
+  return static_cast<uint8_t>(std::lround(kLedMinOpa + (255.f - kLedMinOpa) * level));
+}
+int needleLabel(Unit unit, int index) {
+  const SweepScale s = sweepScale(unit);
+  return static_cast<int>(std::lround(s.min + (s.max - s.min) * static_cast<float>(index) / (kNeedleLabels - 1)));
+}
+NeedleState needleState(const Reading &r, Unit unit) {
+  const NeedleState hidden = {false, 0.f};
+  if (!calibrationValid() || isFault(r.status)) return hidden;
+  if (r.status == Status::BelowRange) return {true, 0.f};
+  float t_c;
+  if (r.has_temperature) t_c = r.temperature_c;
+  else if (r.status == Status::AboveRange) t_c = calibrationMaxC();
+  else return hidden;
+  const float t = toUnit(t_c, unit);
+  if (!std::isfinite(t)) return hidden;
+  const SweepScale s = sweepScale(unit);
+  const float f = (t - s.min) / (s.max - s.min);
+  return {true, f < 0.f ? 0.f : (f > 1.f ? 1.f : f)};
+}
 } // namespace gauge

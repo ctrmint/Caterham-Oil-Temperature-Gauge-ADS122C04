@@ -10,6 +10,7 @@
 #include "Config.h"
 #include "core/Calibration.h"
 #include "core/Temperature.h"
+#include "core/TraceModel.h"
 #include "hal/Ads122c04Source.h"
 #include "display/GaugeDisplay.h"
 
@@ -62,6 +63,7 @@ extern "C" void app_main(void) {
   if (!display_ok) ESP_LOGE(TAG,"Display initialization failed");
   gauge::TemperatureState state;
   gauge::Reading reading;
+  static gauge::TraceHistory trace;  // static: off the main-task stack; lives as long as the display
 #ifndef CONFIG_OIL_GAUGE_DEMO
   Ads122c04Source source;
   if (!source.begin()) ESP_LOGE(TAG,"I2C bus startup failed; no live measurement");
@@ -92,10 +94,11 @@ extern "C" void app_main(void) {
 #else
       reading=state.update(source.read(),now);
 #endif
+      trace.update(reading,now);
     }
     if (uint32_t(now-last_display)>=config::kDisplayIntervalMs) {
       last_display=now;
-      if (display_ok) display.render(reading,state.maximumC(),state.maximumAboveRange(),
+      if (display_ok) display.render(reading,state.maximumC(),state.maximumAboveRange(),trace,
 #ifdef CONFIG_OIL_GAUGE_DEMO
         true
 #else
