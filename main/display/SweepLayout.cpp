@@ -34,11 +34,10 @@ static_assert(insideLabels(kSignRight - sweep::kSignW, sweep::kDigitCy - sweep::
 // Small texts (16 px tall): unit and OIL TEMP under the digits' right edge, then status, footer and demo banner.
 constexpr int kTextH = 16, kUnitY = kDigitBottom + 6, kTitleY = kUnitY + 18, kStatusY = 300, kFooterY = 320, kDemoY = 340;
 // LED at 6 o'clock (#10): in the ring's open bottom, below the demo banner and inside the round screen, glow included.
-constexpr int kLedD = 28, kLedGlow = 14, kLedCy = 410;
-constexpr uint32_t kLedTickMs = 40;  // pulse frame period, about 25 frames a second
-static_assert(kLedCy - kLedD / 2 - kLedGlow > kDemoY + kTextH, "LED must sit below the demo banner");
-static_assert((kLedCy - sweep::kCentre) + kLedD / 2 + kLedGlow <= sweep::kCentre, "LED must stay on the round screen");
-static_assert(kLedD / 2 + kLedGlow < kRingInner * 707 / 1000, "LED must stay inside the ring's open bottom");
+constexpr int kLedCy = 410;
+static_assert(kLedCy - led::kD / 2 - led::kGlow > kDemoY + kTextH, "LED must sit below the demo banner");
+static_assert((kLedCy - sweep::kCentre) + led::kD / 2 + led::kGlow <= sweep::kCentre, "LED must stay on the round screen");
+static_assert(led::kD / 2 + led::kGlow < kRingInner * 707 / 1000, "LED must stay inside the ring's open bottom");
 static_assert(kTitleY + kTextH < kStatusY && kStatusY + kTextH < kFooterY && kFooterY + kTextH < kDemoY,
               "Sweep texts must not overlap");
 static_assert(sweep::kGlyphW <= sweep::kCellW && 2 * sweep::kThick + 2 * sweep::kGap < sweep::kGlyphW,
@@ -186,23 +185,8 @@ void SweepLayout::build(lv_obj_t* screen, gauge::Unit unit) {
   lv_label_set_text_static(footer_, footer_text);
   status_colour_ = kAmber;
 
-  // LED at 6 o'clock: a disc with a glow in its own colour. Hidden until there's a temperature.
-  led_ = lv_obj_create(root_);
-  lv_obj_set_size(led_, kLedD, kLedD);
-  lv_obj_set_pos(led_, sweep::kCentre - kLedD / 2, kLedCy - kLedD / 2);
-  lv_obj_set_style_radius(led_, LV_RADIUS_CIRCLE, 0);
-  lv_obj_set_style_border_width(led_, 0, 0);
-  lv_obj_set_style_pad_all(led_, 0, 0);
-  lv_obj_set_style_bg_opa(led_, LV_OPA_COVER, 0);
-  lv_obj_set_style_shadow_width(led_, kLedGlow, 0);
-  lv_obj_set_style_shadow_spread(led_, 2, 0);
-  lv_obj_set_style_shadow_opa(led_, LV_OPA_COVER, 0);
-  lv_obj_add_flag(led_, LV_OBJ_FLAG_HIDDEN);
-  led_lit_ = false;
-  led_colour_ = 0;
-  led_pulse_ = gauge::LedPulse::None;
-  led_timer_ = lv_timer_create(&SweepLayout::onLedTimer, kLedTickMs, this);
-  lv_timer_pause(led_timer_);
+  // LED at 6 o'clock, hidden until there's a temperature.
+  led_.build(root_, kLedCy);
 
   // Presses must reach the screen: nothing may be clickable or scrollable.
   const lv_obj_flag_t off = static_cast<lv_obj_flag_t>(LV_OBJ_FLAG_CLICKABLE | LV_OBJ_FLAG_SCROLLABLE);
@@ -272,31 +256,5 @@ void SweepLayout::render(const DisplayFrame& f) {
     if (f.demo) lv_obj_remove_flag(demo_, LV_OBJ_FLAG_HIDDEN);
     else lv_obj_add_flag(demo_, LV_OBJ_FLAG_HIDDEN);
   }
-  // LED: shown and coloured as ledState() says; the timer animates the pulse.
-  if (f.led.lit != led_lit_) {
-    led_lit_ = f.led.lit;
-    if (led_lit_) lv_obj_remove_flag(led_, LV_OBJ_FLAG_HIDDEN);
-    else lv_obj_add_flag(led_, LV_OBJ_FLAG_HIDDEN);
-  }
-  if (f.led.lit && f.led.colour != led_colour_) {
-    led_colour_ = f.led.colour;
-    lv_obj_set_style_bg_color(led_, lv_color_hex(led_colour_), 0);
-    lv_obj_set_style_shadow_color(led_, lv_color_hex(led_colour_), 0);
-  }
-  const gauge::LedPulse pulse = f.led.lit ? f.led.pulse : gauge::LedPulse::None;
-  if (pulse != led_pulse_) {
-    led_pulse_ = pulse;
-    if (pulse == gauge::LedPulse::None) {
-      lv_timer_pause(led_timer_);
-      lv_obj_set_style_opa(led_, LV_OPA_COVER, 0);
-    } else {
-      lv_timer_resume(led_timer_);
-    }
-  }
-}
-
-void SweepLayout::onLedTimer(lv_timer_t* t) {
-  SweepLayout* self = static_cast<SweepLayout*>(lv_timer_get_user_data(t));
-  if (!self || !self->led_) return;
-  lv_obj_set_style_opa(self->led_, gauge::ledOpacity(self->led_pulse_, lv_tick_get()), 0);
+  led_.render(f.led);
 }

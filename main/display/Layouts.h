@@ -28,7 +28,7 @@ struct DisplayFrame {
   int lit_segments = 0;
   bool scale_visible = false;
   bool demo = false;
-  gauge::LedState led = {false, 0, gauge::LedPulse::None};  // Sweep's LED at 6 o'clock
+  gauge::LedState led = {false, 0, gauge::LedPulse::None};  // the LED at 6 o'clock (Sweep and Trace)
   gauge::NeedleState needle = {false, 0.f};                 // Needle layout
   const gauge::TraceHistory* trace = nullptr;               // Trace layout; owned by main
 };
@@ -47,6 +47,26 @@ class LayoutView {
   }
  protected:
   lv_obj_t* root_ = nullptr;
+};
+
+// The LED at 6 o'clock (#10): a disc with a glow in the reading's colour, pulsing while an alarm is latched, as ledState()
+// says. Shared by Sweep and Trace. Like LayoutView, call it with the display lock held.
+namespace led {
+constexpr int kD = 28, kGlow = 14;  // diameter and glow; the glow reaches kD / 2 + kGlow from the centre
+constexpr uint32_t kTickMs = 40;    // pulse frame period, about 25 frames a second
+} // namespace led
+
+class AlarmLed {
+ public:
+  void build(lv_obj_t* parent, int centre_y);  // centred across the screen
+  void render(const gauge::LedState& s);
+ private:
+  static void onTimer(lv_timer_t* t);  // LVGL task: the pulse's brightness
+  lv_obj_t* obj_ = nullptr;
+  lv_timer_t* timer_ = nullptr;
+  bool lit_ = false;
+  uint32_t colour_ = 0;
+  gauge::LedPulse pulse_ = gauge::LedPulse::None;
 };
 
 class ClassicLayout : public LayoutView {
@@ -82,12 +102,7 @@ class SweepLayout : public LayoutView {
   void build(lv_obj_t* screen, gauge::Unit unit) override;
   void render(const DisplayFrame& f) override;
  private:
-  static void onLedTimer(lv_timer_t* t);  // LVGL task: the pulse's brightness
-  lv_obj_t* led_ = nullptr;
-  lv_timer_t* led_timer_ = nullptr;
-  bool led_lit_ = false;
-  uint32_t led_colour_ = 0;
-  gauge::LedPulse led_pulse_ = gauge::LedPulse::None;
+  AlarmLed led_;
   int label_count_ = 0;
   bool labels_shown_ = false;
   lv_obj_t* unit_ = nullptr;
@@ -155,7 +170,7 @@ class NeedleLayout : public LayoutView {
   const char* unit_text_ = nullptr;
 };
 
-// Time-based trace: the last 60 s, one point a second, on a 30 degC window. No digital readout.
+// Time-based trace: the last 60 s, one point a second, on a 30 degC window, with the LED at 6 o'clock. No digital readout.
 class TraceLayout : public LayoutView {
  public:
   void build(lv_obj_t* screen, gauge::Unit unit) override;
@@ -166,6 +181,7 @@ class TraceLayout : public LayoutView {
   lv_obj_t* title_ = nullptr;
   lv_obj_t* dot_ = nullptr;
   StatusLines lines_;
+  AlarmLed led_;
   const char* title_text_ = nullptr;
   uint32_t version_ = 0;
   bool drawn_ = false;

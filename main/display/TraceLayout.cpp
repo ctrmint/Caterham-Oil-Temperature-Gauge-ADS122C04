@@ -5,7 +5,8 @@
 
 using namespace layout;
 
-// Time-based trace (#12): the last 60 s, one point a second, newest on the right, on a 30 degC window. A thick line in
+// Time-based trace (#12), with the LED at 6 o'clock as on Sweep (#10): the last 60 s, one point a second, newest on the
+// right, on a 30 degC window. A thick line in
 // which each point's colour (the reading colour when it was taken) carries into the line around it, the newest point as
 // a dot in its colour (a ring when it's beyond the table), amber and red threshold lines when they're in the window, and
 // grid lines every 10 degC. No digital readout.
@@ -19,6 +20,7 @@ constexpr int kGridLabelX = 46, kGridLabelW = 42, kGridLabelH = 16;  // right-al
 constexpr int kGridLines = 4;  // multiples of 10 degC in a 30 degC window
 constexpr int kTitleY = 76, kTitleW = 160, kTimeY = kPlotY + kPlotH + 8, kTimeW = 60;
 constexpr int kStatusY = 330;
+constexpr int kLedCy = 416;  // the LED at 6 o'clock, below the demo banner
 constexpr uint32_t kGrid = 0x1C2A33;
 
 static_assert(kGridLabelX + kGridLabelW < kPlotX, "grid labels must sit left of the plot");
@@ -30,6 +32,9 @@ static_assert(lines::onScreen(kPlotX + kPlotW + kDotD / 2, kPlotY - kDotD / 2) &
 static_assert(lines::fits(kTitleW, kTitleY) && kTitleY + lines::kTextH < kPlotY - kGridLabelH / 2, "title must fit above the plot");
 static_assert(lines::fits(kPlotW, kTimeY) && kTimeY + lines::kTextH < kStatusY, "time labels must fit under the plot");
 static_assert(lines::blockFits(kStatusY), "Trace status lines must fit on the round screen");
+static_assert(kLedCy - led::kD / 2 - led::kGlow > kStatusY + 2 * lines::kGap + lines::kTextH,
+              "LED must sit below the demo banner");
+static_assert((kLedCy - lines::kCentre) + led::kD / 2 + led::kGlow <= lines::kRadius, "LED must stay on the round screen");
 
 lv_obj_t* grid[kGridLines];
 lv_obj_t* grid_label[kGridLines];
@@ -153,6 +158,7 @@ void TraceLayout::build(lv_obj_t* screen, gauge::Unit unit) {
   lv_label_set_text_static(now, "now");
 
   lines_.build(root_, kStatusY);
+  led_.build(root_, kLedCy);
   drawn_ = false;
 
   // Presses must reach the screen: nothing may be clickable or scrollable.
@@ -218,6 +224,7 @@ void TraceLayout::drawTrace(const gauge::TraceHistory& h, bool scale_visible) {
 void TraceLayout::render(const DisplayFrame& f) {
   if (!root_) return;
   lines_.render(f);
+  led_.render(f.led);
   if (f.title != title_text_) { title_text_ = f.title; lv_label_set_text_static(title_, f.title); }
   if (!f.trace) return;
   if (!drawn_ || f.trace->version() != version_ || f.scale_visible != scale_shown_) {
