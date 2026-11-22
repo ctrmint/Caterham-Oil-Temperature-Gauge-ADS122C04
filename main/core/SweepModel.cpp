@@ -130,4 +130,9 @@ NeedleState needleOnScale(const Reading &r, Unit unit, float min_u, float max_u)
   const float f = (t - min_u) / (max_u - min_u);
   return {true, f < 0.f ? 0.f : (f > 1.f ? 1.f : f)};
 }
+bool allIsWell(const Reading &r, bool demo) {
+  if (demo || !calibrationValid() || r.alarm != Status::Normal) return false;
+  if (r.status != Status::Normal && r.status != Status::Cold) return false;
+  return r.has_temperature && std::isfinite(r.temperature_c);
+}
 } // namespace gauge

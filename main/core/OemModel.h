@@ -16,7 +16,7 @@ int oemLabel(Unit unit, int index);
 // fault, at the start below the table, at the table maximum above it, and always clamped to the scale's ends. The same in
 // either unit, since the scale's ends convert with the reading.
 NeedleState oemNeedle(const Reading &r);
-// CATERHAM shows only while all is well: a calibrated build that isn't the demo, NORMAL or OIL WARMING with a finite
+// CATERHAM shows only while allIsWell(): a calibrated build that isn't the demo, NORMAL or OIL WARMING with a finite
 // temperature, and no alarm latched. Anything else puts the status lines in its place.
 bool oemWordmark(const Reading &r, bool demo);
 } // namespace gauge

@@ -1,5 +1,4 @@
 #include "OemModel.h"
-#include "Calibration.h"
 #include <cmath>
 namespace gauge {
 int oemNumberStep(int index) { return 2 * (index + 1); }
@@ -8,9 +7,5 @@ int oemLabel(Unit unit, int index) {
   return static_cast<int>(std::lround(toUnit(c, unit)));
 }
 NeedleState oemNeedle(const Reading &r) { return needleOnScale(r, Unit::Celsius, kOemMinC, kOemMaxC); }
-bool oemWordmark(const Reading &r, bool demo) {
-  if (demo || !calibrationValid() || r.alarm != Status::Normal) return false;
-  if (r.status != Status::Normal && r.status != Status::Cold) return false;
-  return r.has_temperature && std::isfinite(r.temperature_c);
-}
+bool oemWordmark(const Reading &r, bool demo) { return allIsWell(r, demo); }
 } // namespace gauge

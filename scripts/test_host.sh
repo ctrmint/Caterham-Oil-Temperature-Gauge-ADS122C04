@@ -52,6 +52,14 @@ g++ -std=c++17 -Wall -Wextra -Werror -DGAUGE_DEMO -Imain \
   -o /tmp/caterham-oil-gauge-tests/oem_model_demo_tests
 /tmp/caterham-oil-gauge-tests/oem_model_demo_tests
 g++ -std=c++17 -Wall -Wextra -Werror -Imain \
+  tests/white_model_test.cpp main/core/Calibration.cpp main/core/Temperature.cpp main/core/DisplayText.cpp main/core/SweepModel.cpp main/core/OemModel.cpp main/core/WhiteModel.cpp \
+  -o /tmp/caterham-oil-gauge-tests/white_model_tests
+/tmp/caterham-oil-gauge-tests/white_model_tests
+g++ -std=c++17 -Wall -Wextra -Werror -DGAUGE_DEMO -Imain \
+  tests/white_model_test.cpp main/core/Calibration.cpp main/core/Temperature.cpp main/core/DisplayText.cpp main/core/SweepModel.cpp main/core/OemModel.cpp main/core/WhiteModel.cpp \
+  -o /tmp/caterham-oil-gauge-tests/white_model_demo_tests
+/tmp/caterham-oil-gauge-tests/white_model_demo_tests
+g++ -std=c++17 -Wall -Wextra -Werror -Imain \
   tests/layout_choice_test.cpp main/core/LayoutChoice.cpp \
   -o /tmp/caterham-oil-gauge-tests/layout_choice_tests
 /tmp/caterham-oil-gauge-tests/layout_choice_tests

@@ -24,6 +24,7 @@ class GaugeDisplay {
   TraceLayout trace_;
   TapeLayout tape_;
   OemLayout oem_;
+  WhiteLayout white_;
   bool built_ = false;
   gauge::Layout active_ = gauge::Layout::Classic;  // guarded by the LVGL mutex (render and the event callback)
   gauge::LongPress press_;

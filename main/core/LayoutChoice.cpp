@@ -8,6 +8,7 @@ Layout nextLayout(Layout current) {
     case Layout::Needle: return Layout::Trace;
     case Layout::Trace: return Layout::Tape;
     case Layout::Tape: return Layout::Oem;
+    case Layout::Oem: return Layout::White;
     default: return Layout::Classic;
   }
 }
@@ -19,6 +20,7 @@ Layout decodeLayout(bool found, uint8_t stored) {
     case 3: return Layout::Trace;
     case 4: return Layout::Tape;
     case 5: return Layout::Oem;
+    case 6: return Layout::White;
     default: return Layout::Classic;
   }
 }
