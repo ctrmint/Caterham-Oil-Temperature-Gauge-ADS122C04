@@ -114,6 +114,10 @@ int needleLabel(Unit unit, int index) {
   return static_cast<int>(std::lround(s.min + (s.max - s.min) * static_cast<float>(index) / (kNeedleLabels - 1)));
 }
 NeedleState needleState(const Reading &r, Unit unit) {
+  const SweepScale s = sweepScale(unit);
+  return needleOnScale(r, unit, s.min, s.max);
+}
+NeedleState needleOnScale(const Reading &r, Unit unit, float min_u, float max_u) {
   const NeedleState hidden = {false, 0.f};
   if (!calibrationValid() || isFault(r.status)) return hidden;
   if (r.status == Status::BelowRange) return {true, 0.f};
@@ -123,8 +127,7 @@ NeedleState needleState(const Reading &r, Unit unit) {
   else return hidden;
   const float t = toUnit(t_c, unit);
   if (!std::isfinite(t)) return hidden;
-  const SweepScale s = sweepScale(unit);
-  const float f = (t - s.min) / (s.max - s.min);
+  const float f = (t - min_u) / (max_u - min_u);
   return {true, f < 0.f ? 0.f : (f > 1.f ? 1.f : f)};
 }
 } // namespace gauge

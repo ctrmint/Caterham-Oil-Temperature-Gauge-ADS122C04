@@ -115,6 +115,7 @@ Agents never do these. They go in a task's `human_verification`.
   - checks part numbers appear only where they were verified;
   - CI doesn't run KiCad, so it relies on these checks: run `scripts/boards/build.sh` after any change under `scripts/boards/`.
 - **`tests/tape_model_test.cpp`** (built normally and with `GAUGE_DEMO`): the tape's position in every state, and the rate of change on known ramps, with gaps, faults and beyond-table points.
+- **`tests/oem_model_test.cpp`** (built normally and with `GAUGE_DEMO`): the OEM dial's labels, its needle in every state (agreeing with the Needle dial's visibility), and the wordmark rule for every status, alarm, calibration and demo combination.
 - **`tests/trace_model_test.cpp`** (built normally and with `GAUGE_DEMO`): the trace's 1 s sampling, including across millisecond wraparound and stalls, its gaps, its Y window and the newest point's colour.
 - **`tests/front_end_sim_test.cpp`:**
   - simulates both front-end options' circuits with the driver's conversion timing, and checks `convertSample`'s verdict on every cycle;
@@ -134,6 +135,7 @@ Agents never do these. They go in a task's `human_verification`.
   - `main/core/SweepModel.cpp`: `ledState`, `ledOpacity` and `needleState` (fault, uncalibrated and beyond-table cases, clamping);
   - `main/core/TraceModel.cpp`: `tracePoint`'s gaps, `traceWindow`'s margin and rounding, and `TraceHistory`'s timing and ordering;
   - `main/core/TapeModel.cpp`: `tapeState`'s cases, `traceRate`'s window and its "all clean" rule, the STEADY band, and the °F rate conversion;
+  - `main/core/OemModel.cpp`: the span and labels, and `oemWordmark`'s conditions (demo, calibration, alarm, status, finite temperature);
   - `main/core/AdcFrame.h`: CRC polynomial and seed, sign extension. An `int32_t` cast of an unsigned millisecond difference is an equivalent mutant for gaps under about 24 days.
 
 ## Review focus
