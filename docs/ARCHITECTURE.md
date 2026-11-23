@@ -54,11 +54,17 @@ See [hardware/wiring.svg](../hardware/wiring.svg) for the full schematic and [ha
   - The main loop only sets the requested state and copies the newest sample into a one-slot mailbox under a spinlock; neither blocks or allocates.
   - The task starts and stops Wi-Fi, opens a non-blocking multicast socket (TTL 1) on the current interface, encodes each sample with `UdpPacket` and sends it, dropping a packet rather than wait.
   - It's send-only. If anything fails to start, it reports `Failed` and the gauge carries on as without Wi-Fi.
+  - While the link is up and the state includes the web page (#32), it runs `WebServer`, and stops it otherwise.
+- **`main/net/WebServer`** (#32) serves the read-only web page (`docs/WEB_PAGE.md`).
+  - `WebSource` holds the page's log, a ring of 8 hours of 1 s rows allocated once in PSRAM, and the latest status, each behind a short spinlock. The rows and JSON come from `main/core/WebLog`, which is host-tested.
+  - `esp_http_server` runs in its own task at the lowest priority, with at most 4 connections. It answers `GET /`, `/scale` and `/log?since=N` only, copying rows out 32 at a time under the lock into a buffer made once and sending them in chunks.
+  - The page (`main/web/index.html`) is embedded in the firmware. It polls `/log` once a second and keeps its own copy of the session in the browser.
 - **`main/main.cpp`:**
   - stores the layout in NVS only when it changes, and restores it at power-up (Classic on first boot, or if the stored choice is missing or can't be read);
   - schedules acquisition at 4 Hz, updates the display at 4 Hz and reports CSV-like serial diagnostics at 1 Hz.
   - feeds every reading to the trace's history (`TraceModel`), which keeps one sample a second, to Track's time per band (`TrackModel`) and to the warm-up clock (`WarmupModel`), whichever layout is showing;
-  - reads the BOOT button every loop (`WifiChoice`'s debounced short press), moves the Wi-Fi state on, and hands each sample to the network task while the stream runs (#33, #34).
+  - reads the BOOT button every loop (`WifiChoice`'s debounced short press), moves the Wi-Fi state on, and hands each sample to the network task while the stream runs (#33, #34);
+  - when the web page is built in, copies the status to it at each sample and appends a row at each 1 s log moment, from power-up (#32).
 
 **The measurement cycle.** The ADS122C04 runs single-shot at 45 samples/s, gain 1, with the PGA bypassed, so inputs are valid down to 0.1 V below its GND. Its internal current source drives 250 µA out of A0, through Rref and then the sender. One measurement cycle is six conversions, about 150 ms, well inside the 250 ms sample interval:
 1. the ADC's offset, with the inputs shorted;

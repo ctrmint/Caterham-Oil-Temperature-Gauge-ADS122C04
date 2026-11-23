@@ -30,7 +30,10 @@ void copyField(uint8_t* field, size_t field_size, const char* text) {  // an SSI
 }
 } // namespace
 
-bool WifiNet::begin(const char* ssid, const char* password, const char* group, uint16_t port) {
+bool WifiNet::begin(const char* ssid, const char* password, const char* group, uint16_t port, WebSource* web,
+                    gauge::Unit unit) {
+  web_source_ = web;
+  unit_ = unit;
   std::snprintf(ssid_, sizeof(ssid_), "%s", ssid ? ssid : "");
   std::snprintf(password_, sizeof(password_), "%s", password ? password : "");
   std::snprintf(group_, sizeof(group_), "%s", group ? group : "");
@@ -110,6 +113,15 @@ void WifiNet::run() {
       continue;
     }
     if (!want_udp && sock_ >= 0) closeSocket();
+    // The web page (#32): its server runs while the link is up and the state asks for it.
+    const bool want_web = gauge::wifiWeb(want) && web_source_;
+    if (want_web && !web_.running() && !web_.start(web_source_, unit_)) {
+      closeSocket();
+      stopRadio();
+      fail(gauge::WifiFailure::Start);
+      continue;
+    }
+    if (!want_web && web_.running()) web_.stop();
     if (sock_ >= 0) sendLatest();
   }
 }
@@ -213,6 +225,7 @@ bool WifiNet::host() {
 }
 
 void WifiNet::stopRadio() {
+  web_.stop();
   if (radio_on_) {
     const esp_err_t dis = esp_wifi_disconnect();
     if (dis != ESP_OK && dis != ESP_ERR_WIFI_NOT_STARTED && dis != ESP_ERR_WIFI_NOT_CONNECT && dis != ESP_ERR_WIFI_MODE) {

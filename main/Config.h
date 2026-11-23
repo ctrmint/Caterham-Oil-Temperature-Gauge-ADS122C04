@@ -35,6 +35,8 @@ constexpr float kOpenResistanceOhms = 5000.0f;
 constexpr uint32_t kSampleIntervalMs = 250;
 constexpr uint32_t kDisplayIntervalMs = 250;
 constexpr uint32_t kLogIntervalMs = 1000;
+// The web page's log (#32): one row per log interval, the last 8 hours, held in PSRAM.
+constexpr uint32_t kWebLogRows = 8u * 60u * 60u * 1000u / kLogIntervalMs;
 constexpr float kFilterAlpha = 0.2f;
 // Provisional operator-configurable UI settings, NOT Caterham limits.
 constexpr float kWarmThresholdC = 60.0f;

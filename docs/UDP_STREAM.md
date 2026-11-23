@@ -2,7 +2,7 @@
 
 The gauge can send its live data over Wi-Fi as **UDP multicast packets**: one per sample, four a second. A laptop or Raspberry Pi on the same network can record or display them with a simple decoder, such as `scripts/udp_listen.py`, without asking for anything. The stream is **send-only**. The gauge never listens on the stream's port, so nothing can be sent back to it this way.
 
-Phones aren't a target. They need special permissions to receive multicast. The web page in #32 is for phones.
+Phones aren't a target. They need special permissions to receive multicast. The web page (#32, `docs/WEB_PAGE.md`) is for phones.
 
 ## Turning it on
 

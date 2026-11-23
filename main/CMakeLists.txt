@@ -15,9 +15,11 @@ idf_component_register(
         "core/TrackModel.cpp"
         "core/UdpPacket.cpp"
         "core/WarmupModel.cpp"
+        "core/WebLog.cpp"
         "core/WifiChoice.cpp"
         "core/WhiteModel.cpp"
         "hal/Ads122c04Source.cpp"
+        "net/WebServer.cpp"
         "net/WifiNet.cpp"
         "display/ClassicLayout.cpp"
         "display/fonts/gauge_digits_148.c"
@@ -35,7 +37,9 @@ idf_component_register(
         "display/WarmupLayout.cpp"
         "display/WhiteLayout.cpp"
     INCLUDE_DIRS "."
-    REQUIRES esp_driver_gpio esp_driver_i2c esp_event esp_netif esp_timer esp_wifi freertos lwip nvs_flash lvgl__lvgl
+    EMBED_TXTFILES "web/index.html"
+    REQUIRES esp_driver_gpio esp_driver_i2c esp_event esp_http_server esp_netif esp_timer esp_wifi freertos lwip nvs_flash
+             lvgl__lvgl
              waveshare__esp32_s3_touch_amoled_1_75
 )
 
