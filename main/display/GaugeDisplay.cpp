@@ -26,6 +26,7 @@ bool GaugeDisplay::begin(gauge::Unit unit, gauge::Layout layout) {
   oem_.build(root, unit_);
   white_.build(root, unit_);
   night_.build(root, unit_);
+  nixie_.build(root, unit_);
   active_ = layout;
   showActive();
   lv_obj_add_event_cb(root, &GaugeDisplay::onScreenEvent, LV_EVENT_ALL, this);
@@ -62,6 +63,7 @@ void GaugeDisplay::showActive() {
   oem_.setVisible(active_ == gauge::Layout::Oem);
   white_.setVisible(active_ == gauge::Layout::White);
   night_.setVisible(active_ == gauge::Layout::Night);
+  nixie_.setVisible(active_ == gauge::Layout::Nixie);
 }
 
 bool GaugeDisplay::takeLayoutChange(gauge::Layout& out) {
@@ -115,5 +117,6 @@ void GaugeDisplay::render(const gauge::Reading& r, float max_temp_c, bool max_ab
   oem_.render(f);
   white_.render(f);
   night_.render(f);
+  nixie_.render(f);
   bsp_display_unlock();
 }

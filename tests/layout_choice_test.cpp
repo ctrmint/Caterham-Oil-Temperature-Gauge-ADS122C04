@@ -9,7 +9,7 @@ int main() {
   using gauge::kLongPressMs; using gauge::kLongPressSlopPx;
   assert(kLongPressMs==1000u && kLongPressSlopPx==40);
 
-  // Cycle: Classic -> Sweep -> Needle -> Trace -> Tape -> OEM -> White -> Night -> Classic.
+  // Cycle: Classic -> Sweep -> Needle -> Trace -> Tape -> OEM -> White -> Night -> Nixie -> Classic.
   assert(gauge::nextLayout(Layout::Classic)==Layout::Sweep);
   assert(gauge::nextLayout(Layout::Sweep)==Layout::Needle);
   assert(gauge::nextLayout(Layout::Needle)==Layout::Trace);
@@ -17,14 +17,15 @@ int main() {
   assert(gauge::nextLayout(Layout::Tape)==Layout::Oem);
   assert(gauge::nextLayout(Layout::Oem)==Layout::White);
   assert(gauge::nextLayout(Layout::White)==Layout::Night);
-  assert(gauge::nextLayout(Layout::Night)==Layout::Classic);
-  { Layout l=Layout::Sweep; for(int i=0;i<8;i++) l=gauge::nextLayout(l); assert(l==Layout::Sweep); }
-  { Layout l=Layout::Classic; for(int i=1;i<8;i++) { l=gauge::nextLayout(l); assert(l!=Layout::Classic); } }  // eight distinct
+  assert(gauge::nextLayout(Layout::Night)==Layout::Nixie);
+  assert(gauge::nextLayout(Layout::Nixie)==Layout::Classic);
+  { Layout l=Layout::Sweep; for(int i=0;i<9;i++) l=gauge::nextLayout(l); assert(l==Layout::Sweep); }
+  { Layout l=Layout::Classic; for(int i=1;i<9;i++) { l=gauge::nextLayout(l); assert(l!=Layout::Classic); } }  // nine distinct
 
   // Stored value: anything missing or unknown is Classic. Existing values keep their meaning (0 Classic, 1 Sweep).
   assert(gauge::encodeLayout(Layout::Classic)==0 && gauge::encodeLayout(Layout::Sweep)==1);
   assert(gauge::encodeLayout(Layout::Needle)==2 && gauge::encodeLayout(Layout::Trace)==3 && gauge::encodeLayout(Layout::Tape)==4);
-  assert(gauge::encodeLayout(Layout::Oem)==5 && gauge::encodeLayout(Layout::White)==6 && gauge::encodeLayout(Layout::Night)==7);
+  assert(gauge::encodeLayout(Layout::Oem)==5 && gauge::encodeLayout(Layout::White)==6 && gauge::encodeLayout(Layout::Night)==7 && gauge::encodeLayout(Layout::Nixie)==8);
   assert(gauge::decodeLayout(true,0)==Layout::Classic);
   assert(gauge::decodeLayout(true,1)==Layout::Sweep);
   assert(gauge::decodeLayout(true,2)==Layout::Needle);
@@ -33,10 +34,11 @@ int main() {
   assert(gauge::decodeLayout(true,5)==Layout::Oem);
   assert(gauge::decodeLayout(true,6)==Layout::White);
   assert(gauge::decodeLayout(true,7)==Layout::Night);
-  assert(gauge::decodeLayout(true,8)==Layout::Classic);
+  assert(gauge::decodeLayout(true,8)==Layout::Nixie);
+  assert(gauge::decodeLayout(true,9)==Layout::Classic);
   assert(gauge::decodeLayout(true,255)==Layout::Classic);
-  for(uint8_t v : {0,1,2,3,4,5,6,7,8,255}) assert(gauge::decodeLayout(false,v)==Layout::Classic);
-  for(Layout l : {Layout::Classic, Layout::Sweep, Layout::Needle, Layout::Trace, Layout::Tape, Layout::Oem, Layout::White, Layout::Night})
+  for(uint8_t v : {0,1,2,3,4,5,6,7,8,9,255}) assert(gauge::decodeLayout(false,v)==Layout::Classic);
+  for(Layout l : {Layout::Classic, Layout::Sweep, Layout::Needle, Layout::Trace, Layout::Tape, Layout::Oem, Layout::White, Layout::Night, Layout::Nixie})
     assert(gauge::decodeLayout(true,gauge::encodeLayout(l))==l);
 
   const uint32_t t0=5000;
