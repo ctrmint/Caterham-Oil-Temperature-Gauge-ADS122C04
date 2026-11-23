@@ -29,7 +29,7 @@
                                          [measured curve lookup]
                                          [EMA + warnings]
                                                           │
-                                   [LVGL gauge: Classic / Sweep / Needle / Trace / Tape / OEM / White]
+                                   [LVGL gauge: Classic / Sweep / Needle / Trace / Tape / OEM / White / Night]
                                        [466x466 CO5300 AMOLED]
 ```
 
@@ -44,8 +44,8 @@ See [hardware/wiring.svg](../hardware/wiring.svg) for the full schematic and [ha
   - `AdcFrame.h` decodes and CRC-checks the ADC's I²C frames.
   - `Temperature` turns voltages into sender resistance, handles sender fault states and interpolates a user-validated, monotonically decreasing R/T calibration curve.
 - **`main/display/`** exclusively handles Waveshare BSP/LVGL calls.
-  - It draws a frame built from host-tested core helpers (`DisplayText`, `SweepModel`, `TraceModel`, `TapeModel`, `OemModel`, `WhiteModel`, `LayoutChoice`), so the text, the lit-segment count, the graduated colours, the LED and needle states, the trace's samples and window, the tape's position and the rate of change, the OEM and White dials' needles, OEM's wordmark and White's status window (one shared "all is well" rule), and the layout rules are tested without hardware.
-  - The seven layouts (Classic, Sweep, Needle, Trace, Tape, OEM and White) are each built once and switched by hiding and showing.
+  - It draws a frame built from host-tested core helpers (`DisplayText`, `SweepModel`, `TraceModel`, `TapeModel`, `OemModel`, `WhiteModel`, `NightModel`, `LayoutChoice`), so the text, the lit-segment count, the graduated colours, the LED and needle states, the trace's samples and window, the tape's position and the rate of change, the OEM and White dials' needles, OEM's wordmark, White's status window and Night's quiet state (one shared "all is well" rule), Night's heartbeat, and the layout rules are tested without hardware.
+  - The eight layouts (Classic, Sweep, Needle, Trace, Tape, OEM, White and Night) are each built once and switched by hiding and showing.
   - The LED's pulse (and OEM's symbol's) and the needles' and tape's easing run on LVGL timers in the LVGL task, created once at start-up, so nothing is allocated per frame.
   - The long-press (at least 1 s) is detected in the LVGL task.
 - **`main/main.cpp`:**

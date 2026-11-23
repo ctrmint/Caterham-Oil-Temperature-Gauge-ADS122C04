@@ -1,5 +1,6 @@
 #pragma once
 #include "core/DisplayText.h"
+#include "core/NightModel.h"
 #include "core/OemModel.h"
 #include "core/SweepModel.h"
 #include "core/TapeModel.h"
@@ -42,6 +43,7 @@ struct DisplayFrame {
   bool wordmark = false;                                    // OEM layout: CATERHAM, or the status lines in its place
   gauge::NeedleState white_needle = {false, 0.f};           // White layout: the needle on its 40-140 degC span
   bool status_window = true;                                // White layout: the status window, shown unless all is well
+  bool night_quiet = false;                                 // Night layout: dark while all is well, fully lit otherwise
 };
 
 // Every LayoutView method (build(), render() and setVisible() included) must be called with the display lock
@@ -61,7 +63,7 @@ class LayoutView {
 };
 
 // The LED at 6 o'clock (#10): a disc with a glow in the reading's colour, pulsing while an alarm is latched, as ledState()
-// says. Shared by Sweep, Trace and White. Like LayoutView, call it with the display lock held.
+// says. Shared by Sweep, Trace, White and Night. Like LayoutView, call it with the display lock held.
 namespace led {
 constexpr int kD = 28, kGlow = 14;  // diameter and glow; the glow reaches kD / 2 + kGlow from the centre
 constexpr uint32_t kTickMs = 40;    // pulse frame period, about 25 frames a second
@@ -80,16 +82,34 @@ class AlarmLed {
   gauge::LedPulse pulse_ = gauge::LedPulse::None;
 };
 
+// The main reading in the 148 px digit font, as Classic shows it; shared by Classic and Night. kReadingCells equal-width
+// cells, each as wide as the widest reading character. Up to three characters fill the right three cells, centred, so a
+// 3-digit reading sits in the middle and the ones digit stays put; four use all four cells, centred. Fails closed: a
+// reading with any character it can't show becomes "--". Like LayoutView, call it with the display lock held.
+namespace digits {
+// The widest glyph of the 148 px font (99 px), and its glyph box height (box_h 104-106, line_height 106, base_line 1).
+constexpr int kCellMax = 99, kGlyphH = 106;
+constexpr int kBlockW = static_cast<int>(gauge::kReadingCells) * kCellMax;
+} // namespace digits
+
+class ReadingDigits {
+ public:
+  void build(lv_obj_t* parent);  // centred on parent, starting as "--"
+  void render(const char* cells, uint32_t colour);  // cells: a readingCells() string, kReadingCells characters
+ private:
+  void place(bool wide);
+  lv_obj_t* cells_[gauge::kReadingCells] = {};
+  int32_t cell_w_ = 0;
+  bool wide_ = false;  // true: all four cells centred; false: the right three centred
+};
+
 class ClassicLayout : public LayoutView {
  public:
   void build(lv_obj_t* screen, gauge::Unit unit) override;
   void render(const DisplayFrame& f) override;
  private:
-  void placeCells(bool wide);
   lv_obj_t* arc_ = nullptr;
-  lv_obj_t* cells_[gauge::kReadingCells] = {};
-  int32_t cell_w_ = 0;
-  bool wide_ = false;  // true: all four cells centred; false: the right three centred
+  ReadingDigits digits_;
   lv_obj_t* title_ = nullptr;
   lv_obj_t* subtitle_ = nullptr;
   lv_obj_t* footer_ = nullptr;
@@ -127,7 +147,8 @@ class SweepLayout : public LayoutView {
   bool demo_shown_ = false;
 };
 
-// Status, footer and demo banner, as Classic and Sweep show them; shared by the Needle, Trace, Tape, OEM and White layouts.
+// Status, footer and demo banner, as Classic and Sweep show them; shared by the Needle, Trace, Tape, OEM, White and Night
+// layouts.
 // Each line is centred, kTextH tall and kGap below the one before.
 namespace lines {
 constexpr int kCentre = 233, kRadius = 233, kTextH = 16, kGap = 20, kStatusW = 220, kDemoW = 180;
@@ -288,4 +309,29 @@ class WhiteLayout : public LayoutView {
   bool labels_shown_ = true;
   bool window_shown_ = true;
   const char* unit_text_ = nullptr;
+};
+
+// Night (#21): a dark layout on pure black. While all is well (nightQuiet()) it shows only a small, dim reading, the unit
+// and a heartbeat dot that steps once per update (nightBeat()); anything else lights the screen with Classic's digits,
+// OIL and the unit above them, the status lines and the LED. The reading is at the screen's centre in both states.
+class NightLayout : public LayoutView {
+ public:
+  void build(lv_obj_t* screen, gauge::Unit unit) override;
+  void render(const DisplayFrame& f) override;
+ private:
+  lv_obj_t* quiet_ = nullptr;    // the quiet state's group
+  lv_obj_t* alert_ = nullptr;    // the alert state's group
+  lv_obj_t* reading_ = nullptr;  // quiet: the dim reading
+  lv_obj_t* unit_ = nullptr;     // quiet: the dim unit
+  lv_obj_t* beat_ = nullptr;     // quiet: the heartbeat dot
+  lv_obj_t* title_ = nullptr;    // alert: OIL and the unit
+  ReadingDigits digits_;
+  StatusLines lines_;
+  AlarmLed led_;
+  uint32_t frame_ = 0;  // display updates so far: the heartbeat's phase
+  uint32_t colour_ = 0;
+  bool quiet_shown_ = false;
+  const char* unit_text_ = nullptr;
+  const char* title_text_ = nullptr;
+  char reading_text_[gauge::kReadingCells + 1] = {};
 };

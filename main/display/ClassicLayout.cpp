@@ -1,18 +1,14 @@
 #include "display/Layouts.h"
-#include <cstring>
-
-extern "C" { LV_FONT_DECLARE(gauge_digits_148) }
 
 using namespace layout;
 
 namespace {
 // Classic geometry on the 466 px screen; y offsets are from the screen centre. The ring's inner radius is
-// (kArcSize - 2 * kArcWidth) / 2 = 214 px. Digit block: 4 cells of at most kCellMax px (widest glyph of the 148 px font, 99 px)
-// by the glyph box height kGlyphH (box_h 104-106, line_height 106, base_line 1), centred on the screen centre.
+// (kArcSize - 2 * kArcWidth) / 2 = 214 px. Digit block (ReadingDigits): kBlockW by kGlyphH, centred on the screen centre.
 constexpr int kArcSize = 456, kArcWidth = 14;
 constexpr int kInner = (kArcSize - 2 * kArcWidth) / 2;
-constexpr int kCellMax = 99, kGlyphH = 106;
-constexpr int kBlockW = 4 * kCellMax;
+using digits::kGlyphH;
+using digits::kBlockW;
 constexpr int kClear = kInner - 4;
 static_assert((kBlockW / 2) * (kBlockW / 2) + (kGlyphH / 2) * (kGlyphH / 2) <= kClear * kClear,
               "reading block must fit inside the ring");
@@ -41,17 +37,6 @@ void center_text(lv_obj_t* label, int w, int top, int h, const lv_font_t* font, 
   lv_obj_set_style_text_color(label, lv_color_hex(color), 0);
   lv_obj_align(label, LV_ALIGN_CENTER, 0, top + h / 2);
 }
-
-// Static one-character strings, so the cell labels never allocate. Index i is kCellChars[i].
-constexpr char kCellChars[] = " 0123456789-<>";
-const char* const kCellText[] = {" ", "0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "-", "<", ">"};
-static_assert(sizeof(kCellChars) - 1 == sizeof(kCellText) / sizeof(kCellText[0]), "kCellChars and kCellText must match");
-const char* cellText(char ch) {
-  const char* p = strchr(kCellChars, ch);
-  return (ch != '\0' && p) ? kCellText[p - kCellChars] : nullptr;
-}
-// The "--" form: right-aligned dashes, blanks to their left.
-const char* dashForm(size_t i, size_t n) { return (i + 2 >= n) ? cellText('-') : cellText(' '); }
 } // namespace
 
 void ClassicLayout::build(lv_obj_t* screen, gauge::Unit unit) {
@@ -81,27 +66,7 @@ void ClassicLayout::build(lv_obj_t* screen, gauge::Unit unit) {
   title_ = lv_label_create(root_);
   lv_label_set_text_static(title_, gauge::titleText(unit));
   center_text(title_, kTitleW, kTitleTop, kTitleH, &lv_font_montserrat_24, kWhite);
-  // Equal-width cells: the widest digit-font glyph of the reading characters.
-  const lv_font_t* digit_font = &gauge_digits_148;
-  int32_t cell_w = 0;
-  for (const char* p = kCellChars + 1; *p; ++p) {
-    const int32_t w = static_cast<int32_t>(lv_font_get_glyph_width(digit_font, static_cast<uint32_t>(*p), 0));
-    if (w > cell_w) cell_w = w;
-  }
-  const int32_t n = static_cast<int32_t>(gauge::kReadingCells);
-  cell_w_ = cell_w;
-  for (int32_t i = 0; i < n; ++i) {
-    lv_obj_t* cell = lv_label_create(root_);
-    lv_label_set_long_mode(cell, LV_LABEL_LONG_CLIP);
-    lv_obj_set_width(cell, cell_w);
-    lv_obj_set_style_text_align(cell, LV_TEXT_ALIGN_CENTER, 0);
-    lv_obj_set_style_text_font(cell, digit_font, 0);
-    lv_obj_set_style_text_color(cell, lv_color_hex(kWhite), 0);
-    // Start as the right-aligned "--" form.
-    lv_label_set_text_static(cell, dashForm(static_cast<size_t>(i), static_cast<size_t>(n)));
-    cells_[i] = cell;
-  }
-  placeCells(false);
+  digits_.build(root_);
   subtitle_ = lv_label_create(root_);
   lv_label_set_text(subtitle_, "SENSOR CHECK");
   center_text(subtitle_, kStatusW, kStatusTop, kStatusH, &lv_font_montserrat_16, kAmber);
@@ -120,36 +85,12 @@ void ClassicLayout::build(lv_obj_t* screen, gauge::Unit unit) {
   }
 }
 
-// Up to three characters: the right three cells are centred, so a 3-digit reading sits in the middle of the screen and the
-// ones digit stays put. Four characters (>284, 4-digit ohms) use all four cells, centred, which moves the ones digit half
-// a cell to the right. The offsets are whole cells from one left edge, so an odd cell width still gives an even pitch.
-void ClassicLayout::placeCells(bool wide) {
-  const int32_t n = static_cast<int32_t>(gauge::kReadingCells);
-  const int32_t left = wide ? -((n - 1) * cell_w_) / 2 : -(n * cell_w_) / 2;
-  for (int32_t i = 0; i < n; ++i) lv_obj_align(cells_[i], LV_ALIGN_CENTER, left + i * cell_w_, 0);
-  wide_ = wide;
-}
-
 void ClassicLayout::render(const DisplayFrame& f) {
   if (!root_) return;
   lv_arc_set_value(arc_, f.classic_arc);
   lv_obj_set_style_arc_color(arc_, lv_color_hex(f.colour), LV_PART_INDICATOR);
   lv_label_set_text_static(title_, f.title);
-  // Fail closed: if any cell is not displayable, show the whole reading as "--".
-  const char* text[gauge::kReadingCells];
-  bool ok = true;
-  for (size_t i = 0; i < gauge::kReadingCells; ++i) {
-    text[i] = cellText(f.cells[i]);
-    if (!text[i]) ok = false;
-  }
-  const bool wide = ok && f.cells[0] != ' ';
-  if (wide != wide_) placeCells(wide);
-  for (size_t i = 0; i < gauge::kReadingCells; ++i) {
-    const char* t = text[i];
-    if (!ok) t = dashForm(i, gauge::kReadingCells);
-    lv_label_set_text_static(cells_[i], t);
-    lv_obj_set_style_text_color(cells_[i], lv_color_hex(f.colour), 0);
-  }
+  digits_.render(f.cells, f.colour);
   lv_label_set_text_static(footer_, f.footer);
   lv_label_set_text_static(subtitle_, f.status);
   lv_obj_set_style_text_color(subtitle_, lv_color_hex(f.colour), 0);
