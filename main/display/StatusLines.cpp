@@ -1,11 +1,24 @@
-// Widgets shared between layouts: the status lines (Needle and Trace) and the LED at 6 o'clock (Sweep and Trace).
+// Widgets shared between layouts: the status lines, the LED at 6 o'clock and the main reading's digits.
 #include "display/Layouts.h"
 #include <cstdio>
 #include <cstring>
 
+extern "C" { LV_FONT_DECLARE(gauge_digits_148) }
+
 using namespace layout;
 
 namespace {
+// Static one-character strings, so the digit cells never allocate. Index i is kCellChars[i].
+constexpr char kCellChars[] = " 0123456789-<>";
+const char* const kCellText[] = {" ", "0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "-", "<", ">"};
+static_assert(sizeof(kCellChars) - 1 == sizeof(kCellText) / sizeof(kCellText[0]), "kCellChars and kCellText must match");
+const char* cellText(char ch) {
+  const char* p = strchr(kCellChars, ch);
+  return (ch != '\0' && p) ? kCellText[p - kCellChars] : nullptr;
+}
+// The "--" form: right-aligned dashes, blanks to their left.
+const char* dashForm(size_t i, size_t n) { return (i + 2 >= n) ? cellText('-') : cellText(' '); }
+
 lv_obj_t* centred_line(lv_obj_t* parent, int w, int y, uint32_t colour) {
   lv_obj_t* l = lv_label_create(parent);
   lv_label_set_long_mode(l, LV_LABEL_LONG_CLIP);
@@ -98,4 +111,57 @@ void AlarmLed::onTimer(lv_timer_t* t) {
   AlarmLed* self = static_cast<AlarmLed*>(lv_timer_get_user_data(t));
   if (!self || !self->obj_) return;
   lv_obj_set_style_opa(self->obj_, gauge::ledOpacity(self->pulse_, lv_tick_get()), 0);
+}
+
+void ReadingDigits::build(lv_obj_t* parent) {
+  // Equal-width cells: the widest digit-font glyph of the reading characters.
+  const lv_font_t* digit_font = &gauge_digits_148;
+  int32_t cell_w = 0;
+  for (const char* p = kCellChars + 1; *p; ++p) {
+    const int32_t w = static_cast<int32_t>(lv_font_get_glyph_width(digit_font, static_cast<uint32_t>(*p), 0));
+    if (w > cell_w) cell_w = w;
+  }
+  const int32_t n = static_cast<int32_t>(gauge::kReadingCells);
+  cell_w_ = cell_w;
+  for (int32_t i = 0; i < n; ++i) {
+    lv_obj_t* cell = lv_label_create(parent);
+    lv_label_set_long_mode(cell, LV_LABEL_LONG_CLIP);
+    lv_obj_set_width(cell, cell_w);
+    lv_obj_set_style_text_align(cell, LV_TEXT_ALIGN_CENTER, 0);
+    lv_obj_set_style_text_font(cell, digit_font, 0);
+    lv_obj_set_style_text_color(cell, lv_color_hex(kWhite), 0);
+    // Start as the right-aligned "--" form.
+    lv_label_set_text_static(cell, dashForm(static_cast<size_t>(i), static_cast<size_t>(n)));
+    cells_[i] = cell;
+  }
+  place(false);
+}
+
+// Up to three characters: the right three cells are centred, so a 3-digit reading sits in the middle of the screen and the
+// ones digit stays put. Four characters (>284, 4-digit ohms) use all four cells, centred, which moves the ones digit half
+// a cell to the right. The offsets are whole cells from one left edge, so an odd cell width still gives an even pitch.
+void ReadingDigits::place(bool wide) {
+  const int32_t n = static_cast<int32_t>(gauge::kReadingCells);
+  const int32_t left = wide ? -((n - 1) * cell_w_) / 2 : -(n * cell_w_) / 2;
+  for (int32_t i = 0; i < n; ++i) lv_obj_align(cells_[i], LV_ALIGN_CENTER, left + i * cell_w_, 0);
+  wide_ = wide;
+}
+
+void ReadingDigits::render(const char* cells, uint32_t colour) {
+  if (!cells_[0]) return;
+  // Fail closed: if any cell is not displayable, show the whole reading as "--".
+  const char* text[gauge::kReadingCells];
+  bool ok = true;
+  for (size_t i = 0; i < gauge::kReadingCells; ++i) {
+    text[i] = cellText(cells[i]);
+    if (!text[i]) ok = false;
+  }
+  const bool wide = ok && cells[0] != ' ';
+  if (wide != wide_) place(wide);
+  for (size_t i = 0; i < gauge::kReadingCells; ++i) {
+    const char* t = text[i];
+    if (!ok) t = dashForm(i, gauge::kReadingCells);
+    lv_label_set_text_static(cells_[i], t);
+    lv_obj_set_style_text_color(cells_[i], lv_color_hex(colour), 0);
+  }
 }

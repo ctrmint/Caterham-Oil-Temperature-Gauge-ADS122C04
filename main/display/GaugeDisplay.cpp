@@ -25,6 +25,7 @@ bool GaugeDisplay::begin(gauge::Unit unit, gauge::Layout layout) {
   tape_.build(root, unit_);
   oem_.build(root, unit_);
   white_.build(root, unit_);
+  night_.build(root, unit_);
   active_ = layout;
   showActive();
   lv_obj_add_event_cb(root, &GaugeDisplay::onScreenEvent, LV_EVENT_ALL, this);
@@ -60,6 +61,7 @@ void GaugeDisplay::showActive() {
   tape_.setVisible(active_ == gauge::Layout::Tape);
   oem_.setVisible(active_ == gauge::Layout::Oem);
   white_.setVisible(active_ == gauge::Layout::White);
+  night_.setVisible(active_ == gauge::Layout::Night);
 }
 
 bool GaugeDisplay::takeLayoutChange(gauge::Layout& out) {
@@ -104,6 +106,7 @@ void GaugeDisplay::render(const gauge::Reading& r, float max_temp_c, bool max_ab
   f.wordmark = gauge::oemWordmark(r, demo);
   f.white_needle = gauge::whiteNeedle(r);
   f.status_window = gauge::whiteWindow(r, demo);
+  f.night_quiet = gauge::nightQuiet(r, demo);
   classic_.render(f);
   sweep_.render(f);
   needle_.render(f);
@@ -111,5 +114,6 @@ void GaugeDisplay::render(const gauge::Reading& r, float max_temp_c, bool max_ab
   tape_.render(f);
   oem_.render(f);
   white_.render(f);
+  night_.render(f);
   bsp_display_unlock();
 }

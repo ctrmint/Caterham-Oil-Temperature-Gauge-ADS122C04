@@ -58,7 +58,7 @@ The display runs from its own USB-C socket (in the car, an ignition-switched USB
 
 ## Display
 
-There are seven layouts of the same readings.
+There are eight layouts of the same readings.
 
 * **Classic:** the title reads `OIL °C`, `OIL °F` or `OIL ohm`. The reading itself has no unit: large fixed-width digits, right-aligned so the ones digit stays in place, with a 3-digit reading centred on the screen (a four-character one such as `>284` or a 4-digit resistance uses the full width). The bottom line reads like `MAX 112  |  123 ohm` (maximum, then the sender resistance).
 * **Sweep:** a 40-segment ring around the edge covering 30–130 °C, with scale labels 30…130 (86…266 in °F). Each lit segment shows the colour of its own place on the scale. Three large seven-segment digits, centred, sit over faint ghost segments; beyond the table a `<` or `>` sign appears just left of them. The unit sits above `OIL TEMP`, with the status, footer and demo text below. A resistance of 1000 Ω or more (uncalibrated only) shows as `--` in Sweep, and in full in Classic.
@@ -72,15 +72,18 @@ There are seven layouts of the same readings.
 * **White:** styled on a white-faced aftermarket oil-temperature gauge. A white face in a black ring, with a black tick every 2 °C from 40 to 140 °C (long at each 20, medium at the other tens) and six numbers, 40, 60, 80, 100, 120 and 140 (104…284 in °F), with 90 at 12 o'clock. A red tapered needle with a short counterweight sits under a black hub, with `OIL` and the unit below it. The needle follows Needle's rules on this span: it rests at the start below 40 °C and below the table, sits at the table maximum above it, and is hidden on a fault or when uncalibrated. There's no digital readout.
   * **The LED:** the same LED as on Sweep and Trace, at 6 o'clock in a round black socket, so its colours and glow show against the white. When it's off, the socket shows a dark-grey lens.
   * **The status window:** a black window at the bottom, running down into the ring, with the status line and footer in their usual colours. It shows only when something needs attention, which is exactly when OEM would hide `CATERHAM`, so the face stays clean while all is well. The demo build always shows it.
-  * **Brightness:** a white face is much brighter than the dark layouts, especially at night. The firmware has no brightness control, so long-press to a dark layout if it dazzles.
+  * **Brightness:** a white face is much brighter than the dark layouts, especially at night. The firmware has no brightness control, so long-press to Night, or another dark layout, if it dazzles.
+* **Night:** a dark layout for driving at night, on pure black (an AMOLED's black pixels are switched off), with no ring, face or ticks. It's quiet while all is well and lights up the moment anything needs attention. The reading is at the centre of the screen in both states.
+  * **Quiet:** while all is well (exactly when OEM shows `CATERHAM`), only the reading shows: whole degrees in a small font, in its usual colour at half brightness, with a dim unit under it. Under that, a small dim dot rises and falls every 2 s. It steps once per display update, so if the updates ever stopped the dot would stop too: a dark screen can't pass for a live one.
+  * **Lit:** anything else (an alarm, a fault, a reading beyond the table, no calibration, and always in the demo build) shows Classic's large digits at full brightness with `OIL °C` above them, the status line and footer below, and the LED from Sweep and Trace under them. The status goes to `HIGH TEMPERATURE` at 115 °C, before the alarm's 2.5 s debounce, so the screen lights at the threshold.
 
-The status line and the footer are on every layout, so alarms and faults always show as text. On OEM they take the wordmark's place, and on White they appear in a black window, whenever anything needs attention.
+The status line and the footer are on every layout, so alarms and faults always show as text. On OEM they take the wordmark's place, on White they appear in a black window, and Night lights up with them, whenever anything needs attention.
 
 **Colours:** the digits, the status text and Classic's arc are graduated by temperature, blending smoothly between bands: dark blue below 50 °C, light blue 50–69, green 70–95, yellow 96–105, amber 106–119 and red from 120 °C. The colour is never less severe than a latched alarm (amber at 115 °C, red at 130 °C, unchanged). A fault or an uncalibrated reading is amber.
 
 Beyond the calibration table the reading shows `<min` or `>max` (for example `<20` or `>140`) and no temperature reading, and the unit stays in the label. Uncalibrated firmware shows `ohm` in every layout. There are no scale numbers, no lit segments, no LED (OEM's symbol stays dark grey, and White's socket shows its dark-grey lens), no needle, no trace, and no tape or rate.
 
-**Changing layout:** press anywhere on the screen for at least 1 s (a long-press). Each press moves to the next layout: Classic, Sweep, Needle, Trace, Tape, OEM, White, then Classic again. A short tap or a swipe does nothing. The choice is stored in flash and restored at power-up; it is Classic on first boot, or if the stored choice is missing or can't be read.
+**Changing layout:** press anywhere on the screen for at least 1 s (a long-press). Each press moves to the next layout: Classic, Sweep, Needle, Trace, Tape, OEM, White, Night, then Classic again. A short tap or a swipe does nothing. The choice is stored in flash and restored at power-up; it is Classic on first boot, or if the stored choice is missing or can't be read.
 
 **Choosing °F:** `idf.py menuconfig` → **Caterham oil temperature gauge** → **Display temperature unit**, then rebuild. °C is the default. The unit applies to the display only; the serial CSV log stays in °C.
 
@@ -98,7 +101,8 @@ Beyond the calibration table the reading shows `<min` or `>max` (for example `<2
 │   │                               # LED and needle model (SweepModel.*), the trace's
 │   │                               # history (TraceModel.*), the tape and rate of change
 │   │                               # (TapeModel.*), the OEM and White dials
-│   │                               # (OemModel.*, WhiteModel.*)
+│   │                               # (OemModel.*, WhiteModel.*), Night's quiet
+│   │                               # rule and heartbeat (NightModel.*)
 │   │                               # and layout choice/long-press
 │   │                               # (LayoutChoice.*)
 │   ├── hal/Ads122c04Source.*       # ADS122C04 over I²C (port 0, GPIO17/18)
@@ -110,7 +114,9 @@ Beyond the calibration table the reading shows `<min` or `>max` (for example `<2
 │   │   ├── TapeLayout.cpp          # Tape layout (moving scale and rate of change)
 │   │   ├── OemLayout.cpp           # OEM layout (styled on the Caterham factory gauge)
 │   │   ├── WhiteLayout.cpp         # White layout (white face, status window)
-│   │   ├── StatusLines.cpp         # shared widgets: status lines and the 6 o'clock LED
+│   │   ├── NightLayout.cpp         # Night layout (dark while all is well)
+│   │   ├── StatusLines.cpp         # shared widgets: status lines, the 6 o'clock LED
+│   │   │                           # and Classic's digits
 │   │   ├── Layouts.h               # shared layout interface
 │   │   └── fonts/                  # generated Classic digit font + its licence
 │   ├── Kconfig.projbuild           # explicitly opt-in simulation
@@ -128,7 +134,7 @@ Beyond the calibration table the reading shows `<min` or `>max` (for example `<2
 | Area | Choice |
 | --- | --- |
 | Board | Waveshare ESP32-S3-Touch-AMOLED-1.75, **standard or -B** |
-| Display | 466×466 QSPI **CO5300** AMOLED, Waveshare BSP + LVGL 9; seven layouts (Classic, Sweep, Needle, Trace, Tape, OEM and White), cycled by a 1 s long-press; °C or °F set in menuconfig |
+| Display | 466×466 QSPI **CO5300** AMOLED, Waveshare BSP + LVGL 9; eight layouts (Classic, Sweep, Needle, Trace, Tape, OEM, White and Night), cycled by a 1 s long-press; °C or °F set in menuconfig |
 | ADC | **ADS122C04** 24-bit I²C ADC (Adafruit module 6432) at 0x40, internal 2.048 V reference, gain 1 with the PGA bypassed; SDA GPIO17, SCL GPIO18; DRDY not used (GPIO16 left open) |
 | Measurement | The ADC's 250 µA current source drives Rref and the sender in series; Vref = A0 − A1, Vs = A1 − A2; `Rs = Rref × Vs / Vref` (ratiometric: cancels the current's accuracy, the reference, the rail and ground offset) |
 | Sender interface | Signal wire to the spade, a **dedicated ground-sense wire** and a return wire to the tank bond stud |
