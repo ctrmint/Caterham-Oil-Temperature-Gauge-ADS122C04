@@ -26,7 +26,7 @@ Phones aren't a target. They need special permissions to receive multicast. The 
    python3 scripts/udp_listen.py --iface 192.168.4.2  # the laptop's address on that network, if it has several
    ```
 
-   Each packet prints as one line, such as `#1843  460.25 s  NORMAL  92.4 °C  262.1 ohm  MAX 94`. It shows `--` where there's no temperature, and `DEMO` on every line from a demo build. The decoder notes lost packets (gaps in the sequence) and gauge restarts (a new session). Ctrl-C prints a summary.
+   Each packet prints as one line, such as `#1843  460.25 s  NORMAL  92.4 °C  262.1 ohm  MAX 94`. It shows `--` where there's no temperature, and `DEMO` on every line from a demo build. The decoder notes lost packets (gaps in the sequence) and gauge restarts (a new session). It skips a duplicate (a sequence number already seen; Wi-Fi and a router's multicast-to-unicast conversion can deliver one twice), so it's printed and logged once. A packet counted as lost that arrives late comes off the lost count. Ctrl-C prints a summary.
 
 The packets stay on that network (TTL 1). Wi-Fi doesn't resend multicast frames, so the odd packet can be lost. The sequence number shows it, and nothing is ever filled in. On a joined network, the router has to pass multicast to Wi-Fi clients; most home routers do.
 

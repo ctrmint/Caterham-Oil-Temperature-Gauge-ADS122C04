@@ -15,6 +15,7 @@ import struct
 import sys
 import time
 import zlib
+from collections import deque
 
 MAGIC = b'OILG'
 VERSION = 1
@@ -93,31 +94,58 @@ def csv_row(p, host_time):
 
 
 class Tracker:
-    """Counts packets, losses (gaps in the sequence) and gauge restarts (a new session). Never fills a gap."""
+    """Counts packets, losses (gaps in the sequence), duplicates and gauge restarts (a new session). Never fills a gap.
+
+    A packet whose sequence number was already seen in this session (among the last WINDOW) is a duplicate: Wi-Fi and
+    multicast-to-unicast conversion can deliver one twice. It isn't printed or logged again. A packet counted as lost
+    that turns up late is taken off the lost count.
+    """
+    WINDOW = 1024  # about four minutes of packets
+
     def __init__(self):
         self.session = None
-        self.next = None
-        self.received = self.lost = self.bad = self.restarts = 0
+        self.first = self.next = None
+        self.received = self.lost = self.duplicates = self.bad = self.restarts = 0
+        self._recent = deque()
+        self._seen = set()
+
+    def _remember(self, seq):
+        if len(self._recent) == self.WINDOW:
+            self._seen.discard(self._recent.popleft())
+        self._recent.append(seq)
+        self._seen.add(seq)
 
     def feed(self, p):
-        """Returns a list of notes about this packet: a restart, how many were lost before it, or out of order."""
-        notes = []
-        self.received += 1
+        """(keep, notes): keep is False for a duplicate, which the caller skips; notes says what happened."""
+        seq = p['sequence']
         if p['session'] != self.session:
+            notes = []
             if self.session is not None:
                 self.restarts += 1
                 notes.append(f'gauge restarted (session {p["session"]:08x})')
             self.session = p['session']
-            self.next = p['sequence'] + 1
-            return notes
-        if p['sequence'] > self.next:
-            gap = p['sequence'] - self.next
+            self.first, self.next = seq, seq + 1
+            self._recent.clear()
+            self._seen.clear()
+            self._remember(seq)
+            self.received += 1
+            return True, notes
+        if seq in self._seen:
+            self.duplicates += 1
+            return False, [f'duplicate #{seq} skipped']
+        self.received += 1
+        notes = []
+        if seq > self.next:
+            gap = seq - self.next
             self.lost += gap
             notes.append(f'{gap} packet{"s" if gap != 1 else ""} lost')
-        elif p['sequence'] < self.next:
+        elif seq < self.next:
             notes.append('out of order')
-        self.next = max(self.next, p['sequence'] + 1)
-        return notes
+            if seq > self.first and self.lost > 0:
+                self.lost -= 1  # counted lost in a gap, and here after all
+        self.next = max(self.next, seq + 1)
+        self._remember(seq)
+        return True, notes
 
 
 def open_socket(group, port, iface):
@@ -159,8 +187,11 @@ def main(argv=None):
                     warned.add(str(e))
                     print(f'skipped a packet: {e}', file=sys.stderr, flush=True)
                 continue
-            for note in tracker.feed(p):
+            keep, notes = tracker.feed(p)
+            for note in notes:
                 print(f'-- {note}', file=sys.stderr, flush=True)
+            if not keep:
+                continue
             if not args.quiet:
                 print(describe(p), flush=True)
             if writer:
@@ -172,7 +203,8 @@ def main(argv=None):
         if out:
             out.close()
         span = time.time() - start
-        print(f'\n{tracker.received} received, {tracker.lost} lost, {tracker.bad} bad, {tracker.restarts} restarts '
+        print(f'\n{tracker.received} received, {tracker.lost} lost, {tracker.duplicates} duplicates skipped, '
+              f'{tracker.bad} bad, {tracker.restarts} restarts '
               f'in {span:.0f} s', file=sys.stderr)
     return 0
 

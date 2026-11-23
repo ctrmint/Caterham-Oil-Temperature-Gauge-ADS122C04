@@ -113,17 +113,39 @@ class TestUdpListen(unittest.TestCase):
     def test_tracker_counts_gaps_and_restarts(self):
         t = udp.Tracker()
         p = lambda session, seq: {'session': session, 'sequence': seq}
-        self.assertEqual(t.feed(p(1, 0)), [])
-        self.assertEqual(t.feed(p(1, 1)), [])
-        self.assertEqual(t.feed(p(1, 4)), ['2 packets lost'])
-        self.assertEqual(t.feed(p(1, 5)), [])
-        self.assertEqual(t.feed(p(1, 7)), ['1 packet lost'])
-        self.assertEqual(t.feed(p(1, 6)), ['out of order'])
-        self.assertEqual(t.feed(p(1, 8)), [])
-        self.assertEqual(t.feed(p(2, 0)), ['gauge restarted (session 00000002)'])
-        self.assertEqual(t.feed(p(2, 1)), [])
-        self.assertEqual((t.received, t.lost, t.restarts), (9, 3, 1))
+        self.assertEqual(t.feed(p(1, 0)), (True, []))
+        self.assertEqual(t.feed(p(1, 1)), (True, []))
+        self.assertEqual(t.feed(p(1, 4)), (True, ['2 packets lost']))
+        self.assertEqual(t.feed(p(1, 5)), (True, []))
+        self.assertEqual(t.feed(p(1, 7)), (True, ['1 packet lost']))
+        self.assertEqual(t.feed(p(1, 6)), (True, ['out of order']))  # the one lost before 7, late: no longer lost
+        self.assertEqual(t.feed(p(1, 8)), (True, []))
+        self.assertEqual(t.feed(p(2, 0)), (True, ['gauge restarted (session 00000002)']))
+        self.assertEqual(t.feed(p(2, 1)), (True, []))
+        self.assertEqual((t.received, t.lost, t.duplicates, t.restarts), (9, 2, 0, 1))
 
+    def test_tracker_skips_duplicates(self):
+        t = udp.Tracker()
+        p = lambda session, seq: {'session': session, 'sequence': seq}
+        self.assertEqual(t.feed(p(7, 3166)), (True, []))
+        self.assertEqual(t.feed(p(7, 3166)), (False, ['duplicate #3166 skipped']))  # as seen on the bench
+        self.assertEqual(t.feed(p(7, 3167)), (True, []))
+        self.assertEqual(t.feed(p(7, 3170)), (True, ['2 packets lost']))
+        self.assertEqual(t.feed(p(7, 3168)), (True, ['out of order']))
+        self.assertEqual(t.feed(p(7, 3168)), (False, ['duplicate #3168 skipped']))
+        self.assertEqual(t.feed(p(7, 3170)), (False, ['duplicate #3170 skipped']))
+        self.assertEqual(t.feed(p(7, 3165)), (True, ['out of order']))  # before the first seen: never counted lost
+        self.assertEqual((t.received, t.lost, t.duplicates), (5, 1, 3))
+        # The same numbers in a new session (the gauge restarted) aren't duplicates.
+        self.assertEqual(t.feed(p(8, 3166)), (True, ['gauge restarted (session 00000008)']))
+        self.assertEqual(t.feed(p(8, 3167)), (True, []))
+        # Only the last WINDOW numbers are remembered.
+        t = udp.Tracker()
+        for seq in range(udp.Tracker.WINDOW + 10):
+            self.assertTrue(t.feed(p(1, seq))[0])
+        self.assertEqual(t.feed(p(1, udp.Tracker.WINDOW + 9))[0], False)
+        self.assertEqual(t.feed(p(1, 0)), (True, ['out of order']))
+        self.assertEqual(len(t._seen), udp.Tracker.WINDOW)
 
 if __name__ == '__main__':
     unittest.main()
