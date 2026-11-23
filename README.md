@@ -58,7 +58,7 @@ The display runs from its own USB-C socket (in the car, an ignition-switched USB
 
 ## Display
 
-There are nine layouts of the same readings. Every one is on a pure black background (`#000000`), apart from White's white face, so the AMOLED's unused pixels are switched off.
+There are ten layouts of the same readings. Every one is on a pure black background (`#000000`), apart from White's white face, so the AMOLED's unused pixels are switched off.
 
 * **Classic:** the title reads `OIL °C`, `OIL °F` or `OIL ohm`. The reading itself has no unit: large fixed-width digits, right-aligned so the ones digit stays in place, with a 3-digit reading centred on the screen (a four-character one such as `>284` or a 4-digit resistance uses the full width). The bottom line reads like `MAX 112  |  123 ohm` (maximum, then the sender resistance).
 * **Sweep:** a 40-segment ring around the edge covering 30–130 °C, with scale labels 30…130 (86…266 in °F). Each lit segment shows the colour of its own place on the scale. Three large seven-segment digits, centred, sit over faint ghost segments; beyond the table a `<` or `>` sign appears just left of them. The unit sits above `OIL TEMP`, with the status, footer and demo text below. A resistance of 1000 Ω or more (uncalibrated only) shows as `--` in Sweep, and in full in Classic.
@@ -77,14 +77,17 @@ There are nine layouts of the same readings. Every one is on a pure black backgr
   * **Quiet:** while all is well (exactly when OEM shows `CATERHAM`), only the reading shows: whole degrees in a small font, in its usual colour at half brightness, with a dim unit under it. Under that, a small dim dot rises and falls every 2 s. It steps once per display update, so if the updates ever stopped the dot would stop too: a dark screen can't pass for a live one.
   * **Lit:** anything else (an alarm, a fault, a reading beyond the table, no calibration, and always in the demo build) shows Classic's large digits at full brightness with `OIL °C` above them, the status line and footer below, and the LED from Sweep and Trace under them. The status goes to `HIGH TEMPERATURE` at 115 °C, before the alarm's 2.5 s debounce, so the screen lights at the threshold.
 * **Nixie:** the reading in four glowing nixie tubes, right-aligned in the same cells as Classic, so a 3-digit reading leaves the first tube dark. The numerals are drawn as thin glowing wires, always nixie orange, with the ten unlit numerals faint behind them as in a real tube. `<`, `>` and `-` are drawn the same way, and anything the tubes can't show is `--`. `OIL °C` sits above the tubes, with the status line, the footer and the LED from Sweep and Trace always shown below. Nixie orange is close to the alarm amber, so on this layout the status line (in the reading's colour) and the LED carry the colour, not the numerals.
+* **Heritage:** a dial in the spirit of a 1960s instrument. A chrome-look bezel (lit from the upper left), a black face, and cream ticks and numbers on a short 90° sweep across the top: 50–130 °C, a tick every 5 °C (long at each 20), with 50, 90 and 130 numbered (122, 194, 266 in °F) and 90 at 12 o'clock. A slim cream needle with a short counterweight turns about a pivot below the centre, under a black boss with a chrome cap. It follows Needle's rules on this span, as OEM's does, and never points below the pivot. There's no digital readout.
+  * **Under the pivot:** `OIL TEMP` and the unit while all is well, exactly as OEM shows `CATERHAM`, or the status line and footer in their place whenever anything needs attention.
+  * **The lamp:** the LED from Sweep and Trace at 6 o'clock in a chrome surround, with a dark lens when it's off.
 
-The status line and the footer are on every layout, so alarms and faults always show as text. On OEM they take the wordmark's place, on White they appear in a black window, and Night lights up with them, whenever anything needs attention.
+The status line and the footer are on every layout, so alarms and faults always show as text. On OEM they take the wordmark's place, on Heritage the legend's, on White they appear in a black window, and Night lights up with them, whenever anything needs attention.
 
 **Colours:** the digits (except Nixie's, which are always nixie orange), the status text and Classic's arc are graduated by temperature, blending smoothly between bands: dark blue below 50 °C, light blue 50–69, green 70–95, yellow 96–105, amber 106–119 and red from 120 °C. The colour is never less severe than a latched alarm (amber at 115 °C, red at 130 °C, unchanged). A fault or an uncalibrated reading is amber.
 
-Beyond the calibration table the reading shows `<min` or `>max` (for example `<20` or `>140`) and no temperature reading, and the unit stays in the label. Uncalibrated firmware shows `ohm` in every layout. There are no scale numbers, no lit segments, no LED (OEM's symbol stays dark grey, and White's socket shows its dark-grey lens), no needle, no trace, and no tape or rate.
+Beyond the calibration table the reading shows `<min` or `>max` (for example `<20` or `>140`) and no temperature reading, and the unit stays in the label. Uncalibrated firmware shows `ohm` in every layout. There are no scale numbers, no lit segments, no LED (OEM's symbol stays dark grey, and White's socket and Heritage's lamp show their dark lens), no needle, no trace, and no tape or rate.
 
-**Changing layout:** press anywhere on the screen for at least 1 s (a long-press). Each press moves to the next layout: Classic, Sweep, Needle, Trace, Tape, OEM, White, Night, Nixie, then Classic again. A short tap or a swipe does nothing. The choice is stored in flash and restored at power-up; it is Classic on first boot, or if the stored choice is missing or can't be read.
+**Changing layout:** press anywhere on the screen for at least 1 s (a long-press). Each press moves to the next layout: Classic, Sweep, Needle, Trace, Tape, OEM, White, Night, Nixie, Heritage, then Classic again. A short tap or a swipe does nothing. The choice is stored in flash and restored at power-up; it is Classic on first boot, or if the stored choice is missing or can't be read.
 
 **Choosing °F:** `idf.py menuconfig` → **Caterham oil temperature gauge** → **Display temperature unit**, then rebuild. °C is the default. The unit applies to the display only; the serial CSV log stays in °C.
 
@@ -104,7 +107,8 @@ Beyond the calibration table the reading shows `<min` or `>max` (for example `<2
 │   │                               # (TapeModel.*), the OEM and White dials
 │   │                               # (OemModel.*, WhiteModel.*), Night's quiet
 │   │                               # rule and heartbeat (NightModel.*), Nixie's
-│   │                               # tubes and numerals (NixieModel.*)
+│   │                               # tubes and numerals (NixieModel.*), the
+│   │                               # Heritage dial (HeritageModel.*)
 │   │                               # and layout choice/long-press
 │   │                               # (LayoutChoice.*)
 │   ├── hal/Ads122c04Source.*       # ADS122C04 over I²C (port 0, GPIO17/18)
@@ -118,6 +122,7 @@ Beyond the calibration table the reading shows `<min` or `>max` (for example `<2
 │   │   ├── WhiteLayout.cpp         # White layout (white face, status window)
 │   │   ├── NightLayout.cpp         # Night layout (dark while all is well)
 │   │   ├── NixieLayout.cpp         # Nixie layout (four glowing tubes)
+│   │   ├── HeritageLayout.cpp      # Heritage layout (1960s-style dial)
 │   │   ├── StatusLines.cpp         # shared widgets: status lines, the 6 o'clock LED
 │   │   │                           # and Classic's digits
 │   │   ├── Layouts.h               # shared layout interface
@@ -137,7 +142,7 @@ Beyond the calibration table the reading shows `<min` or `>max` (for example `<2
 | Area | Choice |
 | --- | --- |
 | Board | Waveshare ESP32-S3-Touch-AMOLED-1.75, **standard or -B** |
-| Display | 466×466 QSPI **CO5300** AMOLED, Waveshare BSP + LVGL 9; nine layouts (Classic, Sweep, Needle, Trace, Tape, OEM, White, Night and Nixie), cycled by a 1 s long-press; °C or °F set in menuconfig |
+| Display | 466×466 QSPI **CO5300** AMOLED, Waveshare BSP + LVGL 9; ten layouts (Classic, Sweep, Needle, Trace, Tape, OEM, White, Night, Nixie and Heritage), cycled by a 1 s long-press; °C or °F set in menuconfig |
 | ADC | **ADS122C04** 24-bit I²C ADC (Adafruit module 6432) at 0x40, internal 2.048 V reference, gain 1 with the PGA bypassed; SDA GPIO17, SCL GPIO18; DRDY not used (GPIO16 left open) |
 | Measurement | The ADC's 250 µA current source drives Rref and the sender in series; Vref = A0 − A1, Vs = A1 − A2; `Rs = Rref × Vs / Vref` (ratiometric: cancels the current's accuracy, the reference, the rail and ground offset) |
 | Sender interface | Signal wire to the spade, a **dedicated ground-sense wire** and a return wire to the tank bond stud |

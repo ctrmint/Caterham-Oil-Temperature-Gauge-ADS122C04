@@ -27,6 +27,7 @@ bool GaugeDisplay::begin(gauge::Unit unit, gauge::Layout layout) {
   white_.build(root, unit_);
   night_.build(root, unit_);
   nixie_.build(root, unit_);
+  heritage_.build(root, unit_);
   active_ = layout;
   showActive();
   lv_obj_add_event_cb(root, &GaugeDisplay::onScreenEvent, LV_EVENT_ALL, this);
@@ -64,6 +65,7 @@ void GaugeDisplay::showActive() {
   white_.setVisible(active_ == gauge::Layout::White);
   night_.setVisible(active_ == gauge::Layout::Night);
   nixie_.setVisible(active_ == gauge::Layout::Nixie);
+  heritage_.setVisible(active_ == gauge::Layout::Heritage);
 }
 
 bool GaugeDisplay::takeLayoutChange(gauge::Layout& out) {
@@ -109,6 +111,8 @@ void GaugeDisplay::render(const gauge::Reading& r, float max_temp_c, bool max_ab
   f.white_needle = gauge::whiteNeedle(r);
   f.status_window = gauge::whiteWindow(r, demo);
   f.night_quiet = gauge::nightQuiet(r, demo);
+  f.heritage_needle = gauge::heritageNeedle(r);
+  f.heritage_legend = gauge::heritageLegend(r, demo);
   classic_.render(f);
   sweep_.render(f);
   needle_.render(f);
@@ -118,5 +122,6 @@ void GaugeDisplay::render(const gauge::Reading& r, float max_temp_c, bool max_ab
   white_.render(f);
   night_.render(f);
   nixie_.render(f);
+  heritage_.render(f);
   bsp_display_unlock();
 }
