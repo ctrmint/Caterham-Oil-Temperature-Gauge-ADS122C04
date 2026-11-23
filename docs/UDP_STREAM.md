@@ -21,12 +21,58 @@ Phones aren't a target. They need special permissions to receive multicast. The 
 5. **Listen:** join the laptop to that network, then run:
 
    ```
-   python3 scripts/udp_listen.py                      # one line per packet
+   python3 scripts/udp_listen.py                      # a live dashboard in the terminal (q to quit)
    python3 scripts/udp_listen.py --csv run1.csv       # and log every packet
+   python3 scripts/udp_listen.py --plain              # one line per packet instead
    python3 scripts/udp_listen.py --iface 192.168.4.2  # the laptop's address on that network, if it has several
    ```
 
-   Each packet prints as one line, such as `#1843  460.25 s  NORMAL  92.4 °C  262.1 ohm  MAX 94`. It shows `--` where there's no temperature, and `DEMO` on every line from a demo build. The decoder notes lost packets (gaps in the sequence) and gauge restarts (a new session). It skips a duplicate (a sequence number already seen; Wi-Fi and a router's multicast-to-unicast conversion can deliver one twice), so it's printed and logged once. A packet counted as lost that arrives late comes off the lost count. Ctrl-C prints a summary.
+   If the laptop's firewall blocks incoming UDP, nothing arrives (Wireshark still shows the packets). Allow the port, for example on Fedora: `sudo firewall-cmd --zone=<zone> --add-port=5005/udp`.
+
+## The monitor
+
+In a terminal, `udp_listen.py` shows a dashboard that updates in place, four times a second (#37):
+
+```
+┌─ Caterham oil temperature ── 239.10.10.10:5005 · session 8f3a21c4 · 14:32:07 ┐
+│                                                                              │
+│    ██     ██   ██████    ██████             HIGH TEMPERATURE                 │
+│  ████   ████       ██    ██     °C          alarm  HIGH TEMPERATURE (latched)│
+│    ██     ██       ██    ██████             max    118 °C                    │
+│    ██     ██       ██    ██  ██             trend  STEADY                    │
+│  ██████ ██████     ██ ██ ██████                                              │
+│                                                                              │
+│  last 5 min                                                                  │
+│               130 ┤························································  │
+│                                                                ▂▂▂▂▂▂▂▂▂▂▂   │
+│               115 ┤············································███████████·  │
+│                                                                ███████████   │
+│               100 └────────────────────────────────────────────────────────  │
+│                                                                              │
+│  sender 118.9 Ω   Vref 0.500 V   Vs 0.030 V   supply 3.31 V   ground 13.0 mV │
+│  packets 240 · 4.0/s · lost 0 (0.0 %) · dup 0 · bad 0 · last 0.2 s ago       │
+│  logging → run1.csv (1203 rows)                                              │
+└─ q quit ─────────────────────────────────────────────────────────────────────┘
+```
+
+- **The reading:** in large digits, coloured by the status the gauge sent: blue warming, green normal, amber high, red critical, and amber for faults and no calibration. The colour is never less severe than the latched alarm. It shows `--` without a temperature, and whole ohms (`Ω`) when uncalibrated. The laptop never works out a band or a temperature itself.
+- **Beside it:** the status, the latched alarm, the session maximum (`>140` once it went above the table) and the trend. The trend follows Tape's rule: it's shown only when the last 30 s are all clean readings inside the table, with `STEADY` below 0.5 °C/min.
+- **The chart:** the last 5 minutes, with dotted lines at the alarm thresholds (115 and 130 °C, the same as `main/Config.h`). A missing reading is a gap.
+- **Below:** the measurement voltages, the packet counters, and the CSV file and its row count when logging.
+- **The demo build:** a red `DEMO - SYNTHETIC DATA, NOT REAL` banner.
+- **When packets stop:** after 2 s the status bar turns amber, `NO DATA 2 s`. After 10 s a red `STREAM LOST - last data HH:MM:SS` banner appears, and the reading becomes a grey `--`, so an old reading never looks live.
+- **Window size:** below 80 × 24 the chart is dropped; below 60 × 14 the monitor asks for a bigger window.
+- **Quitting:** `q`, Ctrl-C or a kill restores the terminal and prints a one-line summary: received, lost, duplicates skipped, bad and restarts.
+
+**Plain mode** (`--plain`, or automatic when the output is piped or redirected, and on Windows, whose Python has no `curses`) prints one line per packet, such as `#1843  460.25 s  NORMAL  92.4 °C  262.1 ohm  MAX 94`. It shows `--` where there's no temperature, and `DEMO` on every line from a demo build.
+
+**In both modes:**
+- **Losses and restarts:** the monitor notes lost packets (gaps in the sequence) and gauge restarts (a new session).
+- **Duplicates:** it skips a sequence number it has already seen, so each packet is printed and logged once. Wi-Fi and a router's multicast-to-unicast conversion can deliver one twice.
+- **Late packets:** a packet counted as lost that arrives late comes off the lost count.
+- **CSV:** `--csv` writes every packet as it arrives.
+
+## The network
 
 The packets stay on that network (TTL 1). Wi-Fi doesn't resend multicast frames, so the odd packet can be lost. The sequence number shows it, and nothing is ever filled in. On a joined network, the router has to pass multicast to Wi-Fi clients; most home routers do.
 
