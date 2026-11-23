@@ -1,0 +1,521 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#000000">
+<title>Oil temperature</title>
+<style>
+:root {
+  --black: #000; --ink: #F2F6F8; --mute: #8597A3; --track: #22313A; --ghost: #111A22; --line: #1A242C;
+  --blue: #2F5BEA; --sky: #4FC3F7; --green: #2ED158; --yellow: #F5E13B; --amber: #FF9A1F; --red: #F0383B;
+  --reading: #8597A3;
+  --face: ui-rounded, "SF Pro Rounded", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; background: var(--black); color: var(--ink); font-family: var(--face); font-size: 16px; line-height: 1.45; }
+body { padding: calc(16px + env(safe-area-inset-top)) 16px calc(24px + env(safe-area-inset-bottom)); font-variant-numeric: tabular-nums; }
+main { max-width: 1100px; margin: 0 auto; display: grid; gap: 28px; }
+@media (min-width: 900px) { main { grid-template-columns: 420px 1fr; align-items: start; column-gap: 48px; padding-top: 24px; } }
+
+.demo { background: var(--red); color: #fff; font-weight: 700; text-align: center; padding: 8px 12px; margin: 0 -16px; }
+.demo[hidden] { display: none; }
+
+/* The dial: the gauge's Sweep face. */
+.dial { display: grid; justify-items: center; gap: 6px; }
+.dial svg { width: min(92vw, 420px); height: auto; display: block; }
+.seg { fill: var(--track); transition: fill .4s ease, opacity .4s ease; }
+.seg.lit { filter: url(#glow); }
+.ghost { fill: var(--ghost); }
+.lit7 { fill: var(--reading); filter: url(#glow); transition: fill .4s ease; }
+.scale-label { fill: var(--mute); font: 600 19px var(--face); text-anchor: middle; dominant-baseline: middle; }
+.unit { fill: var(--mute); font: 600 24px var(--face); text-anchor: middle; }
+.status { fill: var(--reading); font: 700 23px var(--face); text-anchor: middle; letter-spacing: .02em; transition: fill .4s ease; }
+.led { fill: var(--reading); filter: url(#glow); transition: fill .4s ease; }
+.led.off { fill: var(--track); filter: none; }
+.led.slow { animation: pulse 1s ease-in-out infinite; }
+.led.fast { animation: pulse .5s ease-in-out infinite; }
+@keyframes pulse { 50% { opacity: .3; } }
+.stale .seg.lit, .stale .lit7 { fill: var(--mute); filter: none; }
+.stale .led { fill: var(--track); filter: none; animation: none; }
+
+.live { display: flex; align-items: center; gap: 8px; color: var(--mute); font-size: 14px; min-height: 22px; }
+.beat { width: 8px; height: 8px; border-radius: 50%; background: var(--ink); opacity: .15; transition: opacity .25s; }
+.live.warn { color: var(--amber); } .live.lost { color: var(--red); }
+.live.warn .beat, .live.lost .beat { background: currentColor; opacity: 1; }
+
+.facts { display: grid; grid-template-columns: repeat(4, auto); gap: 4px 20px; margin: 4px 0 0; justify-content: center; }
+.facts div { display: grid; }
+.facts dt { color: var(--mute); font-size: 13px; }
+.facts dd { margin: 0; font-size: 17px; font-weight: 600; white-space: nowrap; }
+@media (max-width: 420px) { .facts { grid-template-columns: repeat(2, auto); } }
+
+section h2 { font-size: 17px; font-weight: 600; margin: 0 0 10px; }
+.chart-head { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+.span { display: inline-flex; border: 1px solid var(--track); border-radius: 999px; padding: 2px; }
+.span button { font: inherit; font-size: 13px; color: var(--mute); background: none; border: 0; border-radius: 999px; padding: 4px 12px; cursor: pointer; }
+.span button[aria-pressed="true"] { background: var(--track); color: var(--ink); }
+.plot { position: relative; }
+canvas { width: 100%; height: 220px; display: block; touch-action: pan-y; }
+@media (min-width: 900px) { canvas { height: 300px; } }
+.readout { position: absolute; top: 4px; right: 4px; font-size: 13px; color: var(--ink); background: rgba(0,0,0,.75); padding: 2px 8px; border-radius: 6px; pointer-events: none; }
+.readout:empty { display: none; }
+.plot[hidden] { display: none; }
+.empty { color: var(--mute); font-size: 14px; margin: 8px 0 0; }
+
+.bar { display: flex; height: 12px; border-radius: 6px; overflow: hidden; background: var(--line); }
+.bar span { display: block; height: 100%; transition: width .6s ease; }
+.bands { list-style: none; padding: 0; margin: 12px 0 0; display: grid; gap: 6px; }
+.bands li { display: grid; grid-template-columns: 12px 1fr auto; align-items: center; gap: 10px; }
+.bands i { width: 10px; height: 10px; border-radius: 50%; }
+.bands b { font-weight: 600; }
+.bands .label { color: var(--mute); }
+
+details { border-top: 1px solid var(--line); padding-top: 12px; }
+summary { cursor: pointer; color: var(--mute); }
+.sensor { display: grid; grid-template-columns: 1fr auto; gap: 4px 16px; margin: 10px 0 0; }
+.sensor dt { color: var(--mute); } .sensor dd { margin: 0; text-align: right; }
+
+.save { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; }
+.save button { font: inherit; font-weight: 600; color: var(--black); background: var(--ink); border: 0; border-radius: 999px; padding: 10px 20px; cursor: pointer; }
+.save button:disabled { opacity: .4; cursor: default; }
+.save p { margin: 0; color: var(--mute); font-size: 14px; }
+.save p.warn { color: var(--amber); }
+.earlier { list-style: none; padding: 0; margin: 0; display: grid; gap: 8px; }
+.earlier li { display: flex; align-items: center; justify-content: space-between; gap: 12px; color: var(--mute); font-size: 15px; }
+.earlier button { font: inherit; font-size: 14px; color: var(--ink); background: none; border: 1px solid var(--track); border-radius: 999px; padding: 6px 14px; cursor: pointer; }
+:focus-visible { outline: 2px solid var(--sky); outline-offset: 2px; }
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }
+</style>
+</head>
+<body>
+<p class="demo" id="demo" hidden>DEMO ONLY - NOT REAL</p>
+<main>
+  <div class="dial">
+    <svg id="dial" viewBox="0 0 466 440" role="img" aria-label="Oil temperature">
+      <defs><filter id="glow" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="5" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter></defs>
+      <g id="ring"></g><g id="labels"></g><g id="digits"></g>
+      <text class="unit" id="unit" x="233" y="292">°C</text>
+      <text class="status" id="status" x="233" y="338">Connecting…</text>
+      <circle class="led off" id="led" cx="233" cy="404" r="13"/>
+    </svg>
+    <div class="live" id="live" role="status"><span class="beat" id="beat"></span><span id="liveText">Looking for the gauge…</span></div>
+    <dl class="facts">
+      <div><dt>Highest</dt><dd id="max">--</dd></div>
+      <div><dt>Trend</dt><dd id="trend">--</dd></div>
+      <div><dt>Warm-up</dt><dd id="warm">--</dd></div>
+      <div><dt>Running</dt><dd id="up">--</dd></div>
+    </dl>
+  </div>
+  <div style="display:grid;gap:28px">
+    <section>
+      <div class="chart-head"><h2>This session</h2>
+        <div class="span" role="group" aria-label="Chart span"><button data-span="600">10 min</button><button data-span="3600">1 hour</button><button data-span="0" aria-pressed="true">All</button></div>
+      </div>
+      <div class="plot"><canvas id="chart"></canvas><div class="readout" id="readout"></div></div>
+      <p class="empty" id="chartEmpty" hidden></p>
+    </section>
+    <section>
+      <h2>Time in each band</h2>
+      <div class="bar" id="bar"></div>
+      <ul class="bands" id="bands"></ul>
+    </section>
+    <details>
+      <summary>Sensor readings</summary>
+      <dl class="sensor">
+        <dt>Sender</dt><dd id="s-ohms">--</dd><dt>Reference</dt><dd id="s-ref">--</dd><dt>Sender voltage</dt><dd id="s-snd">--</dd>
+        <dt>Supply</dt><dd id="s-sup">--</dd><dt>Ground offset</dt><dd id="s-gnd">--</dd><dt>Session</dt><dd id="s-session">--</dd>
+      </dl>
+    </details>
+    <div class="save"><button id="download" disabled>Download CSV</button><p id="saved">Readings are kept on this phone as they arrive.</p></div>
+    <section id="earlier" hidden><h2>Earlier sessions</h2><ul class="earlier" id="earlierList"></ul></section>
+  </div>
+</main>
+
+<script id="logic">
+// Pure logic, no page: tested by tests/test_web_page.py under Node.
+const Logic = (() => {
+  // The frozen status codes (docs/UDP_STREAM.md), as the gauge words them.
+  const STATUS = ['ADC UNAVAILABLE', 'SUPPLY FAULT', 'GROUND FAULT', 'SENSOR SHORT', 'SENSOR OPEN', 'CALIBRATION REQUIRED',
+    'BELOW CAL RANGE', 'ABOVE CAL RANGE', 'OIL WARMING', 'NORMAL', 'HIGH TEMPERATURE', 'CRITICAL TEMP'];
+  const IN_TABLE = [8, 9, 10, 11];
+  const NORMAL = 9, AMBER = 10, RED = 11;
+  const STALE_S = 3, LOST_S = 10, TREND_N = 30;
+  const statusText = c => STATUS[c] || `UNKNOWN ${c}`;
+  const toUnit = (c, unit) => unit === 'F' ? c * 9 / 5 + 32 : c;
+  // Whole numbers, halves away from zero, as the gauge rounds.
+  const whole = v => Math.sign(v) * Math.floor(Math.abs(v) + 0.5);
+  // A row from the gauge: [seq, uptime_ms, status, alarm, temp_c, ohms, ref_v, sender_v, supply_v, ground_v], plus the
+  // phone's clock when it arrived, worked back from the gauge's uptime.
+  const toRow = (r, nowUptime, nowPhone) => ({ seq: r[0], up: r[1], st: r[2], al: r[3], t: r[4], ohm: r[5], ref: r[6],
+    snd: r[7], sup: r[8], gnd: r[9], pt: nowPhone - (nowUptime - r[1]) });
+  // What the big digits say: whole degrees; whole ohms when uncalibrated (-- from 1000, as Sweep); -- with nothing.
+  function digits(now, calibrated, unit) {
+    if (!now) return '--';
+    if (calibrated) return now.temp == null ? '--' : String(whole(toUnit(now.temp, unit)));
+    if (now.ohms == null || now.ohms >= 999.5 || now.ohms < 0) return '--';
+    return String(whole(now.ohms));
+  }
+  // Tape's rule: the slope of the newest 30 rows in degC per minute, only if they're consecutive, all clean readings
+  // inside the table, and the newest is no older than STALE_S.
+  function trend(rows, nowUptime) {
+    if (rows.length < TREND_N) return null;
+    const w = rows.slice(-TREND_N);
+    if (nowUptime - w[w.length - 1].up > STALE_S * 1000) return null;
+    for (let i = 0; i < w.length; i++) {
+      if (w[i].t == null || !IN_TABLE.includes(w[i].st)) return null;
+      if (i && w[i].seq !== w[i - 1].seq + 1) return null;
+    }
+    const n = w.length, mt = w.reduce((s, r) => s + r.up, 0) / n, mv = w.reduce((s, r) => s + r.t, 0) / n;
+    let num = 0, den = 0;
+    for (const r of w) { num += (r.up - mt) * (r.t - mv); den += (r.up - mt) ** 2; }
+    return den > 0 ? num / den * 60000 : null;
+  }
+  function trendText(rate, unit) {
+    if (rate == null) return '--';
+    const r = unit === 'F' ? rate * 9 / 5 : rate;
+    if (Math.abs(rate) < 0.5) return 'Steady';
+    return `${r > 0 ? '▲' : '▼'} ${Math.abs(r).toFixed(1)} °${unit}/min`;
+  }
+  // The gauge's warm-up text, in the page's words: "" before calibration, WARM AT START, WARM IN 6:12, or the time so far.
+  function warmText(t) {
+    if (!t) return '--';
+    if (t === 'WARM AT START') return 'Warm at start';
+    if (t.startsWith('WARM IN ')) return 'Warm in ' + t.slice(8);
+    return 'Warming ' + t;
+  }
+  function duration(ms) {
+    const s = Math.floor(ms / 1000);
+    if (s < 3600) return `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`;
+    return `${Math.floor(s / 3600)}:${String(Math.floor(s / 60) % 60).padStart(2, '0')}:${String(s % 60).padStart(2, '0')}`;
+  }
+  // The stream's health from the time since the last good answer.
+  const freshness = ageS => ageS == null ? 'waiting' : ageS >= LOST_S ? 'lost' : ageS >= STALE_S ? 'stale' : 'live';
+  const bandLabels = (scale) => {
+    const f = c => whole(toUnit(c, scale.unit));
+    return [`Below ${f(scale.warm)}°`, `${f(scale.warm)}–${f(scale.amber)}°`, `${f(scale.amber)}–${f(scale.red)}°`,
+      `${f(scale.red)}° and above`, 'No reading'];
+  };
+  // The gauge's colour at c degC, from /scale's samples every 2 degC from 0 to 160.
+  function colourAt(c, scale) {
+    const g = scale.gradient;
+    if (c == null || !g || !g.length) return '#8597A3';
+    return g[Math.max(0, Math.min(g.length - 1, Math.round(c / 2)))];
+  }
+  const CSV_COLUMNS = ['phone_time', 'uptime_ms', 'status', 'alarm', 'temp_c', 'resistance_ohms', 'ref_v', 'sender_v',
+    'supply_v', 'ground_offset_v', 'session', 'sequence'];
+  function csv(rows, session) {
+    const n = (v, d) => v == null ? '' : v.toFixed(d);
+    const lines = [CSV_COLUMNS.join(',')];
+    for (const r of rows) {
+      lines.push([new Date(r.pt).toISOString(), r.up, statusText(r.st), statusText(r.al), n(r.t, 1), n(r.ohm, 1), n(r.ref, 4),
+        n(r.snd, 4), n(r.sup, 4), n(r.gnd, 4), session, r.seq].join(','));
+    }
+    return lines.join('\n') + '\n';
+  }
+  // New rows into the session: by sequence number, each once, in order.
+  function merge(rows, incoming) {
+    if (!incoming.length) return rows;
+    const last = rows.length ? rows[rows.length - 1].seq : -1;
+    if (incoming[0].seq > last) return rows.concat(incoming.filter((r, i, a) => i === 0 || r.seq > a[i - 1].seq));
+    const bySeq = new Map(rows.map(r => [r.seq, r]));
+    for (const r of incoming) if (!bySeq.has(r.seq)) bySeq.set(r.seq, r);
+    return [...bySeq.values()].sort((a, b) => a.seq - b.seq);
+  }
+  return { STATUS, NORMAL, AMBER, RED, STALE_S, LOST_S, statusText, toUnit, whole, toRow, digits, trend,
+    trendText, warmText, duration, freshness, bandLabels, colourAt, csv, merge, CSV_COLUMNS };
+})();
+if (typeof module !== 'undefined') module.exports = Logic;
+</script>
+
+<script>
+(() => {
+  const $ = id => document.getElementById(id);
+  const NS = 'http://www.w3.org/2000/svg';
+  const store = { get(k) { try { return JSON.parse(localStorage.getItem(k)); } catch (e) { return null; } },
+                  set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); return true; } catch (e) { return false; } },
+                  del(k) { try { localStorage.removeItem(k); } catch (e) {} } };
+  let scale = null, session = null, rows = [], since = 0, last = null, lastOk = null, calibrated = true, demo = false;
+  let span = 0, beat = 0, dirty = false;
+
+  // The dial, drawn once: 40 ring segments over 270 degrees from the lower left, Sweep's three seven-segment cells.
+  const C = 233, R_IN = 198, R_OUT = 226, SEG = 270 / 40, GAP = 1.4;
+  const pt = (r, a) => [C + r * Math.cos(a * Math.PI / 180), C + r * Math.sin(a * Math.PI / 180)];
+  const segs = [];
+  for (let i = 0; i < 40; i++) {
+    const a0 = 135 + i * SEG + GAP / 2, a1 = a0 + SEG - GAP;
+    const [x0, y0] = pt(R_OUT, a0), [x1, y1] = pt(R_OUT, a1), [x2, y2] = pt(R_IN, a1), [x3, y3] = pt(R_IN, a0);
+    const p = document.createElementNS(NS, 'path');
+    p.setAttribute('d', `M${x0} ${y0}A${R_OUT} ${R_OUT} 0 0 1 ${x1} ${y1}L${x2} ${y2}A${R_IN} ${R_IN} 0 0 0 ${x3} ${y3}Z`);
+    p.setAttribute('class', 'seg');
+    $('ring').appendChild(p); segs.push(p);
+  }
+  // Sweep's cells: 64 px apart, each glyph 52 x 116 with 12 px strokes and 2 px gaps, centred on (233, 195).
+  const W = 52, H = 116, T = 12, G = 2, X0 = 233 - 96, Y0 = 195 - H / 2;
+  const hseg = (xl, xr, y) => `${xl},${y} ${xl + T / 2},${y - T / 2} ${xr - T / 2},${y - T / 2} ${xr},${y} ${xr - T / 2},${y + T / 2} ${xl + T / 2},${y + T / 2}`;
+  const vseg = (x, yt, yb) => `${x},${yt} ${x + T / 2},${yt + T / 2} ${x + T / 2},${yb - T / 2} ${x},${yb} ${x - T / 2},${yb - T / 2} ${x - T / 2},${yt + T / 2}`;
+  const shapes = x0 => {
+    const xl = x0 + T / 2 + G, xr = x0 + W - T / 2 - G, left = x0 + T / 2, right = x0 + W - T / 2;
+    const top = Y0 + T / 2, mid = Y0 + H / 2, bottom = Y0 + H - T / 2;
+    return { a: hseg(xl, xr, top), g: hseg(xl, xr, mid), d: hseg(xl, xr, bottom),
+      f: vseg(left, top + G, mid - G), b: vseg(right, top + G, mid - G), e: vseg(left, mid + G, bottom - G), c: vseg(right, mid + G, bottom - G) };
+  };
+  const MASK = { '0': 'abcdef', '1': 'bc', '2': 'abdeg', '3': 'abcdg', '4': 'bcfg', '5': 'acdfg', '6': 'acdefg', '7': 'abc',
+    '8': 'abcdefg', '9': 'abcdfg', '-': 'g', ' ': '' };
+  const cells = [];
+  for (let i = 0; i < 3; i++) {
+    const cell = {}, s = shapes(X0 + i * 64 + 6);
+    for (const k of 'abcdefg') {
+      const p = document.createElementNS(NS, 'polygon');
+      p.setAttribute('points', s[k]); p.setAttribute('class', 'ghost');
+      $('digits').appendChild(p); cell[k] = p;
+    }
+    cells.push(cell);
+  }
+  function showDigits(text) {
+    const t = text.length > 3 ? '--' : text, padded = t.padStart(3, ' ');
+    cells.forEach((cell, i) => { const on = MASK[padded[i]] || ''; for (const k of 'abcdefg') cell[k].setAttribute('class', on.includes(k) ? 'lit7' : 'ghost'); });
+  }
+  showDigits('--');
+
+  // Sweep's scale labels, as the gauge sends them: none when uncalibrated, as on the gauge.
+  function drawLabels() {
+    $('labels').textContent = '';
+    const [lo, hi] = scale.dial;
+    for (const v of scale.labels || []) {
+      const [x, y] = pt(172, 135 + 270 * (v - lo) / (hi - lo)), t = document.createElementNS(NS, 'text');
+      t.setAttribute('x', x); t.setAttribute('y', y); t.setAttribute('class', 'scale-label'); t.textContent = v;
+      $('labels').appendChild(t);
+    }
+  }
+
+  // The chart: the session as a line in the gauge's colours, the alarm thresholds, gaps where there was no reading.
+  const cv = $('chart'), ctx = cv.getContext('2d');
+  let hover = null;
+  function drawChart() {
+    const unit = scale ? scale.unit : 'C', u = c => Logic.toUnit(c, unit);
+    const end = rows.length ? rows[rows.length - 1].up : 0, start = span ? Math.max(0, end - span * 1000) : (rows.length ? rows[0].up : 0);
+    const shown = rows.filter(r => r.up >= start);
+    const temps = shown.filter(r => r.t != null).map(r => u(r.t));
+    // With no temperature to draw, only say why: an empty grid of degrees would suggest readings that aren't there.
+    const empty = $('chartEmpty'), plot = cv.parentElement;
+    plot.hidden = !temps.length; empty.hidden = !!temps.length;
+    if (!temps.length) {
+      empty.textContent = !rows.length ? 'The chart fills in as readings arrive.' : calibrated ? 'No temperature in this span.' : 'No temperatures until the gauge is calibrated.';
+      return;
+    }
+    const dpr = window.devicePixelRatio || 1, w = cv.clientWidth, h = cv.clientHeight;
+    if (cv.width !== Math.round(w * dpr)) { cv.width = Math.round(w * dpr); cv.height = Math.round(h * dpr); }
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0); ctx.clearRect(0, 0, w, h);
+    const amber = scale ? u(scale.amber) : 115, red = scale ? u(scale.red) : 130;
+    let lo = amber - 25, hi = red + 5;
+    for (const v of temps) { if (v < lo) lo = v; if (v > hi) hi = v; }
+    lo = Math.floor(lo / 10) * 10; hi = Math.ceil(hi / 10) * 10;
+    const L = 34, Rr = 8, Tp = 8, B = 22, pw = w - L - Rr, ph = h - Tp - B;
+    const X = up => L + (end > start ? (up - start) / (end - start) : 1) * pw, Y = v => Tp + (1 - (v - lo) / (hi - lo)) * ph;
+    ctx.font = '12px ' + getComputedStyle(document.body).fontFamily; ctx.textBaseline = 'middle';
+    const gridStep = (hi - lo) > 80 ? 20 : 10;
+    for (let v = Math.ceil(lo / gridStep) * gridStep; v <= hi; v += gridStep) {
+      ctx.strokeStyle = '#1A242C'; ctx.lineWidth = 1; ctx.beginPath(); ctx.moveTo(L, Y(v)); ctx.lineTo(L + pw, Y(v)); ctx.stroke();
+      ctx.fillStyle = '#8597A3'; ctx.textAlign = 'right'; ctx.fillText(v, L - 6, Y(v));
+    }
+    // The gauge's alarm thresholds, named as the gauge names them.
+    for (const [v, col, name] of calibrated ? [[amber, '#FF9A1F', 'High'], [red, '#F0383B', 'Critical']] : []) {
+      ctx.strokeStyle = col; ctx.lineWidth = 1.5; ctx.setLineDash([5, 4]); ctx.beginPath(); ctx.moveTo(L, Y(v)); ctx.lineTo(L + pw, Y(v)); ctx.stroke();
+      ctx.setLineDash([]); ctx.fillStyle = col; ctx.textAlign = 'right'; ctx.fillText(name, L + pw, Y(v) - 8);
+    }
+    ctx.textAlign = 'center'; ctx.fillStyle = '#8597A3';
+    const mins = (end - start) / 60000, tick = mins > 240 ? 60 : mins > 60 ? 15 : mins > 20 ? 5 : 1;
+    for (let m = Math.ceil(start / 60000 / tick) * tick; m * 60000 <= end; m += tick) ctx.fillText(Logic.duration(m * 60000), X(m * 60000), h - 9);
+    // The line's colour follows the temperature, as on the gauge's Trace layout.
+    const grad = ctx.createLinearGradient(0, Y(hi), 0, Y(lo));
+    for (let i = 0; i <= 10; i++) {
+      const v = hi - (hi - lo) * i / 10, c = unit === 'F' ? (v - 32) * 5 / 9 : v;
+      grad.addColorStop(i / 10, scale ? Logic.colourAt(c, scale) : '#8597A3');
+    }
+    ctx.strokeStyle = grad; ctx.lineWidth = 2.5; ctx.lineJoin = 'round'; ctx.lineCap = 'round';
+    // At most one point per pixel column (min and max), so eight hours draw as fast as ten minutes.
+    let prev = null; ctx.beginPath();
+    const col = new Map();
+    for (const r of shown) {
+      const x = Math.round(X(r.up));
+      if (r.t == null) { col.set(x, null); continue; }
+      const c = col.get(x);
+      if (c === null) continue;
+      const v = u(r.t);
+      if (!c) col.set(x, { lo: v, hi: v, up: r.up, seq: r.seq }); else { c.lo = Math.min(c.lo, v); c.hi = Math.max(c.hi, v); c.up = r.up; c.seq = r.seq; }
+    }
+    const xs = [...col.keys()].sort((a, b) => a - b);
+    for (const x of xs) {
+      const c = col.get(x);
+      if (c === null || (prev && c && (c.up - prev.up > 3000 + (end - start) / pw))) { prev = null; if (c === null) continue; }
+      if (!prev) ctx.moveTo(x, Y(c.lo)); else ctx.lineTo(x, Y(c.lo));
+      if (c.hi !== c.lo) ctx.lineTo(x, Y(c.hi));
+      prev = c;
+    }
+    ctx.stroke();
+    if (hover != null) {
+      const r = nearest(hover, shown, X);
+      if (r) {
+        ctx.strokeStyle = 'rgba(242,246,248,.35)'; ctx.lineWidth = 1; ctx.beginPath(); ctx.moveTo(X(r.up), Tp); ctx.lineTo(X(r.up), Tp + ph); ctx.stroke();
+        if (r.t != null) { ctx.fillStyle = scale ? Logic.colourAt(r.t, scale) : '#fff'; ctx.beginPath(); ctx.arc(X(r.up), Y(u(r.t)), 4, 0, 7); ctx.fill(); }
+        $('readout').textContent = `${new Date(r.pt).toLocaleTimeString()} · ${r.t == null ? Logic.statusText(r.st) : Logic.whole(u(r.t) * 10) / 10 + ' °' + unit}`;
+      }
+    } else $('readout').textContent = '';
+  }
+  function nearest(px, shown, X) {
+    let best = null, d = Infinity;
+    for (const r of shown) { const e = Math.abs(X(r.up) - px); if (e < d) { d = e; best = r; } }
+    return best;
+  }
+  const pointer = e => { const b = cv.getBoundingClientRect(); hover = e.clientX - b.left; drawChart(); };
+  cv.addEventListener('pointermove', pointer);
+  cv.addEventListener('pointerdown', pointer);
+  cv.addEventListener('pointerleave', () => { hover = null; drawChart(); });
+  document.querySelectorAll('.span button').forEach(b => b.addEventListener('click', () => {
+    span = +b.dataset.span;
+    document.querySelectorAll('.span button').forEach(o => o.setAttribute('aria-pressed', o === b ? 'true' : 'false'));
+    drawChart();
+  }));
+  addEventListener('resize', () => drawChart());
+
+  const BAND_COLOURS = ['var(--blue)', 'var(--green)', 'var(--amber)', 'var(--red)', 'var(--mute)'];
+  function drawBands(ms) {
+    const total = ms.reduce((a, b) => a + b, 0), labels = Logic.bandLabels(scale);
+    $('bar').innerHTML = ''; $('bands').innerHTML = '';
+    ms.forEach((v, i) => {
+      if (total && v) { const s = document.createElement('span'); s.style.width = (100 * v / total) + '%'; s.style.background = BAND_COLOURS[i]; $('bar').appendChild(s); }
+      const li = document.createElement('li');
+      li.innerHTML = `<i style="background:${BAND_COLOURS[i]}"></i><span class="label"></span><b></b>`;
+      li.querySelector('.label').textContent = labels[i]; li.querySelector('b').textContent = Logic.duration(v);
+      $('bands').appendChild(li);
+    });
+  }
+
+  function render() {
+    const now = last ? last.now : null, unit = scale ? scale.unit : 'C';
+    const age = lastOk == null ? null : (Date.now() - lastOk) / 1000, state = Logic.freshness(age);
+    const lost = state === 'lost';
+    document.documentElement.style.setProperty('--reading', now && !lost ? now.colour : '#8597A3');
+    $('dial').classList.toggle('stale', lost);
+    $('demo').hidden = !demo;
+    const lit = lost || !scale || !now ? 0 : Math.max(0, Math.min(40, now.lit | 0));  // the gauge's own count, as on Sweep
+    segs.forEach((s, i) => { const on = i < lit; s.classList.toggle('lit', on); s.style.fill = on ? scale.segments[i] : ''; });
+    showDigits(lost ? '--' : Logic.digits(now, calibrated, unit));
+    $('unit').textContent = calibrated ? `°${unit}` : 'Ω';
+    $('status').textContent = !now ? (lastOk == null ? 'Connecting…' : '') : lost ? 'NO DATA' : Logic.statusText(now.status);
+    const led = $('led');
+    // The gauge's own LED state, as on Sweep: off, steady, slow (a latched HIGH alarm) or fast (CRITICAL).
+    const ledMode = now && !lost ? now.led : 'off';
+    led.setAttribute('class', 'led' + ({ steady: '', slow: ' slow', fast: ' fast' }[ledMode] ?? ' off'));
+    $('dial').setAttribute('aria-label', now ? `Oil ${Logic.digits(now, calibrated, unit)} ${calibrated ? '°' + unit : 'ohms'}, ${Logic.statusText(now.status).toLowerCase()}` : 'Oil temperature');
+    const live = $('live');
+    live.className = 'live' + (state === 'stale' ? ' warn' : lost ? ' lost' : '');
+    $('liveText').textContent = state === 'waiting' ? 'Looking for the gauge…' : state === 'live' ? `Updated ${age.toFixed(1)} s ago`
+      : state === 'stale' ? `No data for ${Math.floor(age)} s` : `No data for ${Math.floor(age)} s. Is the gauge's Wi-Fi on?`;
+    if (now) {
+      const u = c => Logic.toUnit(c, unit);
+      $('max').textContent = now.max == null ? '--' : `${now.maxAbove ? '>' : ''}${Logic.whole(u(now.max))} °${unit}`;
+      $('trend').textContent = lost ? '--' : Logic.trendText(Logic.trend(rows, now.uptime), unit);
+      $('warm').textContent = Logic.warmText(now.warmup);
+      $('up').textContent = Logic.duration(now.uptime);
+      const v = (x, d, k = 1) => x == null ? '--' : (x * k).toFixed(d);
+      $('s-ohms').textContent = `${v(now.ohms, 1)} Ω`; $('s-ref').textContent = `${v(now.ref, 3)} V`; $('s-snd').textContent = `${v(now.sender, 3)} V`;
+      $('s-sup').textContent = `${v(now.supply, 2)} V`; $('s-gnd').textContent = `${v(now.ground, 1, 1000)} mV`; $('s-session').textContent = session;
+      if (scale) drawBands(last.bands);
+    }
+    $('download').disabled = !rows.length;
+    $('saved').textContent = full ? 'This phone\'s storage is full: download the CSV to keep this session.'
+      : rows.length ? `${Logic.duration(rows[rows.length - 1].up - rows[0].up)} of readings kept on this phone (${rows.length} rows).`
+      : 'Readings are kept on this phone as they arrive.';
+    $('saved').classList.toggle('warn', full);
+  }
+
+  // Keep the session on the phone, so a reload, a locked screen or a closed tab doesn't lose it. The last three sessions
+  // are kept. When the phone's storage is full the oldest go first, and the page says so if even this one won't fit.
+  const pack = r => [r.seq, r.up, r.st, r.al, r.t, r.ohm, r.ref, r.snd, r.sup, r.gnd, r.pt];
+  const unpack = r => ({ seq: r[0], up: r[1], st: r[2], al: r[3], t: r[4], ohm: r[5], ref: r[6], snd: r[7], sup: r[8], gnd: r[9], pt: r[10] });
+  let full = false, earlierKey = null;
+  function save() {
+    if (!session || !dirty) return;
+    const list = (store.get('oil.sessions') || []).filter(s => s !== session).concat(session);
+    while (list.length > 3) store.del('oil.' + list.shift());
+    const record = { since, demo, rows: rows.map(pack) };
+    let ok = store.set('oil.' + session, record);
+    while (!ok && list.length > 1) { store.del('oil.' + list.shift()); ok = store.set('oil.' + session, record); }
+    full = !ok;
+    if (ok) dirty = false;
+    store.set('oil.sessions', list);
+    showEarlier();
+  }
+  function load(s) {
+    const d = store.get('oil.' + s);
+    rows = d && d.rows ? d.rows.map(unpack) : [];
+    since = d && d.since ? d.since : 0;
+    dirty = false; full = false;
+  }
+  // Sessions from before the gauge last restarted, newest first, each with its own download. Rebuilt only when the list
+  // changes, since reading a stored session is slow.
+  function showEarlier() {
+    const others = (store.get('oil.sessions') || []).filter(s => s !== session).reverse();
+    if (others.join() === earlierKey) return;
+    earlierKey = others.join();
+    const ul = $('earlierList');
+    ul.textContent = '';
+    for (const s of others) {
+      const d = store.get('oil.' + s);
+      if (!d || !d.rows || !d.rows.length) continue;
+      const first = unpack(d.rows[0]), lastRow = unpack(d.rows[d.rows.length - 1]);
+      const li = document.createElement('li'), text = document.createElement('span'), b = document.createElement('button');
+      const t0 = new Date(first.pt), when = `${t0.toLocaleDateString([], { day: 'numeric', month: 'short' })} at ${t0.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`;
+      text.textContent = `${d.demo ? 'Demo session, started' : 'Started'} ${when}, ${Logic.duration(lastRow.up - first.up)} long`;
+      b.textContent = 'Download';
+      b.addEventListener('click', () => { const again = store.get('oil.' + s); if (again && again.rows) download(again.rows.map(unpack), s, again.demo); });
+      li.append(text, b);
+      ul.appendChild(li);
+    }
+    $('earlier').hidden = !ul.children.length;
+  }
+  { const list = store.get('oil.sessions') || []; if (list.length) { session = list[list.length - 1]; load(session); } showEarlier(); }
+  setInterval(save, 15000);
+  addEventListener('visibilitychange', () => { if (document.hidden) save(); });
+  addEventListener('pagehide', save);
+
+  async function poll() {
+    let again = 1000;
+    try {
+      if (!scale) { scale = await (await fetch('/scale', { cache: 'no-store' })).json(); drawLabels(); }
+      const j = await (await fetch(`/log?since=${since}`, { cache: 'no-store' })).json();
+      if (j.session !== session) {
+        // A new session (the gauge restarted, or the first answer): keep the old one and ask again from this one's
+        // start, since this answer was for the old session's row numbers.
+        save(); session = j.session; load(session); showEarlier(); again = 0; throw 0;
+      }
+      const phone = Date.now(), incoming = j.rows.map(r => Logic.toRow(r, j.now.uptime, phone));
+      rows = Logic.merge(rows, incoming); since = j.rows.length ? j.rows[j.rows.length - 1][0] + 1 : Math.max(since, j.first);
+      if (incoming.length) dirty = true;
+      last = j; lastOk = phone; calibrated = j.calibrated; demo = j.demo;
+      beat = (beat + 1) % 8; $('beat').style.opacity = [.15, .3, .45, .6, .75, .6, .45, .3][beat];
+      if (j.rows.length >= 600) again = 0;  // catching up: ask straight away for the rest
+      drawChart();
+    } catch (e) { /* the next poll tries again; the page shows how long since the last answer */ }
+    render();
+    setTimeout(poll, again);
+  }
+  setInterval(render, 1000);
+  // The CSV, named with the session and the phone's date and time at its first row.
+  function download(rs, s, isDemo) {
+    const t = new Date(rs.length ? rs[0].pt : Date.now()), p2 = n => String(n).padStart(2, '0');
+    const stamp = `${t.getFullYear()}${p2(t.getMonth() + 1)}${p2(t.getDate())}-${p2(t.getHours())}${p2(t.getMinutes())}`;
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(new Blob([Logic.csv(rs, s)], { type: 'text/csv' }));
+    a.download = `${isDemo ? 'DEMO-' : ''}oil-temp-${s}-${stamp}.csv`;
+    document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+  }
+  $('download').addEventListener('click', () => { save(); download(rows, session, demo); });
+  render(); drawChart(); poll();
+})();
+</script>
+</body>
+</html>

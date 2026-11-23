@@ -11,6 +11,7 @@
 #include "nvs_flash.h"
 #include "Config.h"
 #include "core/Calibration.h"
+#include "core/SweepModel.h"
 #include "core/Temperature.h"
 #include "core/TraceModel.h"
 #include "core/TrackModel.h"
@@ -19,6 +20,7 @@
 #include "core/WifiChoice.h"
 #include "hal/Ads122c04Source.h"
 #include "display/GaugeDisplay.h"
+#include "net/WebServer.h"
 #include "net/WifiNet.h"
 // The Wi-Fi network name and password (#33, #34): main/wifi_secrets.h, which git ignores (see wifi_secrets.example.h).
 // CMakeLists.txt defines OIL_GAUGE_WIFI_SECRETS when the file exists. Without it, Wi-Fi never starts.
@@ -42,8 +44,12 @@ constexpr bool kDemo = true;
 constexpr bool kDemo = false;
 #endif
 
-// Wi-Fi (#33, #34). The web page (#32) isn't built yet; the UDP stream is when menuconfig says so.
+// Wi-Fi (#32, #33, #34): the web page and the UDP stream are each built in when menuconfig says so.
+#ifdef CONFIG_OIL_GAUGE_WEB_PAGE
+constexpr bool kWebBuilt = true;
+#else
 constexpr bool kWebBuilt = false;
+#endif
 #ifdef CONFIG_OIL_GAUGE_UDP_STREAM
 constexpr bool kUdpBuilt = true;
 constexpr const char* kUdpGroup = CONFIG_OIL_GAUGE_UDP_GROUP;
@@ -126,11 +132,16 @@ extern "C" void app_main(void) {
   // Wi-Fi (#33, #34): off until the BOOT button asks for it (or a saved state does), and run by its own task below this
   // loop's priority, so it can never delay a reading. It joins the network in main/wifi_secrets.h if that's there, and
   // hosts it otherwise. Without usable settings or a feature built in, it never starts.
-  const gauge::WifiBuild wifi_build = {kWebBuilt, kUdpBuilt,
-                                       gauge::wifiCredentialsOk(OIL_GAUGE_WIFI_SSID, OIL_GAUGE_WIFI_PASSWORD)};
+  // The web page (#32) keeps its own copy of the 1 s log from power-up, so a phone that connects later gets the whole
+  // session. Without PSRAM for it, the page is left out of the cycle.
+  const bool wifi_credentials = gauge::wifiCredentialsOk(OIL_GAUGE_WIFI_SSID, OIL_GAUGE_WIFI_PASSWORD);
+  static WebSource web;  // static: internal RAM (its spinlock), and it lives as long as the server
+  const bool web_ok = kWebBuilt && wifi_credentials && web.begin(config::kWebLogRows);
+  static gauge::WebStatus web_status;  // static: off the main-task stack
+  const gauge::WifiBuild wifi_build = {web_ok, kUdpBuilt, wifi_credentials};
   static WifiNet net;  // static: internal RAM (std::atomic hand-off), and it lives as long as its task
   const bool net_ok = (wifi_build.web || wifi_build.udp) && wifi_build.credentials &&
-                      net.begin(OIL_GAUGE_WIFI_SSID, OIL_GAUGE_WIFI_PASSWORD, kUdpGroup, kUdpPort);
+                      net.begin(OIL_GAUGE_WIFI_SSID, OIL_GAUGE_WIFI_PASSWORD, kUdpGroup, kUdpPort, web_ok ? &web : nullptr, kUnit);
   gauge::WifiState wifi = gauge::WifiState::Off;
   uint8_t stored_wifi = gauge::encodeWifiState(wifi);
   if (nvs_ok) {
@@ -186,6 +197,19 @@ extern "C" void app_main(void) {
         f.max_above_range = state.maximumAboveRange();
         f.demo = kDemo;
         net.post(f);
+      }
+      if (web_ok) {  // the page's live status: what this sample shows, in the gauge's own words and colour
+        web_status.session = session;
+        web_status.uptime_ms = now;
+        web_status.reading = reading;
+        web_status.colour = gauge::readingColour(reading);
+        web_status.max_c = state.maximumC();
+        web_status.max_above_range = state.maximumAboveRange();
+        web_status.demo = kDemo;
+        web_status.unit = kUnit;
+        for (int b = 0; b < gauge::kBands; ++b) web_status.band_ms[b] = bands.ms(static_cast<gauge::Band>(b));
+        gauge::warmupText(warmup, web_status.warmup, sizeof(web_status.warmup));
+        web.setStatus(web_status);
       }
     }
     // The BOOT button: each short press moves to the next Wi-Fi state; the panel confirms it for 3 s.
@@ -244,6 +268,7 @@ extern "C" void app_main(void) {
                gauge::statusText(reading.status),gauge::statusText(reading.alarm),temp,
                reading.resistance_ohms,reading.reference_volts,reading.sensor_volts,
                reading.supply_volts,reading.ground_offset_volts);
+      if (web_ok) web.append(reading, now);  // the same row, for the web page
     }
     vTaskDelay(pdMS_TO_TICKS(20));
   }

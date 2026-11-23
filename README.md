@@ -110,17 +110,18 @@ The gauge can join a Wi-Fi network or host it. It's off until you ask for it, an
 
 * **The BOOT button** (the top side button) switches it. Each short press moves to the next state, and a black panel across the top of the screen confirms it for 3 s:
   * `Wifi Off` → `Wifi - Web On, UDP Off` → `Wifi - Web On, UDP On` → `Wifi - Web Off, UDP On` → `Wifi Off`.
-  * States for features that aren't built in are skipped. With only the UDP stream built, presses go `Wifi Off` ↔ `Wifi - Web Off, UDP On`. The web page (#32) isn't built yet.
+  * States for features that aren't built in are skipped. With only the UDP stream built, presses go `Wifi Off` ↔ `Wifi - Web Off, UDP On`; with only the web page, `Wifi Off` ↔ `Wifi - Web On, UDP Off`.
   * While starting, the panel says `Wifi starting...` and `Looking for <network>`. Once up, it says `Joined` or `Hosting`, with the network and the gauge's address. `Wifi failed` shows in amber if it can't start.
   * The panel never covers the status lines or the LED on any layout, and the button never touches an alarm.
   * The state is saved and restored at power-up. A long press does nothing. Don't hold BOOT while powering up, or the board starts in flashing mode.
+* **The web log page** (#32): open `http://<the address on the panel>/` in a phone's browser on the same network (`http://192.168.4.1/` when the gauge hosts it). It shows the live reading on a copy of the Sweep face, a chart of the session with the alarm thresholds, the time in each band, and a **Download CSV** button. It loads nothing from the internet, can't change anything on the gauge, and keeps its copy of the session on the phone through reloads and gauge restarts. The gauge keeps the last 8 hours for it from power-up. See [docs/WEB_PAGE.md](docs/WEB_PAGE.md).
 * **The UDP data stream** (#33): four packets a second to the multicast group `239.10.10.10:5005`, send-only, for a laptop or Raspberry Pi on the network. Watch it with `python3 scripts/udp_listen.py`, a live terminal dashboard (add `--csv FILE` to log, or `--plain` for one line per packet). The packet format is in [docs/UDP_STREAM.md](docs/UDP_STREAM.md).
 * **Setting it up:**
   1. Copy `main/wifi_secrets.example.h` to `main/wifi_secrets.h` and put in the network name (1–32 characters) and password (8–63, WPA2). Git ignores that file: never commit it.
-  2. `idf.py menuconfig` → **Caterham oil temperature gauge** → **Wi-Fi (#33, #34)** → switch on **UDP data stream**.
+  2. `idf.py menuconfig` → **Caterham oil temperature gauge** → **Wi-Fi (#32, #33, #34)** → switch on **Web log page**, **UDP data stream**, or both.
   3. Rebuild. A first build after creating the file picks it up by itself.
 
-  Without the file, or with the stream off, a build never starts Wi-Fi. The button then says `Wifi failed - no settings` or `Wifi not built`.
+  Without the file, or with both off, a build never starts Wi-Fi. The button then says `Wifi failed - no settings` or `Wifi not built`.
 
 ## Repository structure
 
@@ -142,12 +143,15 @@ The gauge can join a Wi-Fi network or host it. It's off until you ask for it, an
 │   │                               # Heritage dial (HeritageModel.*), Track's
 │   │                               # band times and bars (TrackModel.*), the
 │   │                               # warm-up ring and clock (WarmupModel.*), the
-│   │                               # UDP packet (UdpPacket.*), the Wi-Fi button
+│   │                               # UDP packet (UdpPacket.*), the web page's
+│   │                               # log and JSON (WebLog.*), the Wi-Fi button
 │   │                               # and panel (WifiChoice.*)
 │   │                               # and layout choice/long-press
 │   │                               # (LayoutChoice.*)
 │   ├── hal/Ads122c04Source.*       # ADS122C04 over I²C (port 0, GPIO17/18)
 │   ├── net/WifiNet.*               # the Wi-Fi network and UDP stream task (#33, #34)
+│   ├── net/WebServer.*             # the web page's log, status and server (#32)
+│   ├── web/index.html              # the web page, built into the firmware (#32)
 │   ├── display/GaugeDisplay.*      # Waveshare BSP + LVGL 9 gauge; layout switching
 │   │   ├── ClassicLayout.cpp       # Classic layout
 │   │   ├── SweepLayout.cpp         # Sweep layout, with its LED
@@ -190,7 +194,7 @@ The gauge can join a Wi-Fi network or host it. It's off until you ask for it, an
 | Interface hardware | Three resistors on the module's pins (option A), plus two capacitors across the pin pairs (option B, for the car). Build it without a board, on stripboard or on a two-layer PCB (hardware/option-a, hardware/option-b) |
 | Power | USB-C into the display, on the bench and in the car (an ignition-switched charger); the module takes the display's 3.3 V. Never 12 V to the display |
 | Isolation | No connection to MBE ECU / existing instruments |
-| Radio | Not used. The internal ADC isn't needed, so Wi-Fi/BLE could be added later |
+| Radio | Wi-Fi, off by default: the web log page (#32) and the UDP stream (#33), each built in from menuconfig and switched by the BOOT button (#34), in a task below the measurement loop. The ADS122C04 does the measuring, so no internal ADC is lost to Wi-Fi |
 | Temperature calibration | Explicit sender measurements, no assumed Caterham curve |
 | Safety | Fault detection, fail-closed calibration, no extrapolation; fault-current limiting still to be bench-tested |
 

@@ -1,6 +1,7 @@
 #pragma once
 #include "core/UdpPacket.h"
 #include "core/WifiChoice.h"
+#include "net/WebServer.h"
 #include "esp_event.h"
 #include "freertos/FreeRTOS.h"
 #include "freertos/event_groups.h"
@@ -9,15 +10,17 @@
 #include <stddef.h>
 #include <stdint.h>
 
-// Wi-Fi and the UDP data stream (#33), run by one task below the main loop's priority (#34). When asked to start, it looks
-// for the network in main/wifi_secrets.h: if it's there the gauge joins it as a client, and if not the gauge hosts that
-// network itself (same name and password, at 192.168.4.1). A joined network that disappears is rejoined, or hosted once
-// it's gone. The main loop only calls request() and post(), which never block and never allocate: the task does all the
-// Wi-Fi and socket work, and drops a packet rather than wait. If anything fails, the gauge carries on as without Wi-Fi.
+// Wi-Fi, the UDP data stream (#33) and the web page's server (#32), run by one task below the main loop's priority (#34).
+// When asked to start, it looks for the network in main/wifi_secrets.h: if it's there the gauge joins it as a client, and
+// if not the gauge hosts that network itself (same name and password, at 192.168.4.1). A joined network that disappears
+// is rejoined, or hosted once it's gone. The main loop only calls request() and post(), which never block and never
+// allocate: the task does all the Wi-Fi, socket and server work, and drops a packet rather than wait. If anything fails,
+// the gauge carries on as without Wi-Fi.
 class WifiNet {
  public:
-  // Starts the task (no radio yet). ssid and password: usable credentials (wifiCredentialsOk); group and port: the stream.
-  bool begin(const char* ssid, const char* password, const char* group, uint16_t port);
+  // Starts the task (no radio yet). ssid and password: usable credentials (wifiCredentialsOk); group and port: the stream;
+  // web: the page's log and status (nullptr without the page), shown in unit.
+  bool begin(const char* ssid, const char* password, const char* group, uint16_t port, WebSource* web, gauge::Unit unit);
   void request(gauge::WifiState s);  // the state to run; the task follows it
   gauge::WifiPhase phase() const { return static_cast<gauge::WifiPhase>(phase_.load()); }
   gauge::WifiLink link() const { return static_cast<gauge::WifiLink>(link_.load()); }
@@ -63,4 +66,7 @@ class WifiNet {
   char group_[16] = {};
   uint16_t port_ = 0;
   uint8_t packet_[gauge::kUdpPacketSize] = {};
+  WebSource* web_source_ = nullptr;
+  gauge::Unit unit_ = gauge::Unit::Celsius;
+  WebServer web_;
 };

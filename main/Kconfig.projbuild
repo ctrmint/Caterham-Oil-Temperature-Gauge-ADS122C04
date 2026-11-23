@@ -20,9 +20,17 @@ menu "Caterham oil temperature gauge"
             bool "Degrees Fahrenheit"
     endchoice
 
-    menu "Wi-Fi (#33, #34)"
+    menu "Wi-Fi (#32, #33, #34)"
         comment "The network name and password go in main/wifi_secrets.h (git-ignored)."
         comment "Copy main/wifi_secrets.example.h to start it."
+
+        config OIL_GAUGE_WEB_PAGE
+            bool "Web log page (read-only, docs/WEB_PAGE.md)"
+            default n
+            help
+                Builds in the read-only web page: the live reading, the session's chart, the time in each band and a
+                CSV download, for a phone's browser. The gauge keeps the last 8 hours of its 1 s log in PSRAM for it.
+                The BOOT button switches it on and off (Wifi - Web On, ...).
 
         config OIL_GAUGE_UDP_STREAM
             bool "UDP data stream (multicast, docs/UDP_STREAM.md)"
