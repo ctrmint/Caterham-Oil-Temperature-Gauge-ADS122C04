@@ -10,7 +10,8 @@
 #include <stdint.h>
 
 namespace layout {
-constexpr uint32_t kBg = 0x080E15;
+// Pure black, so the AMOLED's unused pixels are switched off. The background of every layout except White's face.
+constexpr uint32_t kBg = 0x000000;
 constexpr uint32_t kWhite = 0xF2F6F8;
 constexpr uint32_t kMute = 0x8597A3;
 constexpr uint32_t kGreen = gauge::kColourGreen;  // the graduated palette (core/SweepModel.h)

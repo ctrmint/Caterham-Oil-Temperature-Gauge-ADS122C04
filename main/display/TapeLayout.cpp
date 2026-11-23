@@ -33,7 +33,7 @@ constexpr int kMaxNumbers = 64;  // numbers every 10 display units across the ca
 constexpr uint32_t kTimerMs = 30;
 constexpr float kEase = 0.3f;    // the share of the remaining distance moved each frame: it never overshoots
 constexpr float kSettledC = 0.01f;
-constexpr uint32_t kTapeBg = 0x0E151C, kTick = 0xC9D3DA, kBeyond = 0x05080B, kHatch = 0x26323C, kWinBorder = 0x5A6872;
+constexpr uint32_t kTapeBg = kBg, kTick = 0xC9D3DA, kHatch = 0x26323C, kWinBorder = 0x5A6872;
 
 static_assert(lines::onScreen(kTapeX, kTapeY) && lines::onScreen(kTapeX, kTapeY + kTapeH), "tape must fit on the screen");
 static_assert(lines::onScreen(kWinX + kWinW, kWinY) && lines::onScreen(kWinX + kWinW, kWinY + kWinH),
@@ -90,12 +90,11 @@ void triangle(lv_layer_t* layer, int ax, int ay, int bx, int by, int cx, int cy,
   lv_draw_triangle(layer, &d);
 }
 
-// Darkened, with 45-degree hatching, between rows y0 and y1 of the tape: no calibration there.
+// 45-degree hatching between rows y0 and y1 of the tape: no calibration there.
 void beyondTable(lv_layer_t* layer, int ox, int oy, int y0, int y1) {
   if (y0 < kTapeY) y0 = kTapeY;
   if (y1 > kTapeY + kTapeH - 1) y1 = kTapeY + kTapeH - 1;
   if (y1 < y0) return;
-  fill(layer, kTapeX + ox, y0 + oy, kTapeX + kTapeW - 1 + ox, y1 + oy, kBeyond);
   // Lines x - y = k, cut to the region.
   for (int k = kTapeX - y1; k <= kTapeX + kTapeW - y0; k += 10) {
     const int xs = (kTapeX > y0 + k) ? kTapeX : y0 + k;

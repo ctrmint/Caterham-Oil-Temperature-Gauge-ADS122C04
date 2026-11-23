@@ -8,7 +8,7 @@ using namespace layout;
 
 namespace {
 constexpr uint32_t kDim = 0x22313A;    // unlit ring segment, same as the Classic track
-constexpr uint32_t kGhost = 0x111A22;  // unlit digit segment: about a third of the way from kBg to kDim
+constexpr uint32_t kGhost = 0x111A22;  // unlit digit segment: about half way from the black kBg to kDim
 constexpr float kPi = 3.14159265f;
 constexpr float kStartDeg = 135.0f, kSweepDeg = 270.0f;  // as the Classic arc: start lower left, open at the bottom
 constexpr int kRingInner = 198, kRingOuter = 226, kSegWidth = 16;

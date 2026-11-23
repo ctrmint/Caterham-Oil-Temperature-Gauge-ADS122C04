@@ -1,4 +1,5 @@
-// Night layout (#21): dark while all is well, fully lit otherwise. Pure black, so the pixels around the reading stay off.
+// Night layout (#21): dark while all is well, fully lit otherwise. Its own opaque root in kBg (pure black), so the pixels
+// around the reading stay off.
 #include "display/Layouts.h"
 #include <cstdio>
 #include <cstring>
@@ -7,7 +8,6 @@ using namespace layout;
 
 namespace {
 constexpr int kC = 233;  // the screen's centre and radius
-constexpr uint32_t kBlack = 0x000000;
 constexpr int iabs(int v) { return v < 0 ? -v : v; }
 // A centred box w by h around (kC, cy) lies on the round screen, inset by margin (its corners are the farthest points).
 constexpr bool boxOnScreen(int w, int cy, int h, int margin) {
@@ -76,7 +76,7 @@ void NightLayout::build(lv_obj_t* screen, gauge::Unit unit) {
   root_ = lv_obj_create(screen);
   lv_obj_set_size(root_, 466, 466);
   lv_obj_align(root_, LV_ALIGN_CENTER, 0, 0);
-  lv_obj_set_style_bg_color(root_, lv_color_hex(kBlack), 0);
+  lv_obj_set_style_bg_color(root_, lv_color_hex(kBg), 0);
   lv_obj_set_style_bg_opa(root_, LV_OPA_COVER, 0);
   lv_obj_set_style_border_width(root_, 0, 0);
   lv_obj_set_style_radius(root_, 0, 0);
