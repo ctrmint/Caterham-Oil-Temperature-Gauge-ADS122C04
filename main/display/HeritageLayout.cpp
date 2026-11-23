@@ -172,6 +172,9 @@ void passPresses(lv_obj_t* obj) {
     passPresses(child);
   }
 }
+// The Wi-Fi panel (#34) sits above the status lines and LED, so it never hides an alarm.
+static_assert(panel::kBottom < kLinesY && panel::kBottom < kLampCy - kRingR,
+              "the Wi-Fi panel must clear the status lines and LED");
 } // namespace
 
 void HeritageLayout::build(lv_obj_t* screen, gauge::Unit unit) {

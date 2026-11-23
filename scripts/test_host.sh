@@ -100,6 +100,18 @@ g++ -std=c++17 -Wall -Wextra -Werror -DGAUGE_DEMO -Imain \
   -o /tmp/caterham-oil-gauge-tests/warmup_model_demo_tests
 /tmp/caterham-oil-gauge-tests/warmup_model_demo_tests
 g++ -std=c++17 -Wall -Wextra -Werror -Imain \
+  tests/udp_packet_test.cpp main/core/Calibration.cpp main/core/Temperature.cpp main/core/UdpPacket.cpp \
+  -o /tmp/caterham-oil-gauge-tests/udp_packet_tests
+/tmp/caterham-oil-gauge-tests/udp_packet_tests
+g++ -std=c++17 -Wall -Wextra -Werror -DGAUGE_DEMO -Imain \
+  tests/udp_packet_test.cpp main/core/Calibration.cpp main/core/Temperature.cpp main/core/UdpPacket.cpp \
+  -o /tmp/caterham-oil-gauge-tests/udp_packet_demo_tests
+/tmp/caterham-oil-gauge-tests/udp_packet_demo_tests
+g++ -std=c++17 -Wall -Wextra -Werror -Imain \
+  tests/wifi_choice_test.cpp main/core/WifiChoice.cpp \
+  -o /tmp/caterham-oil-gauge-tests/wifi_choice_tests
+/tmp/caterham-oil-gauge-tests/wifi_choice_tests
+g++ -std=c++17 -Wall -Wextra -Werror -Imain \
   tests/layout_choice_test.cpp main/core/LayoutChoice.cpp \
   -o /tmp/caterham-oil-gauge-tests/layout_choice_tests
 /tmp/caterham-oil-gauge-tests/layout_choice_tests

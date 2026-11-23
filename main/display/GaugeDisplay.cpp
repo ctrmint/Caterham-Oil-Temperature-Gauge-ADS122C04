@@ -4,6 +4,8 @@
 #include "core/Calibration.h"
 #include "esp_err.h"
 #include <cmath>
+#include <cstdio>
+#include <cstring>
 
 using namespace layout;
 
@@ -30,6 +32,7 @@ bool GaugeDisplay::begin(gauge::Unit unit, gauge::Layout layout) {
   heritage_.build(root, unit_);
   track_.build(root, unit_);
   warmup_.build(root, unit_);
+  buildPanel();
   active_ = layout;
   showActive();
   lv_obj_add_event_cb(root, &GaugeDisplay::onScreenEvent, LV_EVENT_ALL, this);
@@ -81,7 +84,7 @@ bool GaugeDisplay::takeLayoutChange(gauge::Layout& out) {
 
 void GaugeDisplay::render(const gauge::Reading& r, float max_temp_c, bool max_above_range,
                           const gauge::TraceHistory& trace, const gauge::BandTimes& bands,
-                          const gauge::WarmupClock& warmup, bool demo) {
+                          const gauge::WarmupClock& warmup, const WifiPanel& panel, bool demo) {
   if (!built_ || bsp_display_lock(100) != ESP_OK) return;
   DisplayFrame f;
   f.colour = gauge::readingColour(r);  // graduated, never less severe than the latched alarm
@@ -137,5 +140,62 @@ void GaugeDisplay::render(const gauge::Reading& r, float max_temp_c, bool max_ab
   heritage_.render(f);
   track_.render(f);
   warmup_.render(f);
+  renderPanel(panel);
   bsp_display_unlock();
+}
+
+// The Wi-Fi panel (#34), on LVGL's top layer above every layout, in the band panel:: reserves across the top of the screen.
+void GaugeDisplay::buildPanel() {
+  panel_ = lv_obj_create(lv_layer_top());
+  lv_obj_set_size(panel_, panel::kW, panel::kH);
+  lv_obj_set_pos(panel_, (466 - panel::kW) / 2, panel::kTop);
+  lv_obj_set_style_bg_color(panel_, lv_color_hex(0x000000), 0);
+  lv_obj_set_style_bg_opa(panel_, LV_OPA_COVER, 0);
+  lv_obj_set_style_radius(panel_, panel::kRadius, 0);
+  lv_obj_set_style_border_width(panel_, 1, 0);
+  lv_obj_set_style_border_color(panel_, lv_color_hex(0x2A3640), 0);
+  lv_obj_set_style_pad_all(panel_, 0, 0);
+  const lv_obj_flag_t off = static_cast<lv_obj_flag_t>(LV_OBJ_FLAG_CLICKABLE | LV_OBJ_FLAG_SCROLLABLE);
+  lv_obj_remove_flag(panel_, off);
+  auto line = [&](int y, int h, const lv_font_t* font, uint32_t colour, char* text) {
+    lv_obj_t* l = lv_label_create(panel_);
+    lv_label_set_long_mode(l, LV_LABEL_LONG_CLIP);
+    lv_obj_set_size(l, panel::kW - 16, h);
+    lv_obj_set_pos(l, 8, y);
+    lv_obj_set_style_text_align(l, LV_TEXT_ALIGN_CENTER, 0);
+    lv_obj_set_style_text_font(l, font, 0);
+    lv_obj_set_style_text_color(l, lv_color_hex(colour), 0);
+    lv_label_set_text_static(l, text);
+    lv_obj_remove_flag(l, off);
+    return l;
+  };
+  panel_line1_ = line(7, 18, &lv_font_montserrat_16, kWhite, panel_text1_);
+  panel_line2_ = line(29, 16, &lv_font_montserrat_14, kMute, panel_text2_);
+  lv_obj_add_flag(panel_, LV_OBJ_FLAG_HIDDEN);
+  panel_shown_ = false;
+  panel_warn_ = false;
+}
+
+void GaugeDisplay::renderPanel(const WifiPanel& p) {
+  if (!panel_) return;
+  if (p.visible != panel_shown_) {
+    panel_shown_ = p.visible;
+    if (panel_shown_) lv_obj_remove_flag(panel_, LV_OBJ_FLAG_HIDDEN);
+    else lv_obj_add_flag(panel_, LV_OBJ_FLAG_HIDDEN);
+  }
+  if (!panel_shown_) return;
+  const char* l1 = p.line1 ? p.line1 : "";
+  const char* l2 = p.line2 ? p.line2 : "";
+  if (std::strncmp(panel_text1_, l1, sizeof(panel_text1_)) != 0) {
+    std::snprintf(panel_text1_, sizeof(panel_text1_), "%s", l1);
+    lv_label_set_text_static(panel_line1_, panel_text1_);
+  }
+  if (std::strncmp(panel_text2_, l2, sizeof(panel_text2_)) != 0) {
+    std::snprintf(panel_text2_, sizeof(panel_text2_), "%s", l2);
+    lv_label_set_text_static(panel_line2_, panel_text2_);
+  }
+  if (p.warn != panel_warn_) {
+    panel_warn_ = p.warn;
+    lv_obj_set_style_text_color(panel_line1_, lv_color_hex(p.warn ? kAmber : kWhite), 0);
+  }
 }

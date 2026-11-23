@@ -42,6 +42,9 @@ lv_obj_t* label(lv_obj_t* parent, int w, int y, int h, const lv_font_t* font, ui
   lv_obj_set_style_text_color(l, lv_color_hex(colour), 0);
   return l;
 }
+// The Wi-Fi panel (#34) sits above the status lines and LED, so it never hides an alarm.
+static_assert(panel::kBottom < kLinesY,
+              "the Wi-Fi panel must clear the status lines and LED");
 } // namespace
 
 void WarmupLayout::build(lv_obj_t* screen, gauge::Unit unit) {

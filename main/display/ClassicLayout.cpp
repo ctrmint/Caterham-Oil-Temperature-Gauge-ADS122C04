@@ -37,6 +37,9 @@ void center_text(lv_obj_t* label, int w, int top, int h, const lv_font_t* font, 
   lv_obj_set_style_text_color(label, lv_color_hex(color), 0);
   lv_obj_align(label, LV_ALIGN_CENTER, 0, top + h / 2);
 }
+// The Wi-Fi panel (#34) sits above the status lines and LED, so it never hides an alarm.
+static_assert(panel::kBottom < 233 + kDemoTop && panel::kBottom < 233 + kStatusTop,
+              "the Wi-Fi panel must clear the status lines and LED");
 } // namespace
 
 void ClassicLayout::build(lv_obj_t* screen, gauge::Unit unit) {

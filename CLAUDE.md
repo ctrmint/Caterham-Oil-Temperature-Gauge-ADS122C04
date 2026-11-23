@@ -10,11 +10,13 @@ This file is the **project contract** for the `cr-workflow` plugin (`ellanlabs/c
   - `main/core/`: pure logic (`Calibration`, `Temperature`, and `AdcFrame.h` for the ADC's CRC and frame decoding). It has no ESP-IDF includes, so it builds and tests on the host. Keep it that way.
   - `main/hal/Ads122c04Source.*`: the I²C driver.
   - `main/display/GaugeDisplay.*`: the LVGL UI.
+  - `main/net/WifiNet.*`: Wi-Fi (joins the configured network, or hosts it when it isn't there) and the UDP data stream (#33), switched by the BOOT button (#34). Off by default.
+  - `main/wifi_secrets.h`: the user's Wi-Fi network name and password. **Git-ignored; never commit it, and never read, print or quote its contents.** `main/wifi_secrets.example.h` is the committed template. The only thing an agent may do with the real file is copy it unread into a scratch bench tree for a build the user asked for.
   - `main/Config.h`: every tunable constant, in `namespace config`.
   - `main/main.cpp`: the loop and CSV log.
   - `main/Kconfig.projbuild`: `CONFIG_OIL_GAUGE_DEMO`.
-  - `tests/`: host tests (C++ suites; Python tests for the calibration tool).
-  - `scripts/`: `test_host.sh`, `build_calibration.py`, `plot_sender_curve.py`.
+  - `tests/`: host tests (C++ suites; Python tests for the calibration tool and the UDP decoder; `tests/data/udp_packets.txt`, the golden packets).
+  - `scripts/`: `test_host.sh`, `build_calibration.py`, `plot_sender_curve.py`, `udp_listen.py` (the UDP stream decoder).
   - `hardware/`:
     - `WIRING.md` (circuit, the build without a board, bench steps), `BOM.md` (an index) and `wiring.svg`.
     - In option A, three resistors solder to the ADC module's pins. Option B (for the car) adds two filter capacitors across the analogue pin pairs. The firmware is the same for both.
@@ -122,12 +124,14 @@ Agents never do these. They go in a task's `human_verification`.
 - **`tests/heritage_model_test.cpp`** (built normally and with `GAUGE_DEMO`): the Heritage dial's ticks and labels, its needle in every state (agreeing with the Needle dial's visibility and OEM's place on the same span), and the legend rule for every status, alarm, calibration and demo combination (always the same as OEM's wordmark).
 - **`tests/track_model_test.cpp`** (built normally and with `GAUGE_DEMO`): Track's band for every status, its per-band timer (the previous reading's band, the 2 s gap rule, the millisecond wrap, totals that add up, saturation), the bar lengths, the time text, the labels in °C and °F and the maximum's text.
 - **`tests/warmup_model_test.cpp`** (built normally and with `GAUGE_DEMO`): the Warm-up ring's fill in every state (hidden, not empty, on a fault), and the warm-up clock: elapsed time across the wrap and saturation, the first warm reading, `WARM AT START`, faults, cooling again, and the text.
+- **`tests/udp_packet_test.cpp`** (built normally and with `GAUGE_DEMO`) and **`tests/test_udp_listen.py`**: the UDP packet against the golden packets in `tests/data/udp_packets.txt` (C++ re-encodes them byte for byte; Python packs the same fields independently with `struct` and `zlib` from docs/UDP_STREAM.md and decodes them), the CRC, NaN handling, the frozen status codes, bad-packet rejection, and the decoder's gaps, restarts and CSV. Regenerate the golden file only with both re-checked.
+- **`tests/wifi_choice_test.cpp`**: the Wi-Fi state cycle for every combination of built-in features and settings, the credentials' lengths, join-or-host, the stored value, the panel's text, the BOOT button's debounce and short/long press across the millisecond wrap, and the panel's 3 s timer.
 - **`tests/trace_model_test.cpp`** (built normally and with `GAUGE_DEMO`): the trace's 1 s sampling, including across millisecond wraparound and stalls, its gaps, its Y window and the newest point's colour.
 - **`tests/front_end_sim_test.cpp`:**
   - simulates both front-end options' circuits with the driver's conversion timing, and checks `convertSample`'s verdict on every cycle;
   - a change to a fault limit, the check order or the conversion sequence must keep it passing;
   - it builds with `-O2`, and `front_end_sim_tests full` runs the full sweep.
-- **Not automatically testable:** `main/hal/`, `main/display/` and `main/main.cpp`. They're verified by both firmware builds plus a human check.
+- **Not automatically testable:** `main/hal/`, `main/display/`, `main/net/` and `main/main.cpp`. They're verified by both firmware builds plus a human check.
 - **Test tasks may touch:** files in `tests/`, and `scripts/test_host.sh` only to register a new test file.
 - **Pairing:** a behaviour change in `main/core/` gets a `test` task (tests fail first), then an `impl` task. For characterisation work the tests pass from the start, and the reviewer's mutation check proves their strength.
 
@@ -146,6 +150,8 @@ Agents never do these. They go in a task's `human_verification`.
   - `main/core/NightModel.cpp`: the quiet rule's use of `allIsWell`, and the heartbeat's period, range and rise and fall;
   - `main/core/NixieModel.cpp`: `nixieShowable`'s set, `nixieTubes`'s fail-closed rule, `nixiePolyline`'s step count and end points, and the stroke table's coordinates;
   - `main/core/HeritageModel.cpp`: the span, the tick sizes, the number positions and labels, and the legend's use of `allIsWell`;
+  - `main/core/UdpPacket.cpp`: the field offsets, the flags, the fail-closed NaN rules, the CRC's polynomial, initial value and final XOR, and the status codes;
+  - `main/core/WifiChoice.cpp`: the cycle and its availability skipping, the stored value's fallback, the credentials' lengths, join-or-host, the panel text, the debounce and the short/long boundary;
   - `main/core/WarmupModel.cpp`: the ring's span, the clock's elapsed time and saturation, which statuses count as warm or cold, the first-warm latch, `WARM AT START`, and the text;
   - `main/core/TrackModel.cpp`: `trackBand`'s cases (calibration, known temperature, the table's ends), `BandTimes`'s gap rule, band choice and saturation, `bandBars`'s rounding and minimum, `durationText`'s boundaries, `bandLabel` and `maxText`;
   - `main/core/AdcFrame.h`: CRC polynomial and seed, sign extension. An `int32_t` cast of an unsigned millisecond difference is an equivalent mutant for gaps under about 24 days.

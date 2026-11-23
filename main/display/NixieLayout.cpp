@@ -92,6 +92,9 @@ lv_obj_t* plain(lv_obj_t* parent, int x, int y, int w, int h) {
   lv_obj_remove_flag(o, static_cast<lv_obj_flag_t>(LV_OBJ_FLAG_CLICKABLE | LV_OBJ_FLAG_SCROLLABLE));
   return o;
 }
+// The Wi-Fi panel (#34) sits above the status lines and LED, so it never hides an alarm.
+static_assert(panel::kBottom < kLinesY && panel::kBottom < kLedCy - kLedReach,
+              "the Wi-Fi panel must clear the status lines and LED");
 } // namespace
 
 void NixieLayout::build(lv_obj_t* screen, gauge::Unit unit) {

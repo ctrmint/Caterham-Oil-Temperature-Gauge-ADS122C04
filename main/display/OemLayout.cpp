@@ -126,6 +126,9 @@ void segment(lv_layer_t* layer, int x0, int y0, int x1, int y1, int w, lv_color_
   d.p2 = {static_cast<lv_value_precise_t>(x1), static_cast<lv_value_precise_t>(y1)};
   lv_draw_line(layer, &d);
 }
+// The Wi-Fi panel (#34) sits above the status lines and LED, so it never hides an alarm.
+static_assert(panel::kBottom < kTextY && panel::kBottom < kSymY,
+              "the Wi-Fi panel must clear the status lines and LED");
 } // namespace
 
 void OemLayout::build(lv_obj_t* screen, gauge::Unit unit) {

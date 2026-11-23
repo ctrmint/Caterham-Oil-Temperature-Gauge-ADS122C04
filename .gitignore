@@ -3,6 +3,8 @@ build/
 sdkconfig
 sdkconfig.old
 managed_components/
+# Wi-Fi credentials (#33, #34): the user's own, never committed. main/wifi_secrets.example.h shows the format.
+main/wifi_secrets.h
 # dependencies.lock is intentionally NOT ignored: commit it after a verified hardware build.
 
 # Python
