@@ -68,6 +68,14 @@ g++ -std=c++17 -Wall -Wextra -Werror -DGAUGE_DEMO -Imain \
   -o /tmp/caterham-oil-gauge-tests/night_model_demo_tests
 /tmp/caterham-oil-gauge-tests/night_model_demo_tests
 g++ -std=c++17 -Wall -Wextra -Werror -Imain \
+  tests/nixie_model_test.cpp main/core/Calibration.cpp main/core/Temperature.cpp main/core/DisplayText.cpp main/core/NixieModel.cpp \
+  -o /tmp/caterham-oil-gauge-tests/nixie_model_tests
+/tmp/caterham-oil-gauge-tests/nixie_model_tests
+g++ -std=c++17 -Wall -Wextra -Werror -DGAUGE_DEMO -Imain \
+  tests/nixie_model_test.cpp main/core/Calibration.cpp main/core/Temperature.cpp main/core/DisplayText.cpp main/core/NixieModel.cpp \
+  -o /tmp/caterham-oil-gauge-tests/nixie_model_demo_tests
+/tmp/caterham-oil-gauge-tests/nixie_model_demo_tests
+g++ -std=c++17 -Wall -Wextra -Werror -Imain \
   tests/layout_choice_test.cpp main/core/LayoutChoice.cpp \
   -o /tmp/caterham-oil-gauge-tests/layout_choice_tests
 /tmp/caterham-oil-gauge-tests/layout_choice_tests

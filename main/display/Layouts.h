@@ -1,6 +1,7 @@
 #pragma once
 #include "core/DisplayText.h"
 #include "core/NightModel.h"
+#include "core/NixieModel.h"
 #include "core/OemModel.h"
 #include "core/SweepModel.h"
 #include "core/TapeModel.h"
@@ -64,7 +65,7 @@ class LayoutView {
 };
 
 // The LED at 6 o'clock (#10): a disc with a glow in the reading's colour, pulsing while an alarm is latched, as ledState()
-// says. Shared by Sweep, Trace, White and Night. Like LayoutView, call it with the display lock held.
+// says. Shared by Sweep, Trace, White, Night and Nixie. Like LayoutView, call it with the display lock held.
 namespace led {
 constexpr int kD = 28, kGlow = 14;  // diameter and glow; the glow reaches kD / 2 + kGlow from the centre
 constexpr uint32_t kTickMs = 40;    // pulse frame period, about 25 frames a second
@@ -148,8 +149,8 @@ class SweepLayout : public LayoutView {
   bool demo_shown_ = false;
 };
 
-// Status, footer and demo banner, as Classic and Sweep show them; shared by the Needle, Trace, Tape, OEM, White and Night
-// layouts.
+// Status, footer and demo banner, as Classic and Sweep show them; shared by the Needle, Trace, Tape, OEM, White, Night and
+// Nixie layouts.
 // Each line is centred, kTextH tall and kGap below the one before.
 namespace lines {
 constexpr int kCentre = 233, kRadius = 233, kTextH = 16, kGap = 20, kStatusW = 220, kDemoW = 180;
@@ -335,4 +336,21 @@ class NightLayout : public LayoutView {
   const char* unit_text_ = nullptr;
   const char* title_text_ = nullptr;
   char reading_text_[gauge::kReadingCells + 1] = {};
+};
+
+// Nixie (#26): the reading in four fixed nixie tubes, right-aligned as Classic's cells (nixieTubes()). The numerals are drawn
+// from strokes (nixieStrokes()) and always glow nixie orange, with the ten unlit numerals faint behind them. OIL and the
+// unit above, and the status lines and the LED below, are always shown: on this layout they carry the reading's colour.
+class NixieLayout : public LayoutView {
+ public:
+  void build(lv_obj_t* screen, gauge::Unit unit) override;
+  void render(const DisplayFrame& f) override;
+ private:
+  static void onDrawTube(lv_event_t* e);  // LVGL task: the glass, the mesh, the unlit numerals and the lit one
+  lv_obj_t* tubes_[gauge::kNixieTubes] = {};
+  lv_obj_t* title_ = nullptr;
+  StatusLines lines_;
+  AlarmLed led_;
+  char shown_[gauge::kNixieTubes] = {' ', ' ', ' ', ' '};  // each tube's character, read by onDrawTube
+  const char* title_text_ = nullptr;
 };
