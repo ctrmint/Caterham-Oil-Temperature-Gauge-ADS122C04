@@ -29,7 +29,7 @@
                                          [measured curve lookup]
                                          [EMA + warnings]
                                                           │
-                                   [LVGL gauge: Classic / Sweep / Needle / Trace / Tape / OEM / White / Night / Nixie / Heritage / Track]
+                                   [LVGL gauge: Classic / Sweep / Needle / Trace / Tape / OEM / White / Night / Nixie / Heritage / Track / Warm-up]
                                        [466x466 CO5300 AMOLED]
 ```
 
@@ -44,14 +44,14 @@ See [hardware/wiring.svg](../hardware/wiring.svg) for the full schematic and [ha
   - `AdcFrame.h` decodes and CRC-checks the ADC's I²C frames.
   - `Temperature` turns voltages into sender resistance, handles sender fault states and interpolates a user-validated, monotonically decreasing R/T calibration curve.
 - **`main/display/`** exclusively handles Waveshare BSP/LVGL calls.
-  - It draws a frame built from host-tested core helpers (`DisplayText`, `SweepModel`, `TraceModel`, `TapeModel`, `OemModel`, `WhiteModel`, `NightModel`, `NixieModel`, `HeritageModel`, `TrackModel`, `LayoutChoice`), so the text, the lit-segment count, the graduated colours, the LED and needle states, the trace's samples and window, the tape's position and the rate of change, the OEM, White and Heritage dials' needles, OEM's wordmark, White's status window, Night's quiet state and Heritage's legend (one shared "all is well" rule), Night's heartbeat, Nixie's tubes and numeral strokes, Track's band times, bars and time text, and the layout rules are tested without hardware.
-  - The eleven layouts (Classic, Sweep, Needle, Trace, Tape, OEM, White, Night, Nixie, Heritage and Track) are each built once and switched by hiding and showing.
+  - It draws a frame built from host-tested core helpers (`DisplayText`, `SweepModel`, `TraceModel`, `TapeModel`, `OemModel`, `WhiteModel`, `NightModel`, `NixieModel`, `HeritageModel`, `TrackModel`, `WarmupModel`, `LayoutChoice`), so the text, the lit-segment count, the graduated colours, the LED and needle states, the trace's samples and window, the tape's position and the rate of change, the OEM, White and Heritage dials' needles, OEM's wordmark, White's status window, Night's quiet state and Heritage's legend (one shared "all is well" rule), Night's heartbeat, Nixie's tubes and numeral strokes, Track's band times, bars and time text, Warm-up's ring and clock, and the layout rules are tested without hardware.
+  - The twelve layouts (Classic, Sweep, Needle, Trace, Tape, OEM, White, Night, Nixie, Heritage, Track and Warm-up) are each built once and switched by hiding and showing.
   - The LED's pulse (and OEM's symbol's) and the needles' and tape's easing run on LVGL timers in the LVGL task, created once at start-up, so nothing is allocated per frame.
   - The long-press (at least 1 s) is detected in the LVGL task.
 - **`main/main.cpp`:**
   - stores the layout in NVS only when it changes, and restores it at power-up (Classic on first boot, or if the stored choice is missing or can't be read);
   - schedules acquisition at 4 Hz, updates the display at 4 Hz and reports CSV-like serial diagnostics at 1 Hz.
-  - feeds every reading to the trace's history (`TraceModel`), which keeps one sample a second, and to Track's time per band (`TrackModel`), whichever layout is showing.
+  - feeds every reading to the trace's history (`TraceModel`), which keeps one sample a second, to Track's time per band (`TrackModel`) and to the warm-up clock (`WarmupModel`), whichever layout is showing.
 
 **The measurement cycle.** The ADS122C04 runs single-shot at 45 samples/s, gain 1, with the PGA bypassed, so inputs are valid down to 0.1 V below its GND. Its internal current source drives 250 µA out of A0, through Rref and then the sender. One measurement cycle is six conversions, about 150 ms, well inside the 250 ms sample interval:
 1. the ADC's offset, with the inputs shorted;

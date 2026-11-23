@@ -121,6 +121,7 @@ Agents never do these. They go in a task's `human_verification`.
 - **`tests/nixie_model_test.cpp`** (built normally and with `GAUGE_DEMO`): which tube shows what for every reading (Classic's cells, failing closed to `--`), and every numeral's strokes: inside its box, arcs tessellated in steps of at most 20°, one connected wire, closed loops closed, all distinct.
 - **`tests/heritage_model_test.cpp`** (built normally and with `GAUGE_DEMO`): the Heritage dial's ticks and labels, its needle in every state (agreeing with the Needle dial's visibility and OEM's place on the same span), and the legend rule for every status, alarm, calibration and demo combination (always the same as OEM's wordmark).
 - **`tests/track_model_test.cpp`** (built normally and with `GAUGE_DEMO`): Track's band for every status, its per-band timer (the previous reading's band, the 2 s gap rule, the millisecond wrap, totals that add up, saturation), the bar lengths, the time text, the labels in °C and °F and the maximum's text.
+- **`tests/warmup_model_test.cpp`** (built normally and with `GAUGE_DEMO`): the Warm-up ring's fill in every state (hidden, not empty, on a fault), and the warm-up clock: elapsed time across the wrap and saturation, the first warm reading, `WARM AT START`, faults, cooling again, and the text.
 - **`tests/trace_model_test.cpp`** (built normally and with `GAUGE_DEMO`): the trace's 1 s sampling, including across millisecond wraparound and stalls, its gaps, its Y window and the newest point's colour.
 - **`tests/front_end_sim_test.cpp`:**
   - simulates both front-end options' circuits with the driver's conversion timing, and checks `convertSample`'s verdict on every cycle;
@@ -145,6 +146,7 @@ Agents never do these. They go in a task's `human_verification`.
   - `main/core/NightModel.cpp`: the quiet rule's use of `allIsWell`, and the heartbeat's period, range and rise and fall;
   - `main/core/NixieModel.cpp`: `nixieShowable`'s set, `nixieTubes`'s fail-closed rule, `nixiePolyline`'s step count and end points, and the stroke table's coordinates;
   - `main/core/HeritageModel.cpp`: the span, the tick sizes, the number positions and labels, and the legend's use of `allIsWell`;
+  - `main/core/WarmupModel.cpp`: the ring's span, the clock's elapsed time and saturation, which statuses count as warm or cold, the first-warm latch, `WARM AT START`, and the text;
   - `main/core/TrackModel.cpp`: `trackBand`'s cases (calibration, known temperature, the table's ends), `BandTimes`'s gap rule, band choice and saturation, `bandBars`'s rounding and minimum, `durationText`'s boundaries, `bandLabel` and `maxText`;
   - `main/core/AdcFrame.h`: CRC polynomial and seed, sign extension. An `int32_t` cast of an unsigned millisecond difference is an equivalent mutant for gaps under about 24 days.
 

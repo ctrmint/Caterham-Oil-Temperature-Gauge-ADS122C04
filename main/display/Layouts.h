@@ -8,6 +8,7 @@
 #include "core/TapeModel.h"
 #include "core/TraceModel.h"
 #include "core/TrackModel.h"
+#include "core/WarmupModel.h"
 #include "core/WhiteModel.h"
 #include "lvgl.h"
 #include <stdint.h>
@@ -52,6 +53,9 @@ struct DisplayFrame {
   bool heritage_legend = false;                             // Heritage layout: OIL TEMP, or the status lines in its place
   const gauge::BandTimes* bands = nullptr;                  // Track layout: the time per band; owned by main
   const char* max_text = "";                                // Track layout: "MAX 121", or "" with no maximum
+  gauge::NeedleState warmup_ring = {false, 0.f};            // Warm-up layout: the ring's fill, 0 degC to the warm threshold
+  const char* warmup_text = "";                             // Warm-up layout: "2:35", "WARM IN 6:12", "WARM AT START" or ""
+  bool warm = false;                                        // Warm-up layout: warm yet (the rate shows only before)
 };
 
 // Every LayoutView method (build(), render() and setVisible() included) must be called with the display lock
@@ -90,7 +94,7 @@ class AlarmLed {
   gauge::LedPulse pulse_ = gauge::LedPulse::None;
 };
 
-// The main reading in the 148 px digit font, as Classic shows it; shared by Classic and Night. kReadingCells equal-width
+// The main reading in the 148 px digit font, as Classic shows it; shared by Classic, Night and Warm-up. kReadingCells equal-width
 // cells, each as wide as the widest reading character. Up to three characters fill the right three cells, centred, so a
 // 3-digit reading sits in the middle and the ones digit stays put; four use all four cells, centred. Fails closed: a
 // reading with any character it can't show becomes "--". Like LayoutView, call it with the display lock held.
@@ -156,7 +160,7 @@ class SweepLayout : public LayoutView {
 };
 
 // Status, footer and demo banner, as Classic and Sweep show them; shared by the Needle, Trace, Tape, OEM, White, Night,
-// Nixie, Heritage and Track layouts.
+// Nixie, Heritage, Track and Warm-up layouts.
 // Each line is centred, kTextH tall and kGap below the one before.
 namespace lines {
 constexpr int kCentre = 233, kRadius = 233, kTextH = 16, kGap = 20, kStatusW = 220, kDemoW = 180;
@@ -421,4 +425,25 @@ class TrackLayout : public LayoutView {
   char rate_text_[gauge::kRateTextSize + 8] = {};  // with the arrow symbol in front
   char label_text_[gauge::kBands][gauge::kBandLabelSize] = {};
   char time_text_[gauge::kBands][gauge::kDurationTextSize] = {};
+};
+
+// Warm-up (#27): a 270-degree ring like Classic's arc, filling from 0 degC to the warm threshold (warmupRing()) in the
+// reading's colour and hidden on a fault or when uncalibrated; Classic's digits with OIL and the unit above; the status
+// lines; and a line with the time since power-up and the rate while warming, then WARM IN m:ss (warmupText()). No LED.
+class WarmupLayout : public LayoutView {
+ public:
+  void build(lv_obj_t* screen, gauge::Unit unit) override;
+  void render(const DisplayFrame& f) override;
+ private:
+  gauge::Unit unit_ = gauge::Unit::Celsius;
+  lv_obj_t* arc_ = nullptr;
+  lv_obj_t* title_ = nullptr;
+  lv_obj_t* line_ = nullptr;
+  ReadingDigits digits_;
+  StatusLines lines_;
+  const char* title_text_ = nullptr;
+  uint32_t arc_colour_ = 0;
+  int arc_value_ = -1;
+  bool ring_shown_ = true;
+  char line_text_[gauge::kWarmupTextSize + gauge::kRateTextSize + 8] = {};  // the warm-up text, then the rate
 };
