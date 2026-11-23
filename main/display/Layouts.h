@@ -4,6 +4,7 @@
 #include "core/SweepModel.h"
 #include "core/TapeModel.h"
 #include "core/TraceModel.h"
+#include "core/WhiteModel.h"
 #include "lvgl.h"
 #include <stdint.h>
 
@@ -39,6 +40,8 @@ struct DisplayFrame {
   float max_c = 0.f;
   gauge::NeedleState oem_needle = {false, 0.f};             // OEM layout: the needle on its 50-130 degC span
   bool wordmark = false;                                    // OEM layout: CATERHAM, or the status lines in its place
+  gauge::NeedleState white_needle = {false, 0.f};           // White layout: the needle on its 40-140 degC span
+  bool status_window = true;                                // White layout: the status window, shown unless all is well
 };
 
 // Every LayoutView method (build(), render() and setVisible() included) must be called with the display lock
@@ -58,7 +61,7 @@ class LayoutView {
 };
 
 // The LED at 6 o'clock (#10): a disc with a glow in the reading's colour, pulsing while an alarm is latched, as ledState()
-// says. Shared by Sweep and Trace. Like LayoutView, call it with the display lock held.
+// says. Shared by Sweep, Trace and White. Like LayoutView, call it with the display lock held.
 namespace led {
 constexpr int kD = 28, kGlow = 14;  // diameter and glow; the glow reaches kD / 2 + kGlow from the centre
 constexpr uint32_t kTickMs = 40;    // pulse frame period, about 25 frames a second
@@ -124,8 +127,8 @@ class SweepLayout : public LayoutView {
   bool demo_shown_ = false;
 };
 
-// Status, footer and demo banner, as Classic and Sweep show them; shared by the Needle, Trace, Tape and OEM layouts. Each line is
-// centred, kTextH tall and kGap below the one before.
+// Status, footer and demo banner, as Classic and Sweep show them; shared by the Needle, Trace, Tape, OEM and White layouts.
+// Each line is centred, kTextH tall and kGap below the one before.
 namespace lines {
 constexpr int kCentre = 233, kRadius = 233, kTextH = 16, kGap = 20, kStatusW = 220, kDemoW = 180;
 constexpr int iabs(int v) { return v < 0 ? -v : v; }
@@ -254,4 +257,35 @@ class OemLayout : public LayoutView {
   uint32_t symbol_colour_ = 0;
   uint8_t symbol_opa_ = 255;
   gauge::LedPulse symbol_pulse_ = gauge::LedPulse::None;
+};
+
+// White dial (#19), styled on a white-faced aftermarket gauge: a white face in a black ring, a tick every 2 degC from 40 to
+// 140, six numbers, a red needle with a counterweight under a black hub, OIL and the unit under the hub, the 6 o'clock LED
+// in a black socket, and a black status window that shows only when something needs attention. No digital readout.
+class WhiteLayout : public LayoutView {
+ public:
+  void build(lv_obj_t* screen, gauge::Unit unit) override;
+  void render(const DisplayFrame& f) override;
+ private:
+  static void onDrawFace(lv_event_t* e);    // LVGL task: ring, face and ticks
+  static void onDrawNeedle(lv_event_t* e);  // LVGL task: the counterweight and the needle
+  static void onTimer(lv_timer_t* t);       // LVGL task: eases the needle to its target, never past it
+  void placeNeedle(float fraction);
+  lv_obj_t* needle_ = nullptr;
+  lv_obj_t* unit_ = nullptr;
+  lv_obj_t* window_ = nullptr;  // the black window and the status lines in it
+  lv_obj_t* numbers_[gauge::kWhiteNumbers] = {};
+  lv_timer_t* timer_ = nullptr;
+  AlarmLed led_;
+  StatusLines lines_;
+  char number_text_[gauge::kWhiteNumbers][8] = {};
+  lv_point_precise_t needle_pts_[3] = {};  // the needle's triangle, relative to needle_: two base corners and the tip
+  lv_point_precise_t tail_pts_[2] = {};    // the counterweight's bar, relative to needle_
+  int needle_key_ = -1;                    // the tip's pixel, to skip redundant redraws
+  float shown_ = 0.f;                      // the needle's drawn place, 0..1 along the scale
+  float target_ = 0.f;
+  bool needle_shown_ = false;
+  bool labels_shown_ = true;
+  bool window_shown_ = true;
+  const char* unit_text_ = nullptr;
 };

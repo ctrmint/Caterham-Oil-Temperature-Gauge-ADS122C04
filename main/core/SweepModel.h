@@ -64,6 +64,10 @@ int needleLabel(Unit unit, int index);
 // at the start below the table, at the table maximum above it, and always clamped to the scale's ends.
 struct NeedleState { bool visible; float fraction; };
 NeedleState needleState(const Reading &r, Unit unit);
-// The same rules on any scale from min_u to max_u in the given unit (max_u > min_u); the OEM dial (#17) uses its own span.
+// The same rules on any scale from min_u to max_u in the given unit (max_u > min_u); the OEM (#17) and White (#19) dials
+// use their own spans.
 NeedleState needleOnScale(const Reading &r, Unit unit, float min_u, float max_u);
+// All is well: a calibrated build that isn't the demo, NORMAL or OIL WARMING with a finite temperature, and no alarm
+// latched. OEM shows CATERHAM only then (#17); White shows its status window whenever it isn't (#19).
+bool allIsWell(const Reading &r, bool demo);
 } // namespace gauge
