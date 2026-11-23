@@ -58,7 +58,7 @@ The display runs from its own USB-C socket (in the car, an ignition-switched USB
 
 ## Display
 
-There are eight layouts of the same readings.
+There are eight layouts of the same readings. Every one is on a pure black background (`#000000`), apart from White's white face, so the AMOLED's unused pixels are switched off.
 
 * **Classic:** the title reads `OIL °C`, `OIL °F` or `OIL ohm`. The reading itself has no unit: large fixed-width digits, right-aligned so the ones digit stays in place, with a 3-digit reading centred on the screen (a four-character one such as `>284` or a 4-digit resistance uses the full width). The bottom line reads like `MAX 112  |  123 ohm` (maximum, then the sender resistance).
 * **Sweep:** a 40-segment ring around the edge covering 30–130 °C, with scale labels 30…130 (86…266 in °F). Each lit segment shows the colour of its own place on the scale. Three large seven-segment digits, centred, sit over faint ghost segments; beyond the table a `<` or `>` sign appears just left of them. The unit sits above `OIL TEMP`, with the status, footer and demo text below. A resistance of 1000 Ω or more (uncalibrated only) shows as `--` in Sweep, and in full in Classic.
@@ -73,7 +73,7 @@ There are eight layouts of the same readings.
   * **The LED:** the same LED as on Sweep and Trace, at 6 o'clock in a round black socket, so its colours and glow show against the white. When it's off, the socket shows a dark-grey lens.
   * **The status window:** a black window at the bottom, running down into the ring, with the status line and footer in their usual colours. It shows only when something needs attention, which is exactly when OEM would hide `CATERHAM`, so the face stays clean while all is well. The demo build always shows it.
   * **Brightness:** a white face is much brighter than the dark layouts, especially at night. The firmware has no brightness control, so long-press to Night, or another dark layout, if it dazzles.
-* **Night:** a dark layout for driving at night, on pure black (an AMOLED's black pixels are switched off), with no ring, face or ticks. It's quiet while all is well and lights up the moment anything needs attention. The reading is at the centre of the screen in both states.
+* **Night:** a dark layout for driving at night, with no ring, face or ticks. It's quiet while all is well and lights up the moment anything needs attention. The reading is at the centre of the screen in both states.
   * **Quiet:** while all is well (exactly when OEM shows `CATERHAM`), only the reading shows: whole degrees in a small font, in its usual colour at half brightness, with a dim unit under it. Under that, a small dim dot rises and falls every 2 s. It steps once per display update, so if the updates ever stopped the dot would stop too: a dark screen can't pass for a live one.
   * **Lit:** anything else (an alarm, a fault, a reading beyond the table, no calibration, and always in the demo build) shows Classic's large digits at full brightness with `OIL °C` above them, the status line and footer below, and the LED from Sweep and Trace under them. The status goes to `HIGH TEMPERATURE` at 115 °C, before the alarm's 2.5 s debounce, so the screen lights at the threshold.
 
