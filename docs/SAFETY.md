@@ -29,6 +29,17 @@ This is an **experimental supplemental display**. It is not automotive-certified
 - **Colour bands:** the reading's colour is graduated by temperature (red from 120 °C) and is never less severe than a latched alarm. The colour bands are a visual guide, separate from the alarm thresholds, which are unchanged (amber 115 °C, red 130 °C). The status text (`HIGH TEMPERATURE`, `CRITICAL TEMP`) is the alarm. A fault or an uncalibrated reading is always amber, never a temperature colour.
 - **Touch:** touch does one thing only: a press of at least 1 s (a long-press) switches the display layout. It cannot change the unit, the calibration or the alarms. Choose the layout before driving and do not change it while driving.
 - **Display/software faults:** board resets or LVGL bugs can result in a blank screen. The primary vehicle monitoring remains mandatory.
+- **Network outputs (the web page #32 and the UDP stream #33):** they're as supplementary as the display. Wi-Fi is off unless it's built in and switched on with the BOOT button.
+  - **Never the alarm:** the alarm is the gauge's own status text and LED. A phone or laptop can lose the network, stall, sleep or show an old page. Don't watch a phone while driving.
+  - **Stale data is marked, never hidden:**
+    - The page turns its update age amber after 3 s with no answer. After 10 s it shows `NO DATA` and a grey `--`.
+    - The UDP monitor shows `NO DATA` after 2 s, then `STREAM LOST` and `--` after 10 s.
+    - Wi-Fi drops the odd packet, and nothing is ever filled in.
+  - **Fail closed, as the gauge:** neither output shows a temperature the gauge didn't have. With no temperature (a fault, beyond the table, or uncalibrated) the JSON has `null`, the packet's has-temperature flag is clear, and both CSV files leave `temp_c` empty.
+  - **Read-only:** nothing on the network can change the gauge. The server answers three `GET` requests only, and the stream is send-only. Neither can touch the measurement, the calibration, the alarms or the display.
+  - **Not encrypted:** anyone on the same network can read the page and the stream. When the gauge hosts the network, that's only people with its WPA2 password.
+  - **Demo data:** a demo build says so on the page (`DEMO ONLY - NOT REAL`), in the page's CSV name (`DEMO-`), and on the monitor (`DEMO`). The monitor's CSV has no demo column, so name a file recorded from a demo build yourself.
+  - **Radio beside the front end:** the ratiometric, filtered measurement shouldn't notice the 2.4 GHz radio. The bench check comparing the ohms' noise with Wi-Fi on and off is still owed (`docs/VALIDATION.md`).
 
 ## Acceptance gate
 

@@ -29,9 +29,17 @@
                                          [measured curve lookup]
                                          [EMA + warnings]
                                                           │
-                                   [LVGL gauge: Classic / Sweep / Needle / Trace / Tape / OEM / White / Night / Nixie / Heritage / Track / Warm-up]
-                                       [466x466 CO5300 AMOLED]
+            ┌───────────────────────┬─────────────────────┼──────────────────────┐
+            ▼                       ▼                     ▼                      ▼
+      [LVGL gauge]            [serial log]          [UDP stream]            [web page]
+      REQ-D1, 4 Hz            REQ-D2, 1 Hz          REQ-D4, 4/s             REQ-D3
+      12 layouts              USB, CSV lines        56-byte packets         GET /, /scale, /log
+      466x466 AMOLED                                multicast, send-only    8 h of 1 s rows
+                                                    └── Wi-Fi task, lowest priority; ─────────┘
+                                                        switched by BOOT (REQ-D5)
 ```
+
+The four outputs are listed in full under [Outputs](#outputs).
 
 See [hardware/wiring.svg](../hardware/wiring.svg) for the full schematic and [hardware/WIRING.md](../hardware/WIRING.md) for the build. No interface board is needed: Rref, R1 and R2 can solder to the module's pins, with the harness on a 3-way terminal strip. Each option also has a checked stripboard layout and a two-layer PCB (`hardware/option-a/`, `hardware/option-b/`). Both keep ground copper away from A1, A2, SENDER and SENSE, because a short from those to ground gives a believable wrong reading. **Option B**, recommended for the car, adds C1 and C2 across the pin pairs. They filter interference near the ADC's 256 kHz sampling rate. There's never a capacitor from a pin to ground, so a shorted capacitor gives a fault, not a reading. The firmware is the same for both options. The display runs from its own USB-C socket. A USB supply needn't share the car's ground, so the harness carries a dedicated return wire from the tank bond stud to the gauge's ground, beside the ground-sense wire.
 
@@ -76,6 +84,50 @@ See [hardware/wiring.svg](../hardware/wiring.svg) for the full schematic and [ha
 
 The core computes `Rs = Rref × Vs / Vref` after subtracting the offset. It takes the tank ground offset as the A2 reading minus the burn-out source's drop across R2.
 
+## Outputs
+
+Every output, where it goes and where its format is documented. They all carry the same values as the serial log (REQ-D2), and none shows a temperature the gauge didn't have.
+
+| Output | Where | How often | Format | Documented in | Requirement |
+|---|---|---|---|---|---|
+| The display | the AMOLED | 4 Hz | twelve layouts | README, Display | REQ-D1 |
+| The serial log | USB serial console | 1 Hz | a `CSV,` line (below) | here, REQ-D2 | REQ-D2 |
+| The UDP packet | multicast `239.10.10.10:5005`, TTL 1 | each sample, 4/s | 56 bytes, version 1, CRC-32 | `docs/UDP_STREAM.md` | REQ-D4 |
+| The monitor's dashboard and plain lines | a laptop's terminal | each packet | text | `docs/UDP_STREAM.md`, The monitor | REQ-D4 |
+| The monitor's CSV (`--csv`) | a file on the laptop | each packet | CSV, 13 columns | `docs/UDP_STREAM.md`, The monitor's CSV | REQ-D4 |
+| `GET /` | HTTP, port 80 | on request | the page, HTML | `docs/WEB_PAGE.md` | REQ-D3 |
+| `GET /scale` | HTTP, port 80 | once per page load | JSON | `docs/WEB_PAGE.md`, `/scale` | REQ-D3 |
+| `GET /log?since=N` | HTTP, port 80 | once a second per page | JSON, chunked | `docs/WEB_PAGE.md`, `/log?since=N` | REQ-D3 |
+| The page's CSV | a file on the phone | on **Download CSV** | CSV, 12 columns | `docs/WEB_PAGE.md`, Downloading the session | REQ-D3 |
+| The page's stored sessions | the phone's browser storage | every 15 s | JSON | `docs/WEB_PAGE.md`, Downloading the session | REQ-D3 |
+
+**The same values, written differently:**
+
+| | Serial log | UDP packet | `/log` JSON | Monitor's CSV | Page's CSV |
+|---|---|---|---|---|---|
+| Status and alarm | words | codes 0–11 | codes 0–11 | words | words |
+| No temperature | `NA` | NaN, flag bit 2 clear | `null` | empty | empty |
+| A value that isn't finite | as C prints it (`inf`, `nan`) | NaN | `null` | empty | empty |
+| Decimals | °C and Ω 0.1, volts 0.0001 | float32 | °C and Ω 0.1, volts 0.0001 | as the serial log | as the serial log |
+| Time | `uptime_ms` | `uptime_ms` | `uptime_ms` | plus `host_time` (Unix seconds) | plus `phone_time` (UTC) |
+| Numbering | none | `sequence`, per packet (4/s) | `sequence`, per 1 s row | the packet's `sequence` | the row's `sequence` |
+| Session | none | `session` | `session` (the same ID) | `session` | `session` |
+| Maximum | none | `max_c` with flags | `max`, `maxAbove` | `max_c`, not marked when beyond the table | none |
+| Demo build | a `DEMO MODE: SYNTHETIC DATA ONLY` warning at start-up | flag bit 1 | `"demo":true` | none: name the file yourself | `DEMO-` in the name |
+
+**The serial log (REQ-D2).** On the USB serial console (`idf.py monitor` on the board's `/dev/serial/by-id/usb-Espressif_*` port). At start-up the gauge prints a header, then one line a second, each with ESP-IDF's log prefix:
+
+```
+I (1234) oil_gauge: CSV: uptime_ms,status,alarm,temp_c,resistance_ohms,ref_v,sender_v,supply_v,ground_offset_v
+I (460250) oil_gauge: CSV,460250,NORMAL,NORMAL,92.4,262.1,0.4866,0.0655,3.3169,-0.0021
+I (461250) oil_gauge: CSV,461250,SENSOR OPEN,NORMAL,NA,21003002.0,0.0002,2.1003,3.3169,-0.0021
+```
+
+- **Columns:** status and alarm in the gauge's words, `temp_c` to 0.1 °C or `NA` without a temperature, `resistance_ohms` to 0.1 Ω, the volts to 0.0001 V.
+- **On a fault:** the measured columns are diagnostics, never a reading. They hold what was measured before the fault was found, or 0. With the sender open there's no excitation current, so the resistance works out huge, as in the last line. Every output carries these same values.
+- **Units:** always °C, whatever the display unit.
+- **Copies:** the web page's log copies each of these rows at the same moment.
+
 ## Measurement safety model
 
 * ADS122C04 not answering on I²C; a register, CRC or counter mismatch; or a conversion timing out → `ADC UNAVAILABLE` and **no temperature**. So is an ADC offset (inputs shorted) beyond 0.25 mV.
@@ -98,4 +150,12 @@ Because the measurement lives on the ADS122C04, porting to another board only ne
 
 ## Power / privacy
 
-No wireless access points, internet client or network connections are started. No personal or vehicle telemetry is transmitted. There are no secrets or cloud dependencies. USB logs show measured resistance and optional calibrated temperature locally.
+- **Wi-Fi is off unless both of these are true:** it's built in from menuconfig (the web page #32 and the UDP stream #33, each off by default), and it's switched on with the BOOT button (#34).
+- **On the local network only:** with Wi-Fi on, the gauge joins the network named in `main/wifi_secrets.h`, or hosts it, and makes the readings available there only:
+  - the UDP stream to a multicast group with TTL 1, so it stays on that network;
+  - the web page to whoever asks for it on that network.
+- **Nothing goes to the internet:** there's no cloud service, account or update over the network.
+- **Not encrypted:** the page and the stream are plain HTTP and UDP, readable by anyone on that network. Nothing on the network can change the gauge.
+- **The network's name and password** are only in the git-ignored `main/wifi_secrets.h`, never in the repository.
+- **USB:** the serial log shows the measured resistance and, when calibrated, the temperature, locally.
+- **Power:** Wi-Fi adds roughly 100 mA, which is fine on the USB supply.

@@ -13,7 +13,7 @@
    - Never feed 12 V to the display, and never connect a laptop's USB while the car charger is connected.
 6. **With the vehicle OFF:** measure the chassis-to-gauge ground difference and continuity, and make sure nothing is shorted to battery power.
    - **With the ignition ON:** check that `SENDER` and `SENSE` stay between the gauge's GND and 3.3 V.
-   - **With the engine running and electrical loads on:** watch `ground_offset_v` in the CSV log. It should stay close to 0 V (aim for within ±100 mV); if it doesn't, improve the tank bond.
+   - **With the engine running and electrical loads on:** watch `ground_offset_v` in the serial CSV log, or with Wi-Fi on, under **Sensor readings** on the web page (as `Ground offset`, in mV) or on the UDP monitor (`ground`). It should stay close to 0 V (aim for within ±100 mV); if it doesn't, improve the tank bond.
    - **Noise check (WIRING.md step 14):** compare the reading's jitter with the engine off and running. It shouldn't be worse with the engine running.
    - **Expect a slightly negative offset:** the display's supply current returns through its own ground. The ADC is specified for inputs down to 0.1 V below its GND, so a negative offset beyond what bench step 8 in WIRING.md covered calls for a better ground.
 7. Check the resistance reading cold, during warm-up, and after engine shutdown. Calibrated °C should agree with an independent reference within a documented tolerance; consider time lag in the tank.
