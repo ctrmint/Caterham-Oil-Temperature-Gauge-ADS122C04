@@ -114,7 +114,7 @@ The gauge can join a Wi-Fi network or host it. It's off until you ask for it, an
   * While starting, the panel says `Wifi starting...` and `Looking for <network>`. Once up, it says `Joined` or `Hosting`, with the network and the gauge's address. `Wifi failed` shows in amber if it can't start.
   * The panel never covers the status lines or the LED on any layout, and the button never touches an alarm.
   * The state is saved and restored at power-up. A long press does nothing. Don't hold BOOT while powering up, or the board starts in flashing mode.
-* **The UDP data stream** (#33): four packets a second to the multicast group `239.10.10.10:5005`, send-only, for a laptop or Raspberry Pi on the network. Listen with `python3 scripts/udp_listen.py` (add `--csv FILE` to log). The packet format is in [docs/UDP_STREAM.md](docs/UDP_STREAM.md).
+* **The UDP data stream** (#33): four packets a second to the multicast group `239.10.10.10:5005`, send-only, for a laptop or Raspberry Pi on the network. Watch it with `python3 scripts/udp_listen.py`, a live terminal dashboard (add `--csv FILE` to log, or `--plain` for one line per packet). The packet format is in [docs/UDP_STREAM.md](docs/UDP_STREAM.md).
 * **Setting it up:**
   1. Copy `main/wifi_secrets.example.h` to `main/wifi_secrets.h` and put in the network name (1–32 characters) and password (8–63, WPA2). Git ignores that file: never commit it.
   2. `idf.py menuconfig` → **Caterham oil temperature gauge** → **Wi-Fi (#33, #34)** → switch on **UDP data stream**.
@@ -173,7 +173,7 @@ The gauge can join a Wi-Fi network or host it. It's off until you ask for it, an
 │                                   # sender R/T graph (sender-curve.svg) and its data
 ├── tests/                          # native C++ and Python tests
 └── scripts/                        # calibration-header and sender-graph generators, test runner,
-                                    # UDP stream decoder (udp_listen.py)
+                                    # UDP stream monitor and decoder (udp_listen.py)
 ```
 
 ## Design decisions
