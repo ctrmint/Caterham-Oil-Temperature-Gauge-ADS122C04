@@ -7,6 +7,7 @@
 #include "core/SweepModel.h"
 #include "core/TapeModel.h"
 #include "core/TraceModel.h"
+#include "core/TrackModel.h"
 #include "core/WhiteModel.h"
 #include "lvgl.h"
 #include <stdint.h>
@@ -49,6 +50,8 @@ struct DisplayFrame {
   bool night_quiet = false;                                 // Night layout: dark while all is well, fully lit otherwise
   gauge::NeedleState heritage_needle = {false, 0.f};        // Heritage layout: the needle on its 50-130 degC span
   bool heritage_legend = false;                             // Heritage layout: OIL TEMP, or the status lines in its place
+  const gauge::BandTimes* bands = nullptr;                  // Track layout: the time per band; owned by main
+  const char* max_text = "";                                // Track layout: "MAX 121", or "" with no maximum
 };
 
 // Every LayoutView method (build(), render() and setVisible() included) must be called with the display lock
@@ -68,7 +71,7 @@ class LayoutView {
 };
 
 // The LED at 6 o'clock (#10): a disc with a glow in the reading's colour, pulsing while an alarm is latched, as ledState()
-// says. Shared by Sweep, Trace, White, Night, Nixie and Heritage. Like LayoutView, call it with the display lock held.
+// says. Shared by Sweep, Trace, White, Night, Nixie, Heritage and Track. Like LayoutView, call it with the display lock held.
 namespace led {
 constexpr int kD = 28, kGlow = 14;  // diameter and glow; the glow reaches kD / 2 + kGlow from the centre
 constexpr uint32_t kTickMs = 40;    // pulse frame period, about 25 frames a second
@@ -153,7 +156,7 @@ class SweepLayout : public LayoutView {
 };
 
 // Status, footer and demo banner, as Classic and Sweep show them; shared by the Needle, Trace, Tape, OEM, White, Night,
-// Nixie and Heritage layouts.
+// Nixie, Heritage and Track layouts.
 // Each line is centred, kTextH tall and kGap below the one before.
 namespace lines {
 constexpr int kCentre = 233, kRadius = 233, kTextH = 16, kGap = 20, kStatusW = 220, kDemoW = 180;
@@ -389,4 +392,33 @@ class HeritageLayout : public LayoutView {
   bool labels_shown_ = true;
   bool legend_shown_ = false;
   const char* unit_text_ = nullptr;
+};
+
+// Track (#24): a data page for track days. The reading, the session maximum and the rate of change, then a row per band
+// (bandLabel(), a bar of its share of the time since power-up from bandBars(), and durationText()), the status lines and
+// the LED. The rows, MAX and the rate are hidden when uncalibrated.
+class TrackLayout : public LayoutView {
+ public:
+  void build(lv_obj_t* screen, gauge::Unit unit) override;
+  void render(const DisplayFrame& f) override;
+ private:
+  gauge::Unit unit_ = gauge::Unit::Celsius;
+  lv_obj_t* title_ = nullptr;
+  lv_obj_t* value_ = nullptr;
+  lv_obj_t* max_ = nullptr;
+  lv_obj_t* rate_ = nullptr;
+  lv_obj_t* rows_ = nullptr;  // the band rows
+  lv_obj_t* bars_[gauge::kBands] = {};
+  lv_obj_t* times_[gauge::kBands] = {};
+  StatusLines lines_;
+  AlarmLed led_;
+  const char* title_text_ = nullptr;
+  uint32_t value_colour_ = 0;
+  bool rows_shown_ = true;
+  int bar_px_[gauge::kBands] = {};
+  char value_text_[gauge::kReadingCells + 1] = {};
+  char max_text_[24] = {};
+  char rate_text_[gauge::kRateTextSize + 8] = {};  // with the arrow symbol in front
+  char label_text_[gauge::kBands][gauge::kBandLabelSize] = {};
+  char time_text_[gauge::kBands][gauge::kDurationTextSize] = {};
 };

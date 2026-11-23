@@ -28,6 +28,7 @@ bool GaugeDisplay::begin(gauge::Unit unit, gauge::Layout layout) {
   night_.build(root, unit_);
   nixie_.build(root, unit_);
   heritage_.build(root, unit_);
+  track_.build(root, unit_);
   active_ = layout;
   showActive();
   lv_obj_add_event_cb(root, &GaugeDisplay::onScreenEvent, LV_EVENT_ALL, this);
@@ -66,6 +67,7 @@ void GaugeDisplay::showActive() {
   night_.setVisible(active_ == gauge::Layout::Night);
   nixie_.setVisible(active_ == gauge::Layout::Nixie);
   heritage_.setVisible(active_ == gauge::Layout::Heritage);
+  track_.setVisible(active_ == gauge::Layout::Track);
 }
 
 bool GaugeDisplay::takeLayoutChange(gauge::Layout& out) {
@@ -76,7 +78,7 @@ bool GaugeDisplay::takeLayoutChange(gauge::Layout& out) {
 }
 
 void GaugeDisplay::render(const gauge::Reading& r, float max_temp_c, bool max_above_range,
-                          const gauge::TraceHistory& trace, bool demo) {
+                          const gauge::TraceHistory& trace, const gauge::BandTimes& bands, bool demo) {
   if (!built_ || bsp_display_lock(100) != ESP_OK) return;
   DisplayFrame f;
   f.colour = gauge::readingColour(r);  // graduated, never less severe than the latched alarm
@@ -113,6 +115,9 @@ void GaugeDisplay::render(const gauge::Reading& r, float max_temp_c, bool max_ab
   f.night_quiet = gauge::nightQuiet(r, demo);
   f.heritage_needle = gauge::heritageNeedle(r);
   f.heritage_legend = gauge::heritageLegend(r, demo);
+  f.bands = &bands;
+  gauge::maxText(max_temp_c, max_above_range, unit_, max_text_, sizeof(max_text_));
+  f.max_text = max_text_;
   classic_.render(f);
   sweep_.render(f);
   needle_.render(f);
@@ -123,5 +128,6 @@ void GaugeDisplay::render(const gauge::Reading& r, float max_temp_c, bool max_ab
   night_.render(f);
   nixie_.render(f);
   heritage_.render(f);
+  track_.render(f);
   bsp_display_unlock();
 }

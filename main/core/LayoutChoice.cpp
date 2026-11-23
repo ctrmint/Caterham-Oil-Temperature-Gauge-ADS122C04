@@ -12,6 +12,7 @@ Layout nextLayout(Layout current) {
     case Layout::White: return Layout::Night;
     case Layout::Night: return Layout::Nixie;
     case Layout::Nixie: return Layout::Heritage;
+    case Layout::Heritage: return Layout::Track;
     default: return Layout::Classic;
   }
 }
@@ -27,6 +28,7 @@ Layout decodeLayout(bool found, uint8_t stored) {
     case 7: return Layout::Night;
     case 8: return Layout::Nixie;
     case 9: return Layout::Heritage;
+    case 10: return Layout::Track;
     default: return Layout::Classic;
   }
 }
