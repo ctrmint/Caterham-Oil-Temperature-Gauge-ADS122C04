@@ -1,5 +1,6 @@
 #pragma once
 #include "core/DisplayText.h"
+#include "core/HeritageModel.h"
 #include "core/NightModel.h"
 #include "core/NixieModel.h"
 #include "core/OemModel.h"
@@ -46,6 +47,8 @@ struct DisplayFrame {
   gauge::NeedleState white_needle = {false, 0.f};           // White layout: the needle on its 40-140 degC span
   bool status_window = true;                                // White layout: the status window, shown unless all is well
   bool night_quiet = false;                                 // Night layout: dark while all is well, fully lit otherwise
+  gauge::NeedleState heritage_needle = {false, 0.f};        // Heritage layout: the needle on its 50-130 degC span
+  bool heritage_legend = false;                             // Heritage layout: OIL TEMP, or the status lines in its place
 };
 
 // Every LayoutView method (build(), render() and setVisible() included) must be called with the display lock
@@ -65,7 +68,7 @@ class LayoutView {
 };
 
 // The LED at 6 o'clock (#10): a disc with a glow in the reading's colour, pulsing while an alarm is latched, as ledState()
-// says. Shared by Sweep, Trace, White, Night and Nixie. Like LayoutView, call it with the display lock held.
+// says. Shared by Sweep, Trace, White, Night, Nixie and Heritage. Like LayoutView, call it with the display lock held.
 namespace led {
 constexpr int kD = 28, kGlow = 14;  // diameter and glow; the glow reaches kD / 2 + kGlow from the centre
 constexpr uint32_t kTickMs = 40;    // pulse frame period, about 25 frames a second
@@ -149,8 +152,8 @@ class SweepLayout : public LayoutView {
   bool demo_shown_ = false;
 };
 
-// Status, footer and demo banner, as Classic and Sweep show them; shared by the Needle, Trace, Tape, OEM, White, Night and
-// Nixie layouts.
+// Status, footer and demo banner, as Classic and Sweep show them; shared by the Needle, Trace, Tape, OEM, White, Night,
+// Nixie and Heritage layouts.
 // Each line is centred, kTextH tall and kGap below the one before.
 namespace lines {
 constexpr int kCentre = 233, kRadius = 233, kTextH = 16, kGap = 20, kStatusW = 220, kDemoW = 180;
@@ -353,4 +356,37 @@ class NixieLayout : public LayoutView {
   AlarmLed led_;
   char shown_[gauge::kNixieTubes] = {' ', ' ', ' ', ' '};  // each tube's character, read by onDrawTube
   const char* title_text_ = nullptr;
+};
+
+// Heritage dial (#25), in the spirit of a 1960s instrument: a chrome-look bezel, a black face, cream markings, and a short
+// 90-degree sweep across the top about a pivot below the centre, with numbers at 50, 90 and 130. Below the pivot, OIL TEMP
+// and the unit while all is well (heritageLegend()), or the status lines in their place, and the 6 o'clock LED as a lamp in
+// a chrome surround. No digital readout.
+class HeritageLayout : public LayoutView {
+ public:
+  void build(lv_obj_t* screen, gauge::Unit unit) override;
+  void render(const DisplayFrame& f) override;
+ private:
+  static void onDrawFace(lv_event_t* e);    // LVGL task: the bezel, the glass, the scale line and the ticks
+  static void onDrawNeedle(lv_event_t* e);  // LVGL task: the counterweight and the needle
+  static void onTimer(lv_timer_t* t);       // LVGL task: eases the needle to its target, never past it
+  void placeNeedle(float fraction);
+  lv_obj_t* needle_ = nullptr;
+  lv_obj_t* legend_ = nullptr;  // OIL TEMP and the unit
+  lv_obj_t* unit_ = nullptr;
+  lv_obj_t* text_ = nullptr;    // the status lines, shown in the legend's place
+  lv_obj_t* numbers_[gauge::kHeritageNumbers] = {};
+  lv_timer_t* timer_ = nullptr;
+  AlarmLed led_;
+  StatusLines lines_;
+  char number_text_[gauge::kHeritageNumbers][8] = {};
+  lv_point_precise_t needle_pts_[3] = {};  // the needle's triangle, relative to needle_: two base corners and the tip
+  lv_point_precise_t tail_pts_[2] = {};    // the counterweight's bar, relative to needle_
+  int needle_key_ = -1;                    // the tip's pixel, to skip redundant redraws
+  float shown_ = 0.f;                      // the needle's drawn place, 0..1 along the scale
+  float target_ = 0.f;
+  bool needle_shown_ = false;
+  bool labels_shown_ = true;
+  bool legend_shown_ = false;
+  const char* unit_text_ = nullptr;
 };

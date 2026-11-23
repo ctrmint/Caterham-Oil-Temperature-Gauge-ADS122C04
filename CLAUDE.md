@@ -119,6 +119,7 @@ Agents never do these. They go in a task's `human_verification`.
 - **`tests/white_model_test.cpp`** (built normally and with `GAUGE_DEMO`): the White dial's ticks and labels, its needle in every state (agreeing with the Needle dial's visibility), and the status window for every status, alarm, calibration and demo combination (always the opposite of OEM's wordmark, through the shared `allIsWell`).
 - **`tests/night_model_test.cpp`** (built normally and with `GAUGE_DEMO`): Night's quiet rule for every status, alarm, calibration and demo combination (the same as `allIsWell`, OEM's wordmark and White's hidden window), and its heartbeat's period, range, rise and fall, and that it never repeats from one update to the next, across the counter's wrap too.
 - **`tests/nixie_model_test.cpp`** (built normally and with `GAUGE_DEMO`): which tube shows what for every reading (Classic's cells, failing closed to `--`), and every numeral's strokes: inside its box, arcs tessellated in steps of at most 20°, one connected wire, closed loops closed, all distinct.
+- **`tests/heritage_model_test.cpp`** (built normally and with `GAUGE_DEMO`): the Heritage dial's ticks and labels, its needle in every state (agreeing with the Needle dial's visibility and OEM's place on the same span), and the legend rule for every status, alarm, calibration and demo combination (always the same as OEM's wordmark).
 - **`tests/trace_model_test.cpp`** (built normally and with `GAUGE_DEMO`): the trace's 1 s sampling, including across millisecond wraparound and stalls, its gaps, its Y window and the newest point's colour.
 - **`tests/front_end_sim_test.cpp`:**
   - simulates both front-end options' circuits with the driver's conversion timing, and checks `convertSample`'s verdict on every cycle;
@@ -142,6 +143,7 @@ Agents never do these. They go in a task's `human_verification`.
   - `main/core/WhiteModel.cpp`: the span, the tick sizes, the number positions and labels, and the window's negation of `allIsWell`;
   - `main/core/NightModel.cpp`: the quiet rule's use of `allIsWell`, and the heartbeat's period, range and rise and fall;
   - `main/core/NixieModel.cpp`: `nixieShowable`'s set, `nixieTubes`'s fail-closed rule, `nixiePolyline`'s step count and end points, and the stroke table's coordinates;
+  - `main/core/HeritageModel.cpp`: the span, the tick sizes, the number positions and labels, and the legend's use of `allIsWell`;
   - `main/core/AdcFrame.h`: CRC polynomial and seed, sign extension. An `int32_t` cast of an unsigned millisecond difference is an equivalent mutant for gaps under about 24 days.
 
 ## Review focus

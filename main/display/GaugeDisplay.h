@@ -27,6 +27,7 @@ class GaugeDisplay {
   WhiteLayout white_;
   NightLayout night_;
   NixieLayout nixie_;
+  HeritageLayout heritage_;
   bool built_ = false;
   gauge::Layout active_ = gauge::Layout::Classic;  // guarded by the LVGL mutex (render and the event callback)
   gauge::LongPress press_;

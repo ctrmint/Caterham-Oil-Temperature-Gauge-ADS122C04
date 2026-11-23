@@ -10,7 +10,6 @@ constexpr float kWhiteMinC = 40.f, kWhiteMaxC = 140.f, kWhiteTickC = 2.f;
 constexpr int kWhiteTicks = 51;
 // Numbers every 20 degC, on every tenth tick: 40, 60 ... 140.
 constexpr int kWhiteNumbers = 6;
-enum class TickSize : uint8_t { Minor, Medium, Major };
 // Long at the numbers, medium at the other tens (50, 70 ... 130), short at the rest. index valid for 0 <= index < kWhiteTicks.
 TickSize whiteTick(int index);
 // The tick that number index sits on: 0, 10, 20, 30, 40, 50. index valid for 0 <= index < kWhiteNumbers.
