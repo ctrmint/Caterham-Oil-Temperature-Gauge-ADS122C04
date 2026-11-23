@@ -180,6 +180,15 @@ constexpr bool blockFits(int status_y) {
 }
 } // namespace lines
 
+// The Wi-Fi confirmation panel (#34), drawn on LVGL's top layer over every layout for a few seconds: a band across the top
+// of the screen. Every layout asserts that its status lines, demo banner and LED (or its stand-in) start below kBottom, so
+// the panel can never hide an alarm.
+namespace panel {
+constexpr int kW = 300, kH = 52, kTop = 58, kBottom = kTop + kH, kRadius = 14;
+static_assert(lines::onScreen(lines::kCentre - kW / 2 + kRadius / 2, kTop) && kBottom < lines::kCentre,
+              "the Wi-Fi panel must fit across the top half of the screen");
+} // namespace panel
+
 class StatusLines {
  public:
   void build(lv_obj_t* parent, int status_y);

@@ -112,6 +112,9 @@ void onDrawLine(lv_event_t* e) {
     lv_draw_line(layer, &line);
   }
 }
+// The Wi-Fi panel (#34) sits above the status lines and LED, so it never hides an alarm.
+static_assert(panel::kBottom < kStatusY && panel::kBottom < kLedCy - led::kD / 2 - led::kGlow,
+              "the Wi-Fi panel must clear the status lines and LED");
 } // namespace
 
 void TraceLayout::build(lv_obj_t* screen, gauge::Unit unit) {

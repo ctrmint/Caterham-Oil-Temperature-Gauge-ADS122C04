@@ -17,3 +17,5 @@ CONFIG_LV_FONT_MONTSERRAT_24=y
 CONFIG_LV_FONT_MONTSERRAT_48=y
 # Main loop formats floats for the display and CSV log
 CONFIG_ESP_MAIN_TASK_STACK_SIZE=8192
+# Wi-Fi (#33, #34): off until the BOOT button turns it on; its buffers may go to PSRAM, leaving internal RAM to the display.
+CONFIG_SPIRAM_TRY_ALLOCATE_WIFI_LWIP=y

@@ -60,6 +60,9 @@ lv_obj_t* centred_label(lv_obj_t* parent, const lv_font_t* font, uint32_t colour
   lv_obj_align(l, LV_ALIGN_CENTER, dx, dy);
   return l;
 }
+// The Wi-Fi panel (#34) sits above the status lines and LED, so it never hides an alarm.
+static_assert(panel::kBottom < kStatusY,
+              "the Wi-Fi panel must clear the status lines and LED");
 } // namespace
 
 void NeedleLayout::build(lv_obj_t* screen, gauge::Unit unit) {

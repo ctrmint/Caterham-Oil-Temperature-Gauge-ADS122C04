@@ -19,4 +19,27 @@ menu "Caterham oil temperature gauge"
         config OIL_GAUGE_UNIT_FAHRENHEIT
             bool "Degrees Fahrenheit"
     endchoice
+
+    menu "Wi-Fi (#33, #34)"
+        comment "The network name and password go in main/wifi_secrets.h (git-ignored)."
+        comment "Copy main/wifi_secrets.example.h to start it."
+
+        config OIL_GAUGE_UDP_STREAM
+            bool "UDP data stream (multicast, docs/UDP_STREAM.md)"
+            default n
+            help
+                Builds in the UDP data stream: one packet per sample to the multicast group below, send-only.
+                The BOOT button switches it on and off (Wifi - Web Off, UDP On); listen with scripts/udp_listen.py.
+
+        config OIL_GAUGE_UDP_GROUP
+            string "Multicast group"
+            default "239.10.10.10"
+            depends on OIL_GAUGE_UDP_STREAM
+
+        config OIL_GAUGE_UDP_PORT
+            int "Multicast port"
+            default 5005
+            range 1024 65535
+            depends on OIL_GAUGE_UDP_STREAM
+    endmenu
 endmenu

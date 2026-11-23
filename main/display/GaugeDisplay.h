@@ -1,11 +1,15 @@
 #pragma once
 #include "core/DisplayText.h"
 #include "core/LayoutChoice.h"
+#include "core/WifiChoice.h"
 #include "core/Temperature.h"
 #include "display/Layouts.h"
 #include "lvgl.h"
 #include <atomic>
 #include <stdint.h>
+
+// The Wi-Fi confirmation panel (#34): whether to show it this frame, and its two lines (copied, so they may be temporary).
+struct WifiPanel { bool visible; bool warn; const char* line1; const char* line2; };
 
 class GaugeDisplay {
  public:
@@ -13,13 +17,15 @@ class GaugeDisplay {
   // trace: the history the Trace layout draws; it must outlive the display (main keeps it for the program's life).
   // bands: the time per band the Track layout draws; it must outlive the display too.
   void render(const gauge::Reading& r, float max_temp_c, bool max_above_range, const gauge::TraceHistory& trace,
-              const gauge::BandTimes& bands, const gauge::WarmupClock& warmup, bool demo);
+              const gauge::BandTimes& bands, const gauge::WarmupClock& warmup, const WifiPanel& panel, bool demo);
   // True once per long-press switch, with the new layout. No LVGL call, no lock: safe from the main loop.
   bool takeLayoutChange(gauge::Layout& out);
  private:
   static void onScreenEvent(lv_event_t* e);
   void handleEvent(lv_event_code_t code);
   void showActive();  // with the LVGL mutex held
+  void buildPanel();
+  void renderPanel(const WifiPanel& p);
   ClassicLayout classic_;
   SweepLayout sweep_;
   NeedleLayout needle_;
@@ -40,4 +46,11 @@ class GaugeDisplay {
   char footer_text_[gauge::kFooterTextSize] = {};
   char max_text_[24] = {};
   char warmup_text_[gauge::kWarmupTextSize] = {};
+  lv_obj_t* panel_ = nullptr;
+  lv_obj_t* panel_line1_ = nullptr;
+  lv_obj_t* panel_line2_ = nullptr;
+  bool panel_shown_ = false;
+  bool panel_warn_ = false;
+  char panel_text1_[gauge::kWifiPanelTextSize] = {};
+  char panel_text2_[gauge::kWifiPanelTextSize] = {};
 };

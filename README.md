@@ -98,6 +98,30 @@ Beyond the calibration table the reading shows `<min` or `>max` (for example `<2
 
 **Choosing °F:** `idf.py menuconfig` → **Caterham oil temperature gauge** → **Display temperature unit**, then rebuild. °C is the default. The unit applies to the display only; the serial CSV log stays in °C.
 
+## Wi-Fi
+
+The gauge can join a Wi-Fi network or host it. It's off until you ask for it, and it can't delay a reading or touch the alarms: everything Wi-Fi runs in its own task below the measurement loop's priority.
+
+* **One network, two ways:** when Wi-Fi is switched on, the gauge looks for the network named in `main/wifi_secrets.h`.
+  * **Found:** it joins as a client. The panel shows `Joined <network>` and the address it was given.
+  * **Not found:** it hosts that network itself, with the same name and password, at `192.168.4.1`. The panel shows `Hosting <network>`. A laptop set up for that network connects either way.
+  * **Found but it can't join** (a wrong password, say): `Wifi failed` and `Can't join <network>`. It never hosts a second network with the same name.
+  * **A joined network that drops** (driving away from home, say): it rejoins if it can, and hosts the network once it's gone.
+
+* **The BOOT button** (the top side button) switches it. Each short press moves to the next state, and a black panel across the top of the screen confirms it for 3 s:
+  * `Wifi Off` → `Wifi - Web On, UDP Off` → `Wifi - Web On, UDP On` → `Wifi - Web Off, UDP On` → `Wifi Off`.
+  * States for features that aren't built in are skipped. With only the UDP stream built, presses go `Wifi Off` ↔ `Wifi - Web Off, UDP On`. The web page (#32) isn't built yet.
+  * While starting, the panel says `Wifi starting...` and `Looking for <network>`. Once up, it says `Joined` or `Hosting`, with the network and the gauge's address. `Wifi failed` shows in amber if it can't start.
+  * The panel never covers the status lines or the LED on any layout, and the button never touches an alarm.
+  * The state is saved and restored at power-up. A long press does nothing. Don't hold BOOT while powering up, or the board starts in flashing mode.
+* **The UDP data stream** (#33): four packets a second to the multicast group `239.10.10.10:5005`, send-only, for a laptop or Raspberry Pi on the network. Listen with `python3 scripts/udp_listen.py` (add `--csv FILE` to log). The packet format is in [docs/UDP_STREAM.md](docs/UDP_STREAM.md).
+* **Setting it up:**
+  1. Copy `main/wifi_secrets.example.h` to `main/wifi_secrets.h` and put in the network name (1–32 characters) and password (8–63, WPA2). Git ignores that file: never commit it.
+  2. `idf.py menuconfig` → **Caterham oil temperature gauge** → **Wi-Fi (#33, #34)** → switch on **UDP data stream**.
+  3. Rebuild. A first build after creating the file picks it up by itself.
+
+  Without the file, or with the stream off, a build never starts Wi-Fi. The button then says `Wifi failed - no settings` or `Wifi not built`.
+
 ## Repository structure
 
 ```text
@@ -117,10 +141,13 @@ Beyond the calibration table the reading shows `<min` or `>max` (for example `<2
 │   │                               # tubes and numerals (NixieModel.*), the
 │   │                               # Heritage dial (HeritageModel.*), Track's
 │   │                               # band times and bars (TrackModel.*), the
-│   │                               # warm-up ring and clock (WarmupModel.*)
+│   │                               # warm-up ring and clock (WarmupModel.*), the
+│   │                               # UDP packet (UdpPacket.*), the Wi-Fi button
+│   │                               # and panel (WifiChoice.*)
 │   │                               # and layout choice/long-press
 │   │                               # (LayoutChoice.*)
 │   ├── hal/Ads122c04Source.*       # ADS122C04 over I²C (port 0, GPIO17/18)
+│   ├── net/WifiNet.*               # the Wi-Fi network and UDP stream task (#33, #34)
 │   ├── display/GaugeDisplay.*      # Waveshare BSP + LVGL 9 gauge; layout switching
 │   │   ├── ClassicLayout.cpp       # Classic layout
 │   │   ├── SweepLayout.cpp         # Sweep layout, with its LED
@@ -138,14 +165,15 @@ Beyond the calibration table the reading shows `<min` or `>max` (for example `<2
 │   │   │                           # and Classic's digits (Classic, Night, Warm-up)
 │   │   ├── Layouts.h               # shared layout interface
 │   │   └── fonts/                  # generated Classic digit font + its licence
-│   ├── Kconfig.projbuild           # explicitly opt-in simulation
+│   ├── Kconfig.projbuild           # explicitly opt-in simulation; unit; Wi-Fi options
 │   └── idf_component.yml          # Waveshare BSP / LVGL dependencies
 ├── hardware/                       # wiring and build (WIRING.md), schematic (wiring.svg), BOM
 ├── docs/                           # architecture, Fedora setup, calibration,
 │                                   # installation, validation, safety, porting,
 │                                   # sender R/T graph (sender-curve.svg) and its data
 ├── tests/                          # native C++ and Python tests
-└── scripts/                        # calibration-header and sender-graph generators, test runner
+└── scripts/                        # calibration-header and sender-graph generators, test runner,
+                                    # UDP stream decoder (udp_listen.py)
 ```
 
 ## Design decisions
