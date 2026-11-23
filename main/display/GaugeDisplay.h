@@ -13,7 +13,7 @@ class GaugeDisplay {
   // trace: the history the Trace layout draws; it must outlive the display (main keeps it for the program's life).
   // bands: the time per band the Track layout draws; it must outlive the display too.
   void render(const gauge::Reading& r, float max_temp_c, bool max_above_range, const gauge::TraceHistory& trace,
-              const gauge::BandTimes& bands, bool demo);
+              const gauge::BandTimes& bands, const gauge::WarmupClock& warmup, bool demo);
   // True once per long-press switch, with the new layout. No LVGL call, no lock: safe from the main loop.
   bool takeLayoutChange(gauge::Layout& out);
  private:
@@ -31,6 +31,7 @@ class GaugeDisplay {
   NixieLayout nixie_;
   HeritageLayout heritage_;
   TrackLayout track_;
+  WarmupLayout warmup_;
   bool built_ = false;
   gauge::Layout active_ = gauge::Layout::Classic;  // guarded by the LVGL mutex (render and the event callback)
   gauge::LongPress press_;
@@ -38,4 +39,5 @@ class GaugeDisplay {
   gauge::Unit unit_ = gauge::Unit::Celsius;
   char footer_text_[gauge::kFooterTextSize] = {};
   char max_text_[24] = {};
+  char warmup_text_[gauge::kWarmupTextSize] = {};
 };

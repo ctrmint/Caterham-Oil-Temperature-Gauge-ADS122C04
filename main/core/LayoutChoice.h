@@ -2,10 +2,10 @@
 #include <stdint.h>
 namespace gauge {
 // The stored value is the enum's value, so existing values never change meaning.
-enum class Layout : uint8_t { Classic = 0, Sweep = 1, Needle = 2, Trace = 3, Tape = 4, Oem = 5, White = 6, Night = 7, Nixie = 8, Heritage = 9, Track = 10 };
+enum class Layout : uint8_t { Classic = 0, Sweep = 1, Needle = 2, Trace = 3, Tape = 4, Oem = 5, White = 6, Night = 7, Nixie = 8, Heritage = 9, Track = 10, Warmup = 11 };
 constexpr uint32_t kLongPressMs = 1000;
 constexpr int32_t kLongPressSlopPx = 40;
-// Classic -> Sweep -> Needle -> Trace -> Tape -> OEM -> White -> Night -> Nixie -> Heritage -> Track -> Classic.
+// Classic -> Sweep -> Needle -> Trace -> Tape -> OEM -> White -> Night -> Nixie -> Heritage -> Track -> Warm-up -> Classic.
 Layout nextLayout(Layout current);
 // Stored value; anything missing or unknown is Classic.
 Layout decodeLayout(bool found, uint8_t stored);

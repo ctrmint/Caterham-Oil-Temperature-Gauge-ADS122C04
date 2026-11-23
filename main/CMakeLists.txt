@@ -13,6 +13,7 @@ idf_component_register(
         "core/Temperature.cpp"
         "core/TraceModel.cpp"
         "core/TrackModel.cpp"
+        "core/WarmupModel.cpp"
         "core/WhiteModel.cpp"
         "hal/Ads122c04Source.cpp"
         "display/ClassicLayout.cpp"
@@ -28,6 +29,7 @@ idf_component_register(
         "display/TapeLayout.cpp"
         "display/TraceLayout.cpp"
         "display/TrackLayout.cpp"
+        "display/WarmupLayout.cpp"
         "display/WhiteLayout.cpp"
     INCLUDE_DIRS "."
     REQUIRES esp_driver_i2c esp_timer freertos nvs_flash lvgl__lvgl waveshare__esp32_s3_touch_amoled_1_75

@@ -58,7 +58,7 @@ The display runs from its own USB-C socket (in the car, an ignition-switched USB
 
 ## Display
 
-There are eleven layouts of the same readings. Every one is on a pure black background (`#000000`), apart from White's white face, so the AMOLED's unused pixels are switched off.
+There are twelve layouts of the same readings. Every one is on a pure black background (`#000000`), apart from White's white face, so the AMOLED's unused pixels are switched off.
 
 * **Classic:** the title reads `OIL °C`, `OIL °F` or `OIL ohm`. The reading itself has no unit: large fixed-width digits, right-aligned so the ones digit stays in place, with a 3-digit reading centred on the screen (a four-character one such as `>284` or a 4-digit resistance uses the full width). The bottom line reads like `MAX 112  |  123 ohm` (maximum, then the sender resistance).
 * **Sweep:** a 40-segment ring around the edge covering 30–130 °C, with scale labels 30…130 (86…266 in °F). Each lit segment shows the colour of its own place on the scale. Three large seven-segment digits, centred, sit over faint ghost segments; beyond the table a `<` or `>` sign appears just left of them. The unit sits above `OIL TEMP`, with the status, footer and demo text below. A resistance of 1000 Ω or more (uncalibrated only) shows as `--` in Sweep, and in full in Classic.
@@ -84,14 +84,17 @@ There are eleven layouts of the same readings. Every one is on a pure black back
   * `<60`, `60-115`, `115-130`, `130+` (from the alarm thresholds; `<140`, `140-239`, `239-266`, `266+` in °F) and `--`, which is time with no temperature known: a fault, or a gap of more than 2 s between readings. A reading beyond the table counts towards the coldest or hottest band.
   * Each bar is its band's share of the time since power-up, so the bars add up to one full bar. Any time at all in a band shows as at least a sliver. Times read `m:ss`, then `1h05`, up to `99h59`. They start again from zero at each power-up and are counted whichever layout is showing.
   * The status line, the footer and the LED from Sweep and Trace sit below. Uncalibrated, only the ohms and the status show: no rows, no MAX and no rate.
+* **Warm-up:** for the first minutes of a drive. A 270° ring like Classic's arc fills from 0 °C to the 60 °C warm threshold in the reading's colour, so it's full once the oil is warm and turns amber or red with the reading. Classic's large digits sit in the middle with `OIL °C` above, and the status line and footer below. There's no LED.
+  * **The warm-up line:** while warming, the time since power-up and the rate of warming (as on Tape), such as `2:35    ▲ 3.1 °C/min`. At the first reading of 60 °C or more it becomes `WARM IN 6:12`, which stays for the rest of the power cycle even if the oil cools again. If the oil was already warm when the gauge started, it shows `WARM AT START`.
+  * **On a fault the ring disappears altogether.** An empty ring would look like cold oil. Below the table the ring shows its empty track, because the oil is known to be cold. It never predicts when the oil will be warm. Uncalibrated, there's no ring and no warm-up line.
 
 The status line and the footer are on every layout, so alarms and faults always show as text. On OEM they take the wordmark's place, on Heritage the legend's, on White they appear in a black window, and Night lights up with them, whenever anything needs attention.
 
 **Colours:** the digits (except Nixie's, which are always nixie orange), the status text and Classic's arc are graduated by temperature, blending smoothly between bands: dark blue below 50 °C, light blue 50–69, green 70–95, yellow 96–105, amber 106–119 and red from 120 °C. The colour is never less severe than a latched alarm (amber at 115 °C, red at 130 °C, unchanged). A fault or an uncalibrated reading is amber.
 
-Beyond the calibration table the reading shows `<min` or `>max` (for example `<20` or `>140`) and no temperature reading, and the unit stays in the label. Uncalibrated firmware shows `ohm` in every layout. There are no scale numbers, no lit segments, no LED (OEM's symbol stays dark grey, and White's socket and Heritage's lamp show their dark lens), no needle, no trace, no tape or rate, and no Track rows.
+Beyond the calibration table the reading shows `<min` or `>max` (for example `<20` or `>140`) and no temperature reading, and the unit stays in the label. Uncalibrated firmware shows `ohm` in every layout. There are no scale numbers, no lit segments, no LED (OEM's symbol stays dark grey, and White's socket and Heritage's lamp show their dark lens), no needle, no trace, no tape or rate, no Track rows, and no Warm-up ring or warm-up line.
 
-**Changing layout:** press anywhere on the screen for at least 1 s (a long-press). Each press moves to the next layout: Classic, Sweep, Needle, Trace, Tape, OEM, White, Night, Nixie, Heritage, Track, then Classic again. A short tap or a swipe does nothing. The choice is stored in flash and restored at power-up; it is Classic on first boot, or if the stored choice is missing or can't be read.
+**Changing layout:** press anywhere on the screen for at least 1 s (a long-press). Each press moves to the next layout: Classic, Sweep, Needle, Trace, Tape, OEM, White, Night, Nixie, Heritage, Track, Warm-up, then Classic again. A short tap or a swipe does nothing. The choice is stored in flash and restored at power-up; it is Classic on first boot, or if the stored choice is missing or can't be read.
 
 **Choosing °F:** `idf.py menuconfig` → **Caterham oil temperature gauge** → **Display temperature unit**, then rebuild. °C is the default. The unit applies to the display only; the serial CSV log stays in °C.
 
@@ -113,7 +116,8 @@ Beyond the calibration table the reading shows `<min` or `>max` (for example `<2
 │   │                               # rule and heartbeat (NightModel.*), Nixie's
 │   │                               # tubes and numerals (NixieModel.*), the
 │   │                               # Heritage dial (HeritageModel.*), Track's
-│   │                               # band times and bars (TrackModel.*)
+│   │                               # band times and bars (TrackModel.*), the
+│   │                               # warm-up ring and clock (WarmupModel.*)
 │   │                               # and layout choice/long-press
 │   │                               # (LayoutChoice.*)
 │   ├── hal/Ads122c04Source.*       # ADS122C04 over I²C (port 0, GPIO17/18)
@@ -129,8 +133,9 @@ Beyond the calibration table the reading shows `<min` or `>max` (for example `<2
 │   │   ├── NixieLayout.cpp         # Nixie layout (four glowing tubes)
 │   │   ├── HeritageLayout.cpp      # Heritage layout (1960s-style dial)
 │   │   ├── TrackLayout.cpp         # Track layout (time in each band)
+│   │   ├── WarmupLayout.cpp        # Warm-up layout (ring to 60 °C, warm-up time)
 │   │   ├── StatusLines.cpp         # shared widgets: status lines, the 6 o'clock LED
-│   │   │                           # and Classic's digits
+│   │   │                           # and Classic's digits (Classic, Night, Warm-up)
 │   │   ├── Layouts.h               # shared layout interface
 │   │   └── fonts/                  # generated Classic digit font + its licence
 │   ├── Kconfig.projbuild           # explicitly opt-in simulation
@@ -148,7 +153,7 @@ Beyond the calibration table the reading shows `<min` or `>max` (for example `<2
 | Area | Choice |
 | --- | --- |
 | Board | Waveshare ESP32-S3-Touch-AMOLED-1.75, **standard or -B** |
-| Display | 466×466 QSPI **CO5300** AMOLED, Waveshare BSP + LVGL 9; eleven layouts (Classic, Sweep, Needle, Trace, Tape, OEM, White, Night, Nixie, Heritage and Track), cycled by a 1 s long-press; °C or °F set in menuconfig |
+| Display | 466×466 QSPI **CO5300** AMOLED, Waveshare BSP + LVGL 9; twelve layouts (Classic, Sweep, Needle, Trace, Tape, OEM, White, Night, Nixie, Heritage, Track and Warm-up), cycled by a 1 s long-press; °C or °F set in menuconfig |
 | ADC | **ADS122C04** 24-bit I²C ADC (Adafruit module 6432) at 0x40, internal 2.048 V reference, gain 1 with the PGA bypassed; SDA GPIO17, SCL GPIO18; DRDY not used (GPIO16 left open) |
 | Measurement | The ADC's 250 µA current source drives Rref and the sender in series; Vref = A0 − A1, Vs = A1 − A2; `Rs = Rref × Vs / Vref` (ratiometric: cancels the current's accuracy, the reference, the rail and ground offset) |
 | Sender interface | Signal wire to the spade, a **dedicated ground-sense wire** and a return wire to the tank bond stud |
