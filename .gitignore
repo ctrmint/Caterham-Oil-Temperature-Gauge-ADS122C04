@@ -17,3 +17,6 @@ build-*.log
 *.kicad_prl
 *-backups/
 fp-info-cache
+
+# Local blog drafts, kept out of the repo
+/blogs/
