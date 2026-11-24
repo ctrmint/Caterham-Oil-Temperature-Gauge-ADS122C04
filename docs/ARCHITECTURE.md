@@ -56,6 +56,9 @@ See [hardware/wiring.svg](../hardware/wiring.svg) for the full schematic and [ha
   - The twelve layouts (Classic, Sweep, Needle, Trace, Tape, OEM, White, Night, Nixie, Heritage, Track and Warm-up) are each built once and switched by hiding and showing.
   - The LED's pulse (and OEM's symbol's) and the needles' and tape's easing run on LVGL timers in the LVGL task, created once at start-up, so nothing is allocated per frame.
   - The long-press (at least 1 s) is detected in the LVGL task.
+  - **Draw buffers:** `GaugeDisplay` starts the display as the BSP's `bsp_display_start()` does, with one change. LVGL's two draw buffers (20 lines each, about 37 KB together) are in internal DMA-capable RAM, taken once at start-up before Wi-Fi.
+    - **Why:** the BSP puts them in PSRAM, which the SPI bus can't send from. The SPI driver then borrowed a ~46 KB internal block for every frame. Once Wi-Fi and the web server had fragmented internal RAM, no such block was left: every frame failed with `ESP_ERR_NO_MEM`, and the screen and touch froze until a reboot (found 2026-11-23).
+    - **Now:** drawing never allocates. The serial log reports the internal RAM left at start-up, when Wi-Fi comes up and when the web page starts.
   - The Wi-Fi panel (#34) is one object on LVGL's top layer, above every layout, in a band across the top that each layout keeps clear of its status lines and LED.
 - **`main/net/WifiNet`** (#33, #34) runs Wi-Fi and the UDP data stream in one task at the lowest priority, below the main loop, so it can never delay a reading.
   - Started, it scans for the network in `main/wifi_secrets.h` (git-ignored): it joins it as a client if it's there, and hosts it (same name and password, 192.168.4.1) if it isn't. A joined network that drops is rejoined, or hosted once it's gone.

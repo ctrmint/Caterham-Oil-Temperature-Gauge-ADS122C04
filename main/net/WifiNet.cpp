@@ -1,4 +1,5 @@
 #include "net/WifiNet.h"
+#include "esp_heap_caps.h"
 #include "esp_log.h"
 #include "esp_netif.h"
 #include "esp_wifi.h"
@@ -27,6 +28,12 @@ bool ok(esp_err_t err, const char* what) {
 void copyField(uint8_t* field, size_t field_size, const char* text) {  // an SSID or password field, NUL-padded
   const size_t n = std::strlen(text);
   std::memcpy(field, text, n < field_size ? n : field_size);
+}
+// Internal RAM after the network's start: what's left for everything else. The display no longer needs any per frame.
+void logMemory(const char* what) {
+  ESP_LOGI(TAG, "%s: internal RAM free %u, largest DMA block %u", what,
+           static_cast<unsigned>(heap_caps_get_free_size(MALLOC_CAP_INTERNAL)),
+           static_cast<unsigned>(heap_caps_get_largest_free_block(MALLOC_CAP_DMA)));
 }
 } // namespace
 
@@ -115,11 +122,14 @@ void WifiNet::run() {
     if (!want_udp && sock_ >= 0) closeSocket();
     // The web page (#32): its server runs while the link is up and the state asks for it.
     const bool want_web = gauge::wifiWeb(want) && web_source_;
-    if (want_web && !web_.running() && !web_.start(web_source_, unit_)) {
-      closeSocket();
-      stopRadio();
-      fail(gauge::WifiFailure::Start);
-      continue;
+    if (want_web && !web_.running()) {
+      if (!web_.start(web_source_, unit_)) {
+        closeSocket();
+        stopRadio();
+        fail(gauge::WifiFailure::Start);
+        continue;
+      }
+      logMemory("Web page up");
     }
     if (!want_web && web_.running()) web_.stop();
     if (sock_ >= 0) sendLatest();
@@ -156,6 +166,7 @@ void WifiNet::start() {
     link_.store(static_cast<uint8_t>(want));
     phase_.store(static_cast<uint8_t>(gauge::WifiPhase::On));
     ESP_LOGI(TAG, "%s %s", want == gauge::WifiLink::Joined ? "Joined" : "Hosting", ssid_);
+    logMemory("Wi-Fi up");
   } else {
     stopRadio();
     fail(there ? gauge::WifiFailure::Join : gauge::WifiFailure::Start);
