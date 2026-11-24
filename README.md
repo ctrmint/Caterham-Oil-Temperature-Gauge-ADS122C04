@@ -123,6 +123,8 @@ The gauge can join a Wi-Fi network or host it. It's off until you ask for it, an
 
   Without the file, or with both off, a build never starts Wi-Fi. The button then says `Wifi failed - no settings` or `Wifi not built`.
 
+Every output, from the display and the serial log to the UDP packet and the page's JSON and CSV, is listed side by side, with how each writes the same values, under [Outputs in docs/ARCHITECTURE.md](docs/ARCHITECTURE.md#outputs).
+
 ## Repository structure
 
 ```text

@@ -7,7 +7,7 @@ Phones aren't a target. They need special permissions to receive multicast. The 
 ## Turning it on
 
 1. **The network:** copy `main/wifi_secrets.example.h` to `main/wifi_secrets.h` and fill in the network name (SSID, 1–32 characters) and password (WPA2, 8–63). Git ignores the file: never commit it.
-2. **The stream:** `idf.py menuconfig` → **Caterham oil temperature gauge** → **Wi-Fi (#33, #34)**:
+2. **The stream:** `idf.py menuconfig` → **Caterham oil temperature gauge** → **Wi-Fi (#32, #33, #34)**:
    - **UDP data stream:** on.
    - **Multicast group** and **port:** `239.10.10.10` and `5005` unless you change them.
 3. **Build:** rebuild and flash. A first build after creating the file picks it up by itself.
@@ -26,6 +26,17 @@ Phones aren't a target. They need special permissions to receive multicast. The 
    python3 scripts/udp_listen.py --plain              # one line per packet instead
    python3 scripts/udp_listen.py --iface 192.168.4.2  # the laptop's address on that network, if it has several
    ```
+
+   The options:
+
+   | Option | Default | What it does |
+   |---|---|---|
+   | `--group` | `239.10.10.10` | the multicast group, as set in menuconfig |
+   | `--port` | `5005` | the port, as set in menuconfig |
+   | `--iface` | `0.0.0.0` (any) | the laptop's own address on the gauge's network, to choose the interface |
+   | `--csv FILE` | none | also write every packet to `FILE` (below) |
+   | `--plain` | off | one line per packet instead of the dashboard |
+   | `--quiet` | off | in plain mode, no line per packet, only the notes and the summary (useful with `--csv`) |
 
    If the laptop's firewall blocks incoming UDP, nothing arrives (Wireshark still shows the packets). Allow the port, for example on Fedora: `sudo firewall-cmd --zone=<zone> --add-port=5005/udp`.
 
@@ -64,13 +75,50 @@ In a terminal, `udp_listen.py` shows a dashboard that updates in place, four tim
 - **Window size:** below 80 × 24 the chart is dropped; below 60 × 14 the monitor asks for a bigger window.
 - **Quitting:** `q`, Ctrl-C or a kill restores the terminal and prints a one-line summary: received, lost, duplicates skipped, bad and restarts.
 
-**Plain mode** (`--plain`, or automatic when the output is piped or redirected, and on Windows, whose Python has no `curses`) prints one line per packet, such as `#1843  460.25 s  NORMAL  92.4 °C  262.1 ohm  MAX 94`. It shows `--` where there's no temperature, and `DEMO` on every line from a demo build.
+**Plain mode** (`--plain`, or automatic when the output is piped or redirected, and on Windows, whose Python has no `curses`) prints one line per packet to standard output:
+
+```
+#1843  460.25 s  NORMAL  92.4 °C  262.1 ohm  MAX 94
+#1844  460.50 s  SENSOR OPEN  --  21003002.0 ohm  alarm HIGH TEMPERATURE  MAX >140  DEMO
+```
+
+- **The fields:** `#` and the sequence number, the uptime in seconds, the status, the temperature (`--` without one), the sender's ohms (`-- ohm` when not finite).
+- **Added when they apply:** `alarm` and the latched alarm when it isn't `NORMAL`; `MAX` and the session maximum in whole °C (`>` when it went beyond the table); `DEMO` from a demo build.
+- **Notes**, on standard error:
+  - `Listening on 239.10.10.10:5005 (Ctrl-C to stop)` at the start;
+  - `-- 2 packets lost`, `-- out of order`, `-- gauge restarted (session 8f3a21c4)` and `-- duplicate #1843 skipped`;
+  - `skipped a packet: bad CRC` (or `bad magic`, `unknown version 2`, `length 40, expected 56`), printed once per kind.
+
+**The summary:** on quitting, in either mode, a line on standard error such as `1203 received, 0 lost, 1 duplicates skipped, 0 bad, 0 restarts in 301 s`.
 
 **In both modes:**
 - **Losses and restarts:** the monitor notes lost packets (gaps in the sequence) and gauge restarts (a new session).
 - **Duplicates:** it skips a sequence number it has already seen, so each packet is printed and logged once. Wi-Fi and a router's multicast-to-unicast conversion can deliver one twice.
 - **Late packets:** a packet counted as lost that arrives late comes off the lost count.
-- **CSV:** `--csv` writes every packet as it arrives.
+- **CSV:** `--csv` writes every packet as it arrives (below).
+
+## The monitor's CSV
+
+`--csv FILE` writes a header, then one row per packet kept. Duplicates and bad packets aren't written. Each row is flushed to disk as it's written, so nothing is lost if the monitor is killed.
+
+```
+uptime_ms,status,alarm,temp_c,resistance_ohms,ref_v,sender_v,supply_v,ground_offset_v,session,sequence,max_c,host_time
+460250,NORMAL,NORMAL,92.4,262.1,0.4866,0.0655,3.3169,-0.0021,2161ab7c,1843,94.0,1795444327.123
+460500,SENSOR OPEN,HIGH TEMPERATURE,,21003002.0,0.0002,2.1003,3.3169,-0.0021,2161ab7c,1844,140.0,1795444327.373
+```
+
+| Column | What it holds |
+|---|---|
+| `uptime_ms` … `ground_offset_v` | the serial log's columns (REQ-D2), with the same values and decimals: status and alarm in words, °C and Ω to 0.1, volts to 0.0001 |
+| `session` | the session ID, 8 hex digits |
+| `sequence` | the packet's sequence number: four a second, from 0 at power-up |
+| `max_c` | the session maximum in °C to 0.1, or empty when there's none. When the maximum went beyond the table it's the table's top, and **this column doesn't mark that**: the plain line and the dashboard show it as `>140`. |
+| `host_time` | the laptop's clock when the packet arrived, in seconds since 1970 (UTC), to the millisecond |
+
+- **Empty values:** `temp_c` is empty unless the packet's has-temperature flag is set. Any other value that isn't finite is empty too. The serial log writes `NA` instead.
+- **On a fault** the measured columns are diagnostics, never a reading. They hold what was measured before the fault was found, or 0. The second row above is from a demo build with the sender open, a short fault while the HIGH alarm stays latched: with no excitation current, the resistance works out huge.
+- **Demo builds:** the file **has no demo column**. Name a file recorded from a demo build yourself. The dashboard and the plain lines say `DEMO`.
+- **Units:** always °C.
 
 ## The network
 
@@ -102,6 +150,20 @@ The packets stay on that network (TTL 1). Wi-Fi doesn't resend multicast frames,
 | 52 | 4 | crc32 | CRC-32 (IEEE, as zlib's `crc32`) of bytes 0–51 |
 
 In Python: `struct.Struct('<4sBBHIIIBBH7fI')`.
+
+**An example:** the golden packet `normal` from `tests/data/udp_packets.txt`.
+
+```
+ 0: 4f 49 4c 47 01 38 15 00   OILG, version 1, length 56, flags 0x0015 (calibrated, has temperature, max exists)
+ 8: c4 21 3a 8f 32 07 00 00   session 8f3a21c4, sequence 1842
+16: da 05 07 00 09 09 00 00   uptime 460250 ms, status 9 NORMAL, alarm 9 NORMAL, reserved
+24: cd cc b8 42 cd 0c 83 43   temp_c 92.4, resistance_ohms 262.1
+32: 00 00 00 3f 5a 2f 86 3d   ref_v 0.5, sender_v 0.06552
+40: 33 33 53 40 a6 9b 44 3c   supply_v 3.3, ground_offset_v 0.012
+48: 00 00 bc 42 e6 c5 0e 4f   max_c 94.0, crc32 0x4f0ec5e6
+```
+
+The monitor prints it as `#1842  460.25 s  NORMAL  92.4 °C  262.1 ohm  MAX 94`.
 
 **Flags:**
 

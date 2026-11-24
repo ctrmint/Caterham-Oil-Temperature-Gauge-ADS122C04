@@ -37,13 +37,33 @@ The page uses the gauge's unit (°C or °F from menuconfig). The JSON and the CS
 ```
 phone_time,uptime_ms,status,alarm,temp_c,resistance_ohms,ref_v,sender_v,supply_v,ground_offset_v,session,sequence
 2026-11-23T14:32:07.000Z,460250,NORMAL,NORMAL,92.4,262.1,0.4866,0.0655,3.3169,-0.0021,2161ab7c,460
+2026-11-23T14:32:08.000Z,461250,SENSOR OPEN,NORMAL,,21003002.0,0.0002,2.1003,3.3169,-0.0021,2161ab7c,461
 ```
 
-- The columns between `uptime_ms` and `ground_offset_v` are the serial log's (REQ-D2), with the same values and decimals. `temp_c` is empty whenever the gauge had no temperature.
-- **`phone_time`:** the gauge has no clock, so the page stamps each row with the phone's time (UTC), worked back from `uptime_ms` for rows fetched late.
-- **`session` and `sequence`:** a new session starts at each power-up, and `sequence` counts rows from 0. A jump in `sequence` is a gap: rows the gauge had already dropped (older than 8 hours) before the phone asked for them.
+| Column | What it holds |
+|---|---|
+| `phone_time` | The phone's time when the row arrived, in UTC (ISO 8601, to the millisecond). The gauge has no clock. For rows fetched late, it's worked back from `uptime_ms`. |
+| `uptime_ms` | Milliseconds since the gauge powered up, as in the serial log. |
+| `status`, `alarm` | The gauge's words, as in the serial log (`NORMAL`, `HIGH TEMPERATURE`, ...). `alarm` is the latched alarm: `NORMAL`, `HIGH TEMPERATURE` or `CRITICAL TEMP`. |
+| `temp_c` | °C to 0.1. **Empty** whenever the gauge had no temperature: a fault, beyond the table, or uncalibrated. |
+| `resistance_ohms` | Ω to 0.1. Empty when it wasn't finite. |
+| `ref_v`, `sender_v`, `supply_v`, `ground_offset_v` | Volts to 0.0001. Empty when not finite. |
+| `session` | The session ID, 8 hex digits, new at each power-up. |
+| `sequence` | The row number, from 0 at power-up, one per second. A jump is a gap: rows the gauge had already dropped (older than 8 hours) before the phone asked for them. |
 
-**The phone keeps its copy.** The page saves the session in the browser's storage as rows arrive (every 15 s, and when the page is hidden or closed), so a reload, a locked phone or a closed tab doesn't lose it.
+- **On a fault** (the second row, the sender open) the measured columns are diagnostics, never a reading: what was measured before the fault was found, or 0. With the sender open there's no excitation current, so the resistance works out huge.
+- **Against the serial log (REQ-D2):** the values and decimals are the same. The serial log writes `NA` where this file leaves `temp_c` empty.
+- **Against the UDP stream:** the session ID is the same, but `sequence` here counts 1 s rows. The stream's sequence counts packets, four a second.
+- **Demo builds:** the file's name starts `DEMO-`.
+- **Units:** the file is always in °C, whatever the gauge's display unit.
+
+**The phone keeps its copy.** The page saves the session in the browser's storage (`localStorage`, for the gauge's address) as rows arrive. It saves every 15 s when there are new rows, when the page is hidden or closed, before a download, and when the gauge restarts. A reload, a locked phone or a closed tab doesn't lose it.
+- **What's stored:**
+  - `oil.sessions`: the session IDs kept, oldest first (at most three).
+  - `oil.<session>`: each session as `{"since": N, "demo": false, "rows": [[sequence, uptime_ms, status, alarm, temp_c, ohms, ref_v, sender_v, supply_v, ground_offset_v, phone_time], ...]}`.
+  - `since` is the next row to ask for, and `phone_time` is in milliseconds since 1970.
+  - Nothing else is stored, and nothing leaves the phone except the CSV you download.
+- **Per address:** the storage belongs to the address the page was opened from. A session saved at `http://10.81.1.65/` doesn't show at `http://192.168.4.1/`, and the other way round.
 - **Earlier sessions:** when the gauge restarts, the page starts a new session and lists the old one under **Earlier sessions**, with its start time, length and its own **Download** button. The last three sessions are kept.
 - **Storage full:** a phone browser holds a few megabytes per site, about one full 8-hour session. When it's full, the oldest sessions are dropped first. If even the current one won't fit, the page says so in amber: download the CSV to keep it.
 
@@ -51,40 +71,103 @@ phone_time,uptime_ms,status,alarm,temp_c,resistance_ohms,ref_v,sender_v,supply_v
 
 ## The requests
 
-All are `GET`, with `Cache-Control: no-store`.
+The server answers three `GET` requests, all with `Cache-Control: no-store`:
 
-- **`/`:** the page, built into the firmware (`main/web/index.html`, about 32 KB).
-- **`/scale`:** the gauge's thresholds and colours, so the page draws with the gauge's own rules:
-  ```
-  {"v":1,"unit":"C","warm":60.0,"amber":115.0,"red":130.0,"dial":[30.0,130.0],"labels":[30,50,70,90,110,130],
-   "segments":["#2F5BEA", ... 40 colours, Sweep's segments in order ...],
-   "gradient":["#2F5BEA", ... the reading colour every 2 °C from 0 to 160 °C, 81 colours ...]}
-  ```
-- **`/log?since=N`:** the gauge's status and up to 600 rows from row `N`:
-  ```
-  {"v":1,"session":"2161ab7c","first":0,"next":1843,"demo":false,"calibrated":true,
-   "now":{"uptime":1843210,"status":9,"alarm":9,"temp":92.4,"ohms":262.1,"ref":0.4866,"sender":0.0655,
-          "supply":3.3169,"ground":-0.0021,"colour":"#2ED158","led":"steady","lit":25,"max":94.0,"maxAbove":false,"warmup":"WARM IN 6:12"},
-   "bands":[372000,1105000,0,0,4500],
-   "rows":[[1840,1840250,9,9,92.4,262.1,0.4866,0.0655,3.3169,-0.0021], ...]}
-  ```
-  - `first` and `next` are the oldest row the gauge still has and the next it will write. Rows older than `first` have been dropped.
-  - Each row is `[sequence, uptime_ms, status, alarm, temp_c, ohms, ref_v, sender_v, supply_v, ground_offset_v]`.
-  - Status and alarm are the UDP stream's frozen codes (`docs/UDP_STREAM.md`).
-  - `colour`, `led` and `lit` are the gauge's own: the reading colour, Sweep's LED (`off`, `steady`, `slow` for a latched HIGH alarm, `fast` for CRITICAL) and Sweep's lit-segment count.
-  - `bands` is Track's time in milliseconds per band, in the order warming, normal, high, critical, no reading.
-  - `since` must be a plain decimal number. Anything else (`abc`, `-1`, an overflow) is treated as 0, the oldest row.
-  - **Fail closed:** every value that isn't finite is `null`. `temp` and `temp_c` are `null` unless a verified calibration gave a finite temperature, and `max` is `null` uncalibrated or before the first reading. `maxAbove` is true when the maximum went beyond the table, and `max` is then the table's top. The page never computes a temperature: it shows the gauge's.
+| Request | Answer |
+|---|---|
+| `GET /` | the page, `text/html; charset=utf-8`, with a `Content-Length` (about 32 KB, `main/web/index.html` built into the firmware) |
+| `GET /scale` | `application/json`, with a `Content-Length` (about 1.3 KB): the thresholds, the dial and the colours |
+| `GET /log?since=N` | `application/json`, sent with `Transfer-Encoding: chunked`: the status and up to 600 rows from row `N` |
+
+A query string on `/` or `/scale` is ignored.
+
+Everything else gets an error with a short text body, and changes nothing:
+
+| Answer | When |
+|---|---|
+| `404 Not Found` | any other path, such as `/favicon.ico` |
+| `405 Method Not Allowed` | any method but `GET` on those three paths: `POST`, `HEAD`, `PUT`, ... |
+| `414 URI Too Long` | a URI over 512 characters |
+| `431 Request Header Fields Too Large` | request headers over 2 KB |
+| `500 Internal Server Error` | an answer that couldn't be built. Not expected: the answers are well inside their buffers. |
+
+- **Connections:** at most four at once. A fifth closes the one used least recently.
+- **Dropped connections:** if a connection drops part-way through `/log`, the gauge stops sending, and the page's next request starts again from its last row.
+- **Requests the page makes:** `/` once, `/scale` once, then `/log` once a second (at once again while catching up).
+
+### `/scale`
+
+The gauge's thresholds and colours, so the page draws with the gauge's own rules. This is a calibrated build in °C:
+
+```
+{"v":1,"unit":"C","warm":60.0,"amber":115.0,"red":130.0,"dial":[30.0,130.0],"labels":[30,50,70,90,110,130],
+ "segments":["#2F5BEA","#2F5BEA", ... 40 colours, Sweep's segments in order ...],
+ "gradient":["#2F5BEA","#2F5BEA", ... the reading colour every 2 °C from 0 to 160 °C, 81 colours ...]}
+```
+
+| Field | What it holds |
+|---|---|
+| `v` | the format's version, `1` |
+| `unit` | the display unit from menuconfig, `"C"` or `"F"` |
+| `warm`, `amber`, `red` | the warm threshold and the two alarm thresholds, always in °C (`main/Config.h`) |
+| `dial` | Sweep's scale, in the display unit: 30–130 °C, or 86–266 °F |
+| `labels` | Sweep's scale labels in the display unit, **empty when uncalibrated**, as on the gauge |
+| `segments` | the colours of Sweep's 40 segments, in order from the lower left |
+| `gradient` | the gauge's reading colour every 2 °C from 0 to 160 °C (81 colours), for the chart's line |
+
+### `/log?since=N`
+
+The gauge's status and up to 600 rows from row `N`. This example is what the host code writes for a calibrated build at 92.4 °C:
+
+```
+{"v":1,"session":"2161ab7c","first":0,"next":1843,"demo":false,"calibrated":true,
+ "now":{"uptime":1843210,"status":9,"alarm":9,"temp":92.4,"ohms":262.1,"ref":0.4866,"sender":0.0655,
+        "supply":3.3169,"ground":-0.0021,"colour":"#5ED551","led":"steady","lit":24,"max":94.0,"maxAbove":false,
+        "warmup":"WARM IN 6:12"},
+ "bands":[372000,1105000,0,0,4500],
+ "rows":[[1840,1840250,9,9,92.4,262.1,0.4866,0.0655,3.3169,-0.0021], ...]}
+```
+
+| Field | What it holds |
+|---|---|
+| `v` | the format's version, `1` |
+| `session` | the session ID, 8 hex digits, random at each power-up; the same as the UDP stream's |
+| `first`, `next` | the oldest row the gauge still has, and the next it will write. Rows older than `first` have been dropped. |
+| `demo` | `true` in a demo build: synthetic data, **not real** |
+| `calibrated` | `true` when a verified calibration is built in |
+| `now.uptime` | milliseconds since power-up, at the latest sample |
+| `now.status`, `now.alarm` | the UDP stream's frozen status codes (`docs/UDP_STREAM.md`); the alarm is 9, 10 or 11 |
+| `now.temp` | °C to 0.1, or `null` without a temperature |
+| `now.ohms` | Ω to 0.1 |
+| `now.ref`, `now.sender`, `now.supply`, `now.ground` | volts to 0.0001 |
+| `now.colour` | the gauge's reading colour, `#RRGGBB` |
+| `now.led` | Sweep's LED: `off`, `steady`, `slow` (a latched HIGH alarm) or `fast` (CRITICAL) |
+| `now.lit` | how many of Sweep's 40 segments are lit |
+| `now.max` | the session maximum in °C to 0.1, or `null` |
+| `now.maxAbove` | `true` when the maximum went beyond the table; `max` is then the table's top |
+| `now.warmup` | the warm-up text: `""` uncalibrated, the time so far while warming (`2:35`), `WARM IN 6:12` or `WARM AT START` |
+| `bands` | Track's time per band in milliseconds: warming, normal, high, critical, no reading |
+| `rows` | up to 600 rows, each `[sequence, uptime_ms, status, alarm, temp_c, ohms, ref_v, sender_v, supply_v, ground_offset_v]`, with the same decimals as `now` |
+
+- **`since`:** a plain decimal number, with `since=` at the start of the query or after `&`. Anything else (`abc`, `-1`, `12x`, a number over 32 bits, or a query over 63 characters) is treated as 0, the oldest row.
+- **Row numbers:** they count 1 s rows. They aren't the UDP stream's sequence numbers, which count packets four a second.
+- **Fail closed:**
+  - Every value that isn't finite is `null`.
+  - `temp` and `temp_c` are `null` unless a verified calibration gave a finite temperature.
+  - `max` is `null` uncalibrated or before the first reading.
+  - Uncalibrated, `led` is `off` and `lit` is 0.
+  - The page never computes a temperature, a band, a colour or a segment count: it shows the gauge's.
 
 ## How it's built
 
 - **`main/core/WebLog`** (host-tested in `tests/web_log_test.cpp`): the log's ring of fixed-size rows, numbered from 0, in a buffer the caller allocates once; the `since` parser; and the JSON, written into a caller's buffer with a size limit, `null` for every non-finite value.
 - **`main/net/WebServer`:** `WebSource` holds the ring (28 800 rows, 8 hours, about 1 MB of PSRAM, allocated once at start-up) and the latest status, each behind a short spinlock. The main loop appends one row a second at the serial log's moment and copies the status at each sample. It never waits on the network. `WebServer` runs `esp_http_server` in its own task at the lowest priority, below the main loop, with at most 4 connections. It copies rows out 32 at a time under the lock into a buffer made once, then sends them in chunks.
 - **`main/net/WifiNet`** starts the server while the link is up and the state includes the web page, and stops it otherwise. If it can't start, Wi-Fi reports `Failed` and the gauge carries on as without it.
-- **`main/web/index.html`:** one self-contained file of HTML, CSS and plain JavaScript, embedded with `EMBED_TXTFILES`. Its pure logic (digits, segments, trend, warm-up text, freshness, row merging, CSV) is in a separate script block that `tests/test_web_page.py` runs under Node. The test also checks the page loads nothing from elsewhere and asks only for `/log` and `/scale`.
+- **`main/web/index.html`:** one self-contained file of HTML, CSS and plain JavaScript, embedded with `EMBED_TXTFILES`. Its pure logic (digits, trend, warm-up text, freshness, row merging, CSV) is in a separate script block that `tests/test_web_page.py` runs under Node. The test also checks the page loads nothing from elsewhere and asks only for `/log` and `/scale`.
 
 ## Limits
 
+- **Supplementary:** like the gauge itself, the page never replaces the factory warnings, and the gauge's own status and LED are the alarm. Don't watch a phone while driving. See `docs/SAFETY.md`.
 - **Plain HTTP:** the page isn't encrypted. Anyone on the same network who knows the address can read it, but can't change anything. When the gauge hosts the network, that's only people with its WPA2 password.
 - **8 hours:** the gauge keeps the last 8 hours. A phone that was away longer gets the rows that are left, with a gap in `sequence`.
 - **Power-off:** the gauge's copy is lost at power-off. The phone's copy is kept.
