@@ -1,19 +1,93 @@
 #include "display/GaugeDisplay.h"
 #include "bsp/esp-bsp.h"
 #include "bsp/display.h"
+#include "bsp/touch.h"
 #include "core/Calibration.h"
 #include "esp_err.h"
+#include "esp_heap_caps.h"
+#include "esp_log.h"
+#include "esp_lv_adapter.h"
+#include "esp_lv_adapter_display.h"
+#include "esp_lv_adapter_input.h"
+#include "esp_memory_utils.h"
 #include <cmath>
 #include <cstdio>
 #include <cstring>
 
 using namespace layout;
 
+namespace {
+constexpr const char* TAG = "oil_display";
+// LVGL's two draw buffers, each this many lines of the screen, in internal DMA-capable RAM: 2 x 466 x 20 x 2 bytes, about
+// 37 KB, taken once at start-up before Wi-Fi. Even, for the CO5300's 2-pixel areas.
+constexpr uint16_t kDrawLines = 20;
+static_assert(kDrawLines % 2 == 0, "the CO5300 draws areas in whole pairs of lines");
+
+// The CO5300 takes areas that start on an even pixel and end on an odd one (as the BSP's own rounder).
+void roundArea(lv_event_t* e) {
+  lv_area_t* a = static_cast<lv_area_t*>(lv_event_get_param(e));
+  a->x1 = (a->x1 >> 1) << 1;
+  a->y1 = (a->y1 >> 1) << 1;
+  a->x2 = ((a->x2 >> 1) << 1) + 1;
+  a->y2 = ((a->y2 >> 1) << 1) + 1;
+}
+
+// bsp_display_start(), with one change. The BSP puts LVGL's draw buffers in PSRAM, which the SPI bus can't send from, so
+// for every frame the SPI driver borrows a ~46 KB block of internal DMA RAM to copy through. Once Wi-Fi (and the web
+// server) had fragmented internal RAM, no such block was left: every frame failed with ESP_ERR_NO_MEM, the screen froze
+// and touch stopped with it, until a reboot. Here the draw buffers are internal and DMA-capable, taken once before
+// Wi-Fi starts, so drawing never allocates. The rest is as the BSP does it: panel, touch, brightness, the LVGL task.
+lv_display_t* startDisplay() {
+  bsp_display_cfg_t cfg = {};
+  cfg.lv_adapter_cfg = ESP_LV_ADAPTER_DEFAULT_CONFIG();
+  cfg.rotation = ESP_LV_ADAPTER_ROTATE_0;
+  cfg.tear_avoid_mode = ESP_LV_ADAPTER_TEAR_AVOID_MODE_NONE;
+  cfg.touch_flags.swap_xy = 0;
+  cfg.touch_flags.mirror_x = 1;
+  cfg.touch_flags.mirror_y = 1;
+  if (esp_lv_adapter_init(&cfg.lv_adapter_cfg) != ESP_OK) return nullptr;
+  bsp_display_config_t panel_cfg = {};
+  panel_cfg.max_transfer_sz = BSP_LCD_H_RES * BSP_LCD_V_RES * BSP_LCD_BITS_PER_PIXEL / 8;
+  esp_lcd_panel_handle_t panel = nullptr;
+  esp_lcd_panel_io_handle_t io = nullptr;
+  if (bsp_display_new(&panel_cfg, &panel, &io) != ESP_OK) return nullptr;
+  esp_lv_adapter_display_config_t disp_cfg = {};
+  disp_cfg.panel = panel;
+  disp_cfg.panel_io = io;
+  disp_cfg.profile.interface = ESP_LV_ADAPTER_PANEL_IF_OTHER;
+  disp_cfg.profile.rotation = cfg.rotation;
+  disp_cfg.profile.hor_res = BSP_LCD_H_RES;
+  disp_cfg.profile.ver_res = BSP_LCD_V_RES;
+  disp_cfg.profile.buffer_height = kDrawLines;
+  disp_cfg.profile.use_psram = false;  // the change: internal RAM, so the SPI bus sends straight from it
+  disp_cfg.profile.enable_ppa_accel = false;
+  disp_cfg.profile.require_double_buffer = true;
+  disp_cfg.tear_avoid_mode = cfg.tear_avoid_mode;
+  lv_display_t* disp = esp_lv_adapter_register_display(&disp_cfg);
+  if (!disp) return nullptr;
+  lv_display_add_event_cb(disp, &roundArea, LV_EVENT_INVALIDATE_AREA, nullptr);
+  const lv_draw_buf_t* buf = lv_display_get_buf_active(disp);
+  if (!buf || !esp_ptr_dma_capable(buf->data)) {
+    ESP_LOGW(TAG, "Draw buffer isn't DMA-capable: the SPI driver will copy each frame");
+  }
+  esp_lcd_touch_handle_t touch = nullptr;
+  if (bsp_touch_new(&cfg, &touch) != ESP_OK || !touch) return nullptr;
+  const esp_lv_adapter_touch_config_t touch_cfg = ESP_LV_ADAPTER_TOUCH_DEFAULT_CONFIG(disp, touch);
+  if (!esp_lv_adapter_register_touch(&touch_cfg)) return nullptr;
+  if (bsp_display_brightness_init() != ESP_OK) return nullptr;
+  if (esp_lv_adapter_start() != ESP_OK) return nullptr;
+  ESP_LOGI(TAG, "Draw buffers: 2 x %u lines in internal RAM; internal free %u, largest DMA block %u",
+           static_cast<unsigned>(kDrawLines), static_cast<unsigned>(heap_caps_get_free_size(MALLOC_CAP_INTERNAL)),
+           static_cast<unsigned>(heap_caps_get_largest_free_block(MALLOC_CAP_DMA)));
+  return disp;
+}
+} // namespace
+
 bool GaugeDisplay::begin(gauge::Unit unit, gauge::Layout layout) {
   unit_ = unit;
-  // Vendor BSP initializes QSPI CO5300 display, CST9217 touch and LVGL task.
-  // BSP display_start is the exact API used by Waveshare's IDF v9 demo.
-  if (bsp_display_start() == nullptr) return false;
+  // The QSPI CO5300 display, the CST9217 touch and the LVGL task, as the vendor BSP starts them, but with the draw
+  // buffers in internal RAM (startDisplay, above).
+  if (startDisplay() == nullptr) return false;
   // Waveshare BSP 3.x reports esp_err_t, not a bool: ESP_OK == 0.
   if (bsp_display_lock(2000) != ESP_OK) return false;
   lv_obj_t* root = lv_screen_active();
